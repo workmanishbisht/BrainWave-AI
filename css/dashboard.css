@@ -140,15 +140,22 @@ body {
     color: #9ca3af;
     opacity: 0;
     transition: 0.2s ease;
+    cursor: pointer;
 }
 
+/* hover */
 .recent-item:hover .pin-icon {
     opacity: 1;
 }
 
 .pin-icon.active {
     color: var(--primary);
-    opacity: 1;
+    opacity: 1 !important;
+}
+
+/* optional highlight */
+.recent-item.pinned {
+    background: rgba(108,92,231,0.08);
 }
 
 /* UPGRADE */
