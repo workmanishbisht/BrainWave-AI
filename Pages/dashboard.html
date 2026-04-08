@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- remixicons CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <!-- Main File Link -->
+  <link rel="stylesheet" href="../css//dashboard.css" />
+  <title>Dashboard - BrainWave AI</title>
+</head>
+
+<body>
+  <div class="mobile-toggle" id="mobileMenu">☰</div>
+  <!-- MAIN -->
+  <div class="dashboard">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <!-- HEADER -->
+      <div class="sidebar-header">
+        <div class="logo-section">
+          <h2 class="logo-title">BrainWave AI</h2>
+          <p class="logo-subtitle">Go</p>
+        </div>
+
+        <div class="hamburger" id="toggleSidebar">☰</div>
+      </div>
+
+      <nav class="nav-menu">
+        <ul class="nav-list">
+          <li class="nav-item active">
+            <i class="ri-chat-3-line nav-icon"></i>
+            <span class="nav-text">New Chat</span>
+          </li>
+
+          <li class="nav-item">
+            <i class="ri-history-line nav-icon"></i>
+            <span class="nav-text">History</span>
+          </li>
+
+          <li class="nav-item">
+            <i class="ri-bar-chart-line nav-icon"></i>
+            <span class="nav-text">Analytics</span>
+          </li>
+
+          <li class="nav-item">
+            <i class="ri-settings-3-line nav-icon"></i>
+            <span class="nav-text">Settings</span>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="recent-section">
+        <h4 class="recent-title">Recent Chats</h4>
+        <div class="recent-list">
+          <div class="recent-item">
+            <span class="recent-text">Project Architecture Sync</span>
+            <i class="ri-pushpin-line pin-icon"></i>
+          </div>
+
+          <div class="recent-item">
+            <span class="recent-text">Editorial Content Strategy</span>
+            <i class="ri-pushpin-line pin-icon"></i>
+          </div>
+
+          <div class="recent-item">
+            <span class="recent-text">Quarterly Growth Audit</span>
+            <i class="ri-pushpin-line pin-icon"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="upgrade-box">
+        <p class="upgrade-text">Upgrade to Pro</p>
+        <span class="upgrade-sub">Access more powerful curation modes</span>
+      </div>
+
+      <div class="user-section">
+        <div class="user-info profile-toggle">
+          <div class="user-avatar">
+            <span>MB</span>
+          </div>
+          <div>
+            <p class="user-name">Manish Bisht</p>
+            <span class="user-role">Go</span>
+          </div>
+        </div>
+
+        <div class="profile-dropdown sidebar-dropdown">
+          <div class="profile-top">
+            <div class="avatar">MB</div>
+            <div>
+              <p class="profile-name">MANISH BISHT</p>
+              <span class="profile-plan">Go</span>
+            </div>
+          </div>
+
+          <div class="dropdown-item">
+            <i class="ri-add-line"></i> Add another account
+          </div>
+          <hr />
+
+          <div class="dropdown-item">
+            <i class="ri-flashlight-line"></i> Upgrade plan
+          </div>
+          <div class="dropdown-item">
+            <i class="ri-settings-3-line"></i> Personalization
+          </div>
+          <div class="dropdown-item">
+            <i class="ri-user-line"></i> Profile
+          </div>
+          <div class="dropdown-item">
+            <i class="ri-settings-4-line"></i> Settings
+          </div>
+
+          <hr />
+
+          <div class="dropdown-item">
+            <i class="ri-question-line"></i> Help
+          </div>
+          <div class="dropdown-item logout">
+            <i class="ri-logout-box-line"></i> Log out
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="mainContent">
+
+      <!-- HEADER -->
+      <header class="top-header" id="topHeader">
+        <h3 class="header-title" id="headerTitle">
+          AI Intelligence Assistant
+        </h3>
+      </header>
+
+      <!-- EMPTY STATE -->
+      <section class="empty-state" id="emptyState">
+
+        <div class="empty-content" id="emptyContent">
+          <h1 class="main-heading">
+            What’s on the agenda today?
+          </h1>
+
+          <p class="sub-heading">
+            Plan, create, or solve anything — just start typing.
+          </p>
+
+          <!-- SEARCH -->
+          <div class="search-container">
+            <div class="search-box">
+              <input type="text" class="search-input" id="mainInput" placeholder="Search or ask anything..." />
+
+              <!-- ✅ TYPE = BUTTON ADD KIYA -->
+              <button class="search-btn" id="startChatBtn" type="button">
+                <i class="ri-arrow-right-line"></i>
+              </button>
+
+            </div>
+
+            <p class="enter-text">
+              Press Enter to continue
+            </p>
+          </div>
+        </div>
+
+        <!-- SUGGESTIONS -->
+        <div class="suggestions-wrapper">
+
+          <!-- ✅ onclick add kiya -->
+          <div class="suggestion-card" onclick="startChat('Summarize this article for me')">
+            <div class="suggestion-icon">
+              <i class="ri-file-list-3-line"></i>
+            </div>
+            <div>
+              <h4>Summarize Article</h4>
+              <p>Paste a link to distill key insights.</p>
+            </div>
+          </div>
+
+          <div class="suggestion-card" onclick="startChat('Give me creative ideas')">
+            <div class="suggestion-icon">
+              <i class="ri-lightbulb-line"></i>
+            </div>
+            <div>
+              <h4>Brainstorm Ideas</h4>
+              <p>Get fresh concepts for your project.</p>
+            </div>
+          </div>
+
+          <div class="suggestion-card" onclick="startChat('Write code for me')">
+            <div class="suggestion-icon">
+              <i class="ri-code-s-slash-line"></i>
+            </div>
+            <div>
+              <h4>Write Code</h4>
+              <p>Generate snippets or debug logic.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- CHAT AREA -->
+      <section class="chat-section" id="chatSection" style="display: none;">
+        <div class="chat-container" id="chatContainer"></div>
+      </section>
+
+      <!-- INPUT BOX -->
+      <section class="input-section" id="chatInputSection" style="display: none;">
+        <div class="input-container">
+          <div class="input-box">
+
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." />
+
+            <!-- ✅ TYPE FIX -->
+            <button class="send-btn" id="sendMessageBtn" type="button">
+              <i class="ri-send-plane-fill"></i>
+            </button>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- script file -->
+  <script src="../javascript/script.js"></script>
+</body>
+
+</html>
