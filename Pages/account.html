@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Login - BrainWave AI</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/account.css" />
+</head>
+
+<body class="body">
+    <div class="main-wrapper">
+        <div class="login-container">
+
+            <!-- LEFT -->
+            <div class="left-panel">
+                <div class="profile-wrapper">
+                    <img src="../Assets/banner/login_banner.png" class="profile-img" />
+                </div>
+                <h2 class="brand-title">
+                    <span class="footerheading">BrainWave</span> AI
+                </h2>
+                <p class="brand-desc">
+                    Step into the future of curated digital experiences. Your AI assistant is ready to help you navigate
+                    the
+                    noise.
+                </p>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-panel">
+
+                <!-- LOGIN -->
+                <div id="login-form" class="auth-form active">
+                    <div class="form-header">
+                        <h2 class="form-title">Welcome back</h2>
+                        <p class="form-subtitle">Please enter your details to sign in.</p>
+                    </div>
+
+                    <!-- social -->
+                    <div class="social-login">
+                        <button type="button" class="social-btn google-btn">
+                            <i class="ri-google-fill"></i> Continue with Google
+                        </button>
+                        <button type="button" class="social-btn github-btn">
+                            <i class="ri-github-fill"></i> Continue with GitHub
+                        </button>
+                    </div>
+
+                    <div class="divider">OR WITH EMAIL</div>
+
+                    <form id="loginForm">
+                        <div class="input-group">
+                            <label class="input-label">EMAIL ADDRESS</label>
+                            <input type="email" id="loginEmail" class="input-field" placeholder="name@company.com"
+                                required />
+                        </div>
+
+                        <div class="input-group">
+                            <div class="password-row">
+                                <label class="input-label">PASSWORD</label>
+                                <a href="#" class="forgot-link">Forgot password?</a>
+                            </div>
+
+                            <div class="password-wrapper">
+                                <input type="password" id="loginPassword" class="input-field password-input"
+                                    placeholder="••••••••" required />
+                                <i class="ri-eye-off-line toggle-password"></i>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="remember" />
+                            <label for="remember">Keep me signed in for 30 days</label>
+                        </div>
+
+                        <button type="submit" class="login-btn">Sign In</button>
+                    </form>
+
+                    <p class="switch-text">
+                        Don't have an account?
+                        <a href="#" id="show-signup">Create an account</a>
+                    </p>
+                </div>
+
+                <!-- SIGNUP -->
+                <div id="signup-form" class="auth-form">
+                    <div class="form-header">
+                        <h2 class="form-title">Create your account</h2>
+                        <p class="form-subtitle">Join BrainWave AI today</p>
+                    </div>
+
+                    <!-- social -->
+                    <div class="social-login">
+                        <button type="button" class="social-btn google-btn">
+                            <i class="ri-google-fill"></i> Continue with Google
+                        </button>
+                        <button type="button" class="social-btn github-btn">
+                            <i class="ri-github-fill"></i> Continue with GitHub
+                        </button>
+                    </div>
+
+                    <div class="divider">OR WITH EMAIL</div>
+
+                    <form id="signupForm">
+                        <div class="input-group">
+                            <label class="input-label">FULL NAME</label>
+                            <input type="text" id="signupName" class="input-field" placeholder="John Doe" required />
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">EMAIL ADDRESS</label>
+                            <input type="email" id="signupEmail" class="input-field" placeholder="name@company.com"
+                                required />
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">PASSWORD</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="signupPassword" class="input-field password-input"
+                                    placeholder="Create a strong password" required />
+                                <i class="ri-eye-off-line toggle-password"></i>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms" required />
+                            <label for="terms">
+                                I agree to the
+                                <a href="#" style="color: var(--primary)">Terms & Privacy</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="login-btn">Create Account</button>
+                    </form>
+
+                    <p class="switch-text">
+                        Already have an account?
+                        <a href="#" id="show-login">Sign in</a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <p class="footer-text">
+            © <span id="year"></span>
+            <span class="footerheading"> BrainWave</span> AI. All rights reserved.
+        </p>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
+    <!-- script file -->
+    <script src="../javascript/script.js"></script>
+    <script type="module" src="../javascript/auth.js"></script>
+
+</body>
+
+</html>
