@@ -306,7 +306,41 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ================= CHAT INIT =================
+// ================= FIX PIN TOGGLE =================
+document.addEventListener("DOMContentLoaded", () => {
+
+    const items = document.querySelectorAll(".recent-item");
+
+    items.forEach((item, index) => {
+
+        const pin = item.querySelector(".pin-icon");
+
+        // 🔹 Load saved state
+        const saved = localStorage.getItem("pin_" + index);
+        if (saved === "true") {
+            pin.classList.add("active");
+            item.classList.add("pinned");
+        }
+
+        // 🔹 CLICK EVENT
+        pin.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            // toggle class
+            pin.classList.toggle("active");
+            item.classList.toggle("pinned");
+
+            // save state
+            const isActive = pin.classList.contains("active");
+            localStorage.setItem("pin_" + index, isActive);
+        });
+
+    });
+
+});
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // ================= ELEMENTS =================
@@ -321,6 +355,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendMessageBtn = document.getElementById("sendMessageBtn");
 
+    // ================= CHAT HISTORY =================
+    let chatHistory = [];
 
     // ================= ADD MESSAGE =================
     function addMessage(text, type) {
@@ -330,74 +366,80 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.classList.add("message", type);
 
         messageDiv.innerHTML = `
-            <div class="message-bubble">
-                ${text}
-            </div>
+            <div class="message-bubble">${text}</div>
         `;
 
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-
     // ================= AI RESPONSE =================
     async function generateResponse(input) {
         try {
-            const response = await fetch(
-                "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyDG0G2drAGcEP4lWlYxCXo4A5qLmfQ4M4A",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        contents: [
-                            {
-                                parts: [{ text: input }]
-                            }
-                        ]
-                    }),
-                }
-            );
+            // user message save
+            chatHistory.push({
+                role: "user",
+                content: input
+            });
+
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer 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",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  model: "meta-llama/llama-3-8b-instruct",
+                    messages: chatHistory
+                })
+            });
 
             const data = await response.json();
-            console.log(data);
+            console.log("API:", data);
 
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+            if (data.error) {
+                return "API Error: " + data.error.message;
+            }
+
+            const reply = data.choices?.[0]?.message?.content || "No response 😅";
+
+            // AI response save
+            chatHistory.push({
+                role: "assistant",
+                content: reply
+            });
+
+            return reply;
 
         } catch (error) {
             console.error(error);
-            return "Error getting response ❌";
+            return "Network error ❌";
         }
     }
-
 
     // ================= START CHAT =================
     async function startChat(message) {
         if (!message || !message.trim()) return;
 
-        if (emptyState) emptyState.style.display = "none";
-        if (chatSection) chatSection.style.display = "block";
-        if (chatInputSection) chatInputSection.style.display = "block";
+        emptyState.style.display = "none";
+        chatSection.style.display = "block";
+        chatInputSection.style.display = "block";
 
         addMessage(message, "user");
 
+        // typing
         addMessage("Typing...", "ai");
 
         const reply = await generateResponse(message);
 
-        if (chatContainer && chatContainer.lastChild) {
-            chatContainer.lastChild.remove();
-        }
+        // remove typing
+        chatContainer.lastChild.remove();
 
         addMessage(reply, "ai");
     }
 
-
     // ================= SEND MESSAGE =================
     async function sendChatMessage() {
-        if (!chatInput) return;
-
         const message = chatInput.value;
 
         if (!message || !message.trim()) return;
@@ -409,46 +451,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const reply = await generateResponse(message);
 
-        if (chatContainer && chatContainer.lastChild) {
-            chatContainer.lastChild.remove();
-        }
+        chatContainer.lastChild.remove();
 
         addMessage(reply, "ai");
     }
 
-
     // ================= EVENTS =================
 
     // HOME INPUT
-    if (mainInput) {
-        mainInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                startChat(mainInput.value);
-                mainInput.value = "";
-            }
-        });
-    }
-
-    // HOME BUTTON
-    if (startChatBtn && mainInput) {
-        startChatBtn.addEventListener("click", function () {
+    mainInput?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
             startChat(mainInput.value);
             mainInput.value = "";
-        });
-    }
+        }
+    });
+
+    // HOME BUTTON
+    startChatBtn?.addEventListener("click", () => {
+        startChat(mainInput.value);
+        mainInput.value = "";
+    });
 
     // CHAT INPUT
-    if (chatInput) {
-        chatInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-                sendChatMessage();
-            }
-        });
-    }
+    chatInput?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            sendChatMessage();
+        }
+    });
 
     // SEND BUTTON
-    if (sendMessageBtn) {
-        sendMessageBtn.addEventListener("click", sendChatMessage);
-    }
+    sendMessageBtn?.addEventListener("click", sendChatMessage);
 
 });
