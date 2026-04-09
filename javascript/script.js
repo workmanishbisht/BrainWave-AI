@@ -3,7 +3,7 @@ function safeQuery(selector) {
     return document.querySelector(selector);
 }
 
-// ================= SETUP CHECK (FIXED) =================
+// ================= SETUP CHECK =================
 (function () {
     const isSetupDone = localStorage.getItem("setupComplete");
 
@@ -222,8 +222,6 @@ finishBtn?.addEventListener("click", () => {
     }
 
     localStorage.setItem("setupComplete", "true");
-
-    // ✅ FIXED REDIRECT PATH
     window.location.href = "dashboard.html";
 });
 
@@ -249,7 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setTimeout(() => {
             localStorage.removeItem("setupComplete");
-
             window.location.href = "../index.html";
         }, 2000);
     });
@@ -264,7 +261,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
 // ================= TESTIMONIALS =================
 document.addEventListener("DOMContentLoaded", () => {
     const track = document.querySelector(".testimonial-track");
@@ -278,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getCardWidth() {
         const card = cards[0];
-        const gap = 24; // 1.5rem ≈ 24px
+        const gap = 24;
         return card.offsetWidth + gap;
     }
 
@@ -301,49 +297,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // optional: resize fix
     window.addEventListener("resize", updateSlider);
 });
 
-
-// ================= FIX PIN TOGGLE =================
+// ================= PIN TOGGLE =================
 document.addEventListener("DOMContentLoaded", () => {
-
     const items = document.querySelectorAll(".recent-item");
 
     items.forEach((item, index) => {
-
         const pin = item.querySelector(".pin-icon");
 
-        // 🔹 Load saved state
         const saved = localStorage.getItem("pin_" + index);
         if (saved === "true") {
             pin.classList.add("active");
             item.classList.add("pinned");
         }
 
-        // 🔹 CLICK EVENT
         pin.addEventListener("click", (e) => {
             e.stopPropagation();
-
-            // toggle class
             pin.classList.toggle("active");
             item.classList.toggle("pinned");
-
-            // save state
             const isActive = pin.classList.contains("active");
             localStorage.setItem("pin_" + index, isActive);
         });
-
     });
-
 });
 
-
-
+// ================= CHAT =================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ================= ELEMENTS =================
     const emptyState = document.getElementById("emptyState");
     const chatSection = document.getElementById("chatSection");
     const chatInputSection = document.getElementById("chatInputSection");
@@ -355,7 +337,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendMessageBtn = document.getElementById("sendMessageBtn");
 
-    // ================= CHAT HISTORY =================
     let chatHistory = [];
 
     // ================= ADD MESSAGE =================
@@ -364,23 +345,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", type);
-
-        messageDiv.innerHTML = `
-            <div class="message-bubble">${text}</div>
-        `;
+        messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
 
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
+    // ================= TYPING DOTS LOADER =================
+    // CSS se dots animate hoti hain — koi JS animation nahi
+    function showTypingLoader() {
+        if (!chatContainer) return null;
+
+        const loaderDiv = document.createElement("div");
+        loaderDiv.classList.add("message", "ai");
+        loaderDiv.innerHTML = `
+            <div class="message-bubble">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>`;
+
+        chatContainer.appendChild(loaderDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Jab response aaye toh replaceWithText("jawab") call karo
+        return function replaceWithText(text) {
+            loaderDiv.querySelector(".message-bubble").innerHTML = text;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+    }
+
     // ================= AI RESPONSE =================
     async function generateResponse(input) {
         try {
-            // user message save
-            chatHistory.push({
-                role: "user",
-                content: input
-            });
+            chatHistory.push({ role: "user", content: input });
 
             const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
@@ -389,7 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                  model: "meta-llama/llama-3-8b-instruct",
+                    model: "meta-llama/llama-3-8b-instruct",
                     messages: chatHistory
                 })
             });
@@ -403,11 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const reply = data.choices?.[0]?.message?.content || "No response 😅";
 
-            // AI response save
-            chatHistory.push({
-                role: "assistant",
-                content: reply
-            });
+            chatHistory.push({ role: "assistant", content: reply });
 
             return reply;
 
@@ -427,38 +421,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         addMessage(message, "user");
 
-        // typing
-        addMessage("Typing...", "ai");
+        // CSS dots loader dikhao
+        const replaceWithText = showTypingLoader();
 
         const reply = await generateResponse(message);
 
-        // remove typing
-        chatContainer.lastChild.remove();
-
-        addMessage(reply, "ai");
+        // Loader hatao, reply dikhao
+        replaceWithText(reply);
     }
 
     // ================= SEND MESSAGE =================
     async function sendChatMessage() {
         const message = chatInput.value;
-
         if (!message || !message.trim()) return;
 
         addMessage(message, "user");
         chatInput.value = "";
 
-        addMessage("Typing...", "ai");
+        // CSS dots loader dikhao
+        const replaceWithText = showTypingLoader();
 
         const reply = await generateResponse(message);
 
-        chatContainer.lastChild.remove();
-
-        addMessage(reply, "ai");
+        // Loader hatao, reply dikhao
+        replaceWithText(reply);
     }
 
     // ================= EVENTS =================
-
-    // HOME INPUT
     mainInput?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
             startChat(mainInput.value);
@@ -466,20 +455,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // HOME BUTTON
     startChatBtn?.addEventListener("click", () => {
         startChat(mainInput.value);
         mainInput.value = "";
     });
 
-    // CHAT INPUT
     chatInput?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
             sendChatMessage();
         }
     });
 
-    // SEND BUTTON
     sendMessageBtn?.addEventListener("click", sendChatMessage);
 
+    // Global expose (suggestion cards ke onclick ke liye)
+    window.startChat = startChat;
 });
