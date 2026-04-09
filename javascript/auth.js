@@ -20,23 +20,44 @@ document.addEventListener("DOMContentLoaded", function () {
     // ================= ELEMENTS =================
     const loginBox = document.getElementById("login-form");
     const signupBox = document.getElementById("signup-form");
+    const forgotBox = document.getElementById("forgot-form"); // ✅ NEW
 
     const loginForm = document.getElementById("loginForm");
     const signupForm = document.getElementById("signupForm");
+    const forgotForm = document.getElementById("forgotForm"); // ✅ NEW
 
     const showSignup = document.getElementById("show-signup");
     const showLogin = document.getElementById("show-login");
+    const showForgot = document.getElementById("show-forgot"); // ✅ NEW
+    const backLogin = document.getElementById("back-login");   // ✅ NEW
 
     // ================= FORM TOGGLE =================
     showSignup?.addEventListener("click", (e) => {
         e.preventDefault();
         loginBox?.classList.remove("active");
         signupBox?.classList.add("active");
+        forgotBox?.classList.remove("active");
     });
 
     showLogin?.addEventListener("click", (e) => {
         e.preventDefault();
         signupBox?.classList.remove("active");
+        loginBox?.classList.add("active");
+        forgotBox?.classList.remove("active");
+    });
+
+    // ✅ FORGOT PASSWORD OPEN
+    showForgot?.addEventListener("click", (e) => {
+        e.preventDefault();
+        loginBox?.classList.remove("active");
+        signupBox?.classList.remove("active");
+        forgotBox?.classList.add("active");
+    });
+
+    // ✅ BACK TO LOGIN
+    backLogin?.addEventListener("click", (e) => {
+        e.preventDefault();
+        forgotBox?.classList.remove("active");
         loginBox?.classList.add("active");
     });
 
@@ -100,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     setTimeout(redirectUser, 1200);
                 })
                 .catch((err) => {
-                    console.log(err);
                     showToast(err.message || "Google login failed", false);
                 });
         });
@@ -117,7 +137,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     setTimeout(redirectUser, 1200);
                 })
                 .catch((err) => {
-                    console.log(err);
                     showToast(err.message || "GitHub login failed", false);
                 });
         });
@@ -154,8 +173,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 loginBox?.classList.add("active");
             })
             .catch((error) => {
-                console.log(error);
-
                 let msg = "Signup failed";
 
                 if (error.code === "auth/email-already-in-use")
@@ -187,8 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 setTimeout(redirectUser, 1200);
             })
             .catch((error) => {
-                console.log(error);
-
                 let msg = "Login failed";
 
                 if (error.code === "auth/user-not-found")
@@ -199,6 +214,37 @@ document.addEventListener("DOMContentLoaded", function () {
                     msg = "Invalid email";
                 else if (error.code === "auth/too-many-requests")
                     msg = "Too many attempts. Try later";
+
+                showToast(msg, false);
+            });
+    });
+
+    // ================= FORGOT PASSWORD =================
+    forgotForm?.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("forgotEmail").value.trim();
+
+        if (!email) {
+            showToast("Enter your email", false);
+            return;
+        }
+
+        auth.sendPasswordResetEmail(email)
+            .then(() => {
+                showToast("Reset link sent to your email 📩", true);
+
+                // back to login after success
+                forgotBox?.classList.remove("active");
+                loginBox?.classList.add("active");
+            })
+            .catch((error) => {
+                let msg = "Failed to send reset email";
+
+                if (error.code === "auth/user-not-found")
+                    msg = "Email not registered";
+                else if (error.code === "auth/invalid-email")
+                    msg = "Invalid email";
 
                 showToast(msg, false);
             });
