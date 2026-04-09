@@ -16,17 +16,19 @@
 
   <body>
     <div class="mobile-toggle" id="mobileMenu">☰</div>
+
     <!-- MAIN -->
     <div class="dashboard">
+
       <!-- SIDEBAR -->
       <aside class="sidebar" id="sidebar">
+
         <!-- HEADER -->
         <div class="sidebar-header">
           <div class="logo-section">
             <h2 class="logo-title">BrainWave AI</h2>
             <p class="logo-subtitle">Go</p>
           </div>
-
           <div class="hamburger" id="toggleSidebar">☰</div>
         </div>
 
@@ -36,17 +38,14 @@
               <i class="ri-chat-3-line nav-icon"></i>
               <span class="nav-text">New Chat</span>
             </li>
-
             <li class="nav-item">
               <i class="ri-history-line nav-icon"></i>
               <span class="nav-text">History</span>
             </li>
-
             <li class="nav-item">
               <i class="ri-bar-chart-line nav-icon"></i>
               <span class="nav-text">Analytics</span>
             </li>
-
             <li class="nav-item">
               <i class="ri-settings-3-line nav-icon"></i>
               <span class="nav-text">Settings</span>
@@ -56,18 +55,15 @@
 
         <div class="recent-section">
           <h4 class="recent-title">Recent Chats</h4>
-
           <div class="recent-list">
             <div class="recent-item">
               <span class="recent-text">Project Architecture Sync</span>
               <i class="ri-pushpin-line pin-icon"></i>
             </div>
-
             <div class="recent-item">
               <span class="recent-text">Editorial Content Strategy</span>
               <i class="ri-pushpin-line pin-icon"></i>
             </div>
-
             <div class="recent-item">
               <span class="recent-text">Quarterly Growth Audit</span>
               <i class="ri-pushpin-line pin-icon"></i>
@@ -104,7 +100,6 @@
               <i class="ri-add-line"></i> Add another account
             </div>
             <hr />
-
             <div class="dropdown-item">
               <i class="ri-flashlight-line"></i> Upgrade plan
             </div>
@@ -117,9 +112,7 @@
             <div class="dropdown-item">
               <i class="ri-settings-4-line"></i> Settings
             </div>
-
             <hr />
-
             <div class="dropdown-item">
               <i class="ri-question-line"></i> Help
             </div>
@@ -128,6 +121,7 @@
             </div>
           </div>
         </div>
+
       </aside>
 
       <!-- MAIN CONTENT -->
@@ -145,9 +139,8 @@
 
           <div class="empty-content" id="emptyContent">
             <h1 class="main-heading">
-              What’s on the agenda today?
+              What's on the agenda today?
             </h1>
-
             <p class="sub-heading">
               Plan, create, or solve anything — just start typing.
             </p>
@@ -157,24 +150,16 @@
               <div class="search-box">
                 <input type="text" class="search-input" id="mainInput"
                   placeholder="Search or ask anything..." />
-
-                <!-- ✅ TYPE = BUTTON ADD KIYA -->
                 <button class="search-btn" id="startChatBtn" type="button">
                   <i class="ri-arrow-right-line"></i>
                 </button>
-
               </div>
-
-              <p class="enter-text">
-                Press Enter to continue
-              </p>
+              <p class="enter-text">Press Enter to continue</p>
             </div>
           </div>
 
           <!-- SUGGESTIONS -->
           <div class="suggestions-wrapper">
-
-            <!-- ✅ onclick add kiya -->
             <div class="suggestion-card"
               onclick="startChat('Summarize this article for me')">
               <div class="suggestion-icon">
@@ -207,7 +192,6 @@
                 <p>Generate snippets or debug logic.</p>
               </div>
             </div>
-
           </div>
 
         </section>
@@ -222,15 +206,11 @@
           style="display: none;">
           <div class="input-container">
             <div class="input-box">
-
               <input type="text" class="chat-input" id="chatInput"
                 placeholder="Type your message..." />
-
-              <!-- ✅ TYPE FIX -->
               <button class="send-btn" id="sendMessageBtn" type="button">
                 <i class="ri-send-plane-fill"></i>
               </button>
-
             </div>
           </div>
         </section>
@@ -240,6 +220,7 @@
 
     <!-- script file -->
     <script src="../javascript/script.js"></script>
+    <script src="../javascript/theme.js" defer></script>
   </body>
 
 </html>
