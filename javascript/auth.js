@@ -31,26 +31,34 @@ document.addEventListener("DOMContentLoaded", function () {
     const showForgot = document.getElementById("show-forgot");
     const backLogin = document.getElementById("back-login");
 
-    // ================= REDIRECT =================
-    function redirectUser() {
-        const setupDone = localStorage.getItem("setupComplete");
+    // ================= PER-USER SETUP CHECK =================
+    // Har user ka setup status uski UID se save hota hai
+    // Taaki alag alag users ka data mix na ho
 
-        if (setupDone === "true") {
+    function isSetupDone(uid) {
+        return localStorage.getItem("setupComplete_" + uid) === "true";
+    }
+
+    // ================= REDIRECT =================
+    function redirectUser(user) {
+        if (isSetupDone(user.uid)) {
+            // Setup pehle ho chuka hai — seedha dashboard
             window.location.href = "../Pages/dashboard.html";
         } else {
+            // Pehli baar hai — setup karo
             window.location.href = "../Pages/setup.html";
         }
     }
 
     // ================= AUTO LOGIN CHECK =================
-    // Jab page load ho, Firebase check karta hai user pehle se logged in hai ya nahi
-    // Agar session active hai toh bina login kiye seedha dashboard/setup pe bhejo
+    // Page load hote hi check karo — user pehle se logged in hai?
+    // Agar haan toh login page dikhane ki zaroorat nahi
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // User pehle se logged in hai — login page dikhne ki zaroorat nahi
-            redirectUser();
+            // Session active hai — seedha bhejo
+            redirectUser(user);
         }
-        // Agar user null hai toh login page normal dikhta rahega
+        // null hai — login page normal dikhega
     });
 
     // ================= FORM TOGGLE =================
@@ -125,9 +133,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const provider = new firebase.auth.GoogleAuthProvider();
 
             auth.signInWithPopup(provider)
-                .then(() => {
+                .then((userCredential) => {
                     showToast("Google login successful 🎉", true);
-                    setTimeout(redirectUser, 1200);
+                    setTimeout(() => redirectUser(userCredential.user), 1200);
                 })
                 .catch((err) => {
                     showToast(err.message || "Google login failed", false);
@@ -141,9 +149,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const provider = new firebase.auth.GithubAuthProvider();
 
             auth.signInWithPopup(provider)
-                .then(() => {
+                .then((userCredential) => {
                     showToast("GitHub login successful 🎉", true);
-                    setTimeout(redirectUser, 1200);
+                    setTimeout(() => redirectUser(userCredential.user), 1200);
                 })
                 .catch((err) => {
                     showToast(err.message || "GitHub login failed", false);
@@ -171,15 +179,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
-                return userCredential.user.updateProfile({
-                    displayName: name
-                });
+                return userCredential.user.updateProfile({ displayName: name })
+                    .then(() => userCredential.user);
             })
-            .then(() => {
+            .then((user) => {
                 showToast("Account created successfully 🎉", true);
-
-                signupBox?.classList.remove("active");
-                loginBox?.classList.add("active");
+                // Naya user — pehli baar setup pe bhejo
+                setTimeout(() => {
+                    window.location.href = "../Pages/setup.html";
+                }, 1200);
             })
             .catch((error) => {
                 let msg = "Signup failed";
@@ -209,8 +217,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         auth.signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
-                showToast(`Welcome ${userCredential.user.email} 🎉`, true);
-                setTimeout(redirectUser, 1200);
+                showToast(`Welcome back 🎉`, true);
+                setTimeout(() => redirectUser(userCredential.user), 1200);
             })
             .catch((error) => {
                 let msg = "Login failed";
