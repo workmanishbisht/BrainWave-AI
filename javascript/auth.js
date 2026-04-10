@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const auth = firebase.auth();
+    const db = firebase.firestore ? firebase.firestore() : null;
 
     // ================= ELEMENTS =================
     const loginBox = document.getElementById("login-form");
@@ -31,34 +32,51 @@ document.addEventListener("DOMContentLoaded", function () {
     const showForgot = document.getElementById("show-forgot");
     const backLogin = document.getElementById("back-login");
 
-    // ================= PER-USER SETUP CHECK =================
-    // Har user ka setup status uski UID se save hota hai
-    // Taaki alag alag users ka data mix na ho
-
+    // ================= SETUP CHECK =================
+    // Firebase Firestore use karo agar available hai
+    // Warna localStorage fallback (UID-based)
     function isSetupDone(uid) {
         return localStorage.getItem("setupComplete_" + uid) === "true";
+    }
+
+    function markSetupDone(uid) {
+        localStorage.setItem("setupComplete_" + uid, "true");
     }
 
     // ================= REDIRECT =================
     function redirectUser(user) {
         if (isSetupDone(user.uid)) {
-            // Setup pehle ho chuka hai — seedha dashboard
             window.location.href = "../Pages/dashboard.html";
         } else {
-            // Pehli baar hai — setup karo
-            window.location.href = "../Pages/setup.html";
+            // Check karo — naya user hai ya purana?
+            // Purana user = creationTime aur lastSignInTime mein zyada fark
+            const created = new Date(user.metadata.creationTime).getTime();
+            const lastLogin = new Date(user.metadata.lastSignInTime).getTime();
+            const diffMinutes = (lastLogin - created) / (1000 * 60);
+
+            // Agar 5 minute se zyada pehle bana account — purana user hai
+            // Setup dobara mat karwao, directly dashboard bhejo aur flag set karo
+            if (diffMinutes > 5) {
+                markSetupDone(user.uid);
+                window.location.href = "../Pages/dashboard.html";
+            } else {
+                // Bilkul naya account — setup karo
+                window.location.href = "../Pages/setup.html";
+            }
         }
     }
 
     // ================= AUTO LOGIN CHECK =================
-    // Page load hote hi check karo — user pehle se logged in hai?
-    // Agar haan toh login page dikhane ki zaroorat nahi
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Session active hai — seedha bhejo
+            const justLoggedOut = sessionStorage.getItem("loggedOut");
+            if (justLoggedOut) {
+                sessionStorage.removeItem("loggedOut");
+                return;
+            }
             redirectUser(user);
         }
-        // null hai — login page normal dikhega
+        // null — login page dikhao, kuch mat karo
     });
 
     // ================= FORM TOGGLE =================
@@ -93,7 +111,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".toggle-password").forEach((icon) => {
         icon.addEventListener("click", function () {
             const input = this.previousElementSibling;
-
             if (input.type === "password") {
                 input.type = "text";
                 this.classList.replace("ri-eye-off-line", "ri-eye-line");
@@ -107,31 +124,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // ================= TOAST =================
     function showToast(message, success = true) {
         let toast = document.getElementById("toast");
-
         if (!toast) {
             toast = document.createElement("div");
             toast.id = "toast";
             toast.className = "toast";
             document.body.appendChild(toast);
         }
-
         toast.textContent = message;
         toast.style.background = success
             ? "linear-gradient(to right,#16a34a,#22c55e)"
             : "#111827";
-
         toast.classList.add("show");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 3000);
+        setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
     // ================= GOOGLE LOGIN =================
     document.querySelectorAll(".google-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-
             auth.signInWithPopup(provider)
                 .then((userCredential) => {
                     showToast("Google login successful 🎉", true);
@@ -147,7 +157,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".github-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             const provider = new firebase.auth.GithubAuthProvider();
-
             auth.signInWithPopup(provider)
                 .then((userCredential) => {
                     showToast("GitHub login successful 🎉", true);
@@ -171,7 +180,6 @@ document.addEventListener("DOMContentLoaded", function () {
             showToast("All fields required", false);
             return;
         }
-
         if (password.length < 6) {
             showToast("Password must be at least 6 characters", false);
             return;
@@ -184,21 +192,16 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((user) => {
                 showToast("Account created successfully 🎉", true);
-                // Naya user — pehli baar setup pe bhejo
+                // Naya user — setup pe bhejo, flag mat lagao abhi
                 setTimeout(() => {
                     window.location.href = "../Pages/setup.html";
                 }, 1200);
             })
             .catch((error) => {
                 let msg = "Signup failed";
-
-                if (error.code === "auth/email-already-in-use")
-                    msg = "Email already exists";
-                else if (error.code === "auth/invalid-email")
-                    msg = "Invalid email";
-                else if (error.code === "auth/weak-password")
-                    msg = "Weak password";
-
+                if (error.code === "auth/email-already-in-use") msg = "Email already exists";
+                else if (error.code === "auth/invalid-email") msg = "Invalid email";
+                else if (error.code === "auth/weak-password") msg = "Weak password";
                 showToast(msg, false);
             });
     });
@@ -222,16 +225,10 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch((error) => {
                 let msg = "Login failed";
-
-                if (error.code === "auth/user-not-found")
-                    msg = "User not found";
-                else if (error.code === "auth/wrong-password")
-                    msg = "Wrong password";
-                else if (error.code === "auth/invalid-email")
-                    msg = "Invalid email";
-                else if (error.code === "auth/too-many-requests")
-                    msg = "Too many attempts. Try later";
-
+                if (error.code === "auth/user-not-found") msg = "User not found";
+                else if (error.code === "auth/wrong-password") msg = "Wrong password";
+                else if (error.code === "auth/invalid-email") msg = "Invalid email";
+                else if (error.code === "auth/too-many-requests") msg = "Too many attempts. Try later";
                 showToast(msg, false);
             });
     });
@@ -241,7 +238,6 @@ document.addEventListener("DOMContentLoaded", function () {
         e.preventDefault();
 
         const email = document.getElementById("forgotEmail").value.trim();
-
         if (!email) {
             showToast("Enter your email", false);
             return;
@@ -250,18 +246,13 @@ document.addEventListener("DOMContentLoaded", function () {
         auth.sendPasswordResetEmail(email)
             .then(() => {
                 showToast("Reset link sent to your email 📩", true);
-
                 forgotBox?.classList.remove("active");
                 loginBox?.classList.add("active");
             })
             .catch((error) => {
                 let msg = "Failed to send reset email";
-
-                if (error.code === "auth/user-not-found")
-                    msg = "Email not registered";
-                else if (error.code === "auth/invalid-email")
-                    msg = "Invalid email";
-
+                if (error.code === "auth/user-not-found") msg = "Email not registered";
+                else if (error.code === "auth/invalid-email") msg = "Invalid email";
                 showToast(msg, false);
             });
     });
