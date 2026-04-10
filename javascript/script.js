@@ -15,6 +15,92 @@ function safeQuery(selector) {
     }
 })();
 
+// ================= RECENT CHAT HISTORY =================
+const MAX_RECENT = 8;
+
+function getRecentChats() {
+    return JSON.parse(localStorage.getItem("recentChats") || "[]");
+}
+
+function saveRecentChat(text) {
+    if (!text.trim()) return;
+
+    let chats = getRecentChats();
+
+    // Duplicate ho toh pehle remove karo
+    chats = chats.filter((c) => c.text !== text.trim());
+
+    // Naya item sabse upar
+    chats.unshift({
+        text: text.trim().substring(0, 38) + (text.trim().length > 38 ? "..." : ""),
+        pinned: false,
+        time: Date.now(),
+    });
+
+    // Max 8 items
+    if (chats.length > MAX_RECENT) chats = chats.slice(0, MAX_RECENT);
+
+    localStorage.setItem("recentChats", JSON.stringify(chats));
+    renderRecentChats();
+}
+
+function togglePin(index) {
+    let chats = getRecentChats();
+    if (chats[index] === undefined) return;
+    chats[index].pinned = !chats[index].pinned;
+    localStorage.setItem("recentChats", JSON.stringify(chats));
+    renderRecentChats();
+}
+
+function renderRecentChats() {
+    const list = document.querySelector(".recent-list");
+    if (!list) return;
+
+    const chats = getRecentChats();
+
+    if (chats.length === 0) {
+        list.innerHTML = '<p class="recent-empty">No recent chats yet</p>';
+        return;
+    }
+
+    // Pinned items pehle
+    const sorted = [...chats].map((c, i) => ({ ...c, originalIndex: i }))
+        .sort((a, b) => b.pinned - a.pinned);
+
+    list.innerHTML = sorted
+        .map(
+            (chat) => `
+        <div class="recent-item ${chat.pinned ? "pinned" : ""}"
+             onclick="loadRecentChat('${chat.text.replace(/'/g, "\\'")}')">
+            <span class="recent-text">${chat.text}</span>
+            <span class="pin-icon ${chat.pinned ? "active" : ""}"
+                  onclick="event.stopPropagation(); togglePin(${chat.originalIndex})"
+                  title="${chat.pinned ? "Unpin" : "Pin"}">
+                <i class="${chat.pinned ? "ri-pushpin-fill" : "ri-pushpin-line"}"></i>
+            </span>
+        </div>`
+        )
+        .join("");
+}
+
+function loadRecentChat(text) {
+    // Agar chat section visible hai toh chatInput mein load karo
+    const chatInput = document.getElementById("chatInput");
+    const mainInput = document.getElementById("mainInput");
+
+    if (chatInput && document.getElementById("chatSection")?.style.display !== "none") {
+        chatInput.value = text;
+        chatInput.focus();
+    } else if (mainInput) {
+        mainInput.value = text;
+        mainInput.focus();
+    }
+}
+
+// Global expose
+window.togglePin = togglePin;
+window.loadRecentChat = loadRecentChat;
+
 // ================= DOM READY =================
 document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.getElementById("sidebar");
@@ -70,6 +156,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Page load pe recent chats render karo
+    renderRecentChats();
 });
 
 // ================= ELEMENTS =================
@@ -300,29 +389,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", updateSlider);
 });
 
-// ================= PIN TOGGLE =================
-document.addEventListener("DOMContentLoaded", () => {
-    const items = document.querySelectorAll(".recent-item");
-
-    items.forEach((item, index) => {
-        const pin = item.querySelector(".pin-icon");
-
-        const saved = localStorage.getItem("pin_" + index);
-        if (saved === "true") {
-            pin.classList.add("active");
-            item.classList.add("pinned");
-        }
-
-        pin.addEventListener("click", (e) => {
-            e.stopPropagation();
-            pin.classList.toggle("active");
-            item.classList.toggle("pinned");
-            const isActive = pin.classList.contains("active");
-            localStorage.setItem("pin_" + index, isActive);
-        });
-    });
-});
-
 // ================= CHAT =================
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -352,7 +418,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ================= TYPING DOTS LOADER =================
-    // CSS se dots animate hoti hain — koi JS animation nahi
     function showTypingLoader() {
         if (!chatContainer) return null;
 
@@ -368,7 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
         chatContainer.appendChild(loaderDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        // Jab response aaye toh replaceWithText("jawab") call karo
         return function replaceWithText(text) {
             loaderDiv.querySelector(".message-bubble").innerHTML = text;
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -415,48 +479,47 @@ document.addEventListener("DOMContentLoaded", () => {
     async function startChat(message) {
         if (!message || !message.trim()) return;
 
-        emptyState.style.display = "none";
-        chatSection.style.display = "block";
-        chatInputSection.style.display = "block";
+        // Recent history mein save karo
+        saveRecentChat(message);
+
+        if (emptyState) emptyState.style.display = "none";
+        if (chatSection) chatSection.style.display = "block";
+        if (chatInputSection) chatInputSection.style.display = "block";
 
         addMessage(message, "user");
 
-        // CSS dots loader dikhao
         const replaceWithText = showTypingLoader();
-
         const reply = await generateResponse(message);
-
-        // Loader hatao, reply dikhao
         replaceWithText(reply);
     }
 
     // ================= SEND MESSAGE =================
     async function sendChatMessage() {
-        const message = chatInput.value;
-        if (!message || !message.trim()) return;
+        if (!chatInput) return;
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Recent history mein save karo
+        saveRecentChat(message);
 
         addMessage(message, "user");
         chatInput.value = "";
 
-        // CSS dots loader dikhao
         const replaceWithText = showTypingLoader();
-
         const reply = await generateResponse(message);
-
-        // Loader hatao, reply dikhao
         replaceWithText(reply);
     }
 
     // ================= EVENTS =================
     mainInput?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-            startChat(mainInput.value);
+            startChat(mainInput.value.trim());
             mainInput.value = "";
         }
     });
 
     startChatBtn?.addEventListener("click", () => {
-        startChat(mainInput.value);
+        startChat(mainInput.value.trim());
         mainInput.value = "";
     });
 
