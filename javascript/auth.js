@@ -20,16 +20,38 @@ document.addEventListener("DOMContentLoaded", function () {
     // ================= ELEMENTS =================
     const loginBox = document.getElementById("login-form");
     const signupBox = document.getElementById("signup-form");
-    const forgotBox = document.getElementById("forgot-form"); // ✅ NEW
+    const forgotBox = document.getElementById("forgot-form");
 
     const loginForm = document.getElementById("loginForm");
     const signupForm = document.getElementById("signupForm");
-    const forgotForm = document.getElementById("forgotForm"); // ✅ NEW
+    const forgotForm = document.getElementById("forgotForm");
 
     const showSignup = document.getElementById("show-signup");
     const showLogin = document.getElementById("show-login");
-    const showForgot = document.getElementById("show-forgot"); // ✅ NEW
-    const backLogin = document.getElementById("back-login");   // ✅ NEW
+    const showForgot = document.getElementById("show-forgot");
+    const backLogin = document.getElementById("back-login");
+
+    // ================= REDIRECT =================
+    function redirectUser() {
+        const setupDone = localStorage.getItem("setupComplete");
+
+        if (setupDone === "true") {
+            window.location.href = "../Pages/dashboard.html";
+        } else {
+            window.location.href = "../Pages/setup.html";
+        }
+    }
+
+    // ================= AUTO LOGIN CHECK =================
+    // Jab page load ho, Firebase check karta hai user pehle se logged in hai ya nahi
+    // Agar session active hai toh bina login kiye seedha dashboard/setup pe bhejo
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // User pehle se logged in hai — login page dikhne ki zaroorat nahi
+            redirectUser();
+        }
+        // Agar user null hai toh login page normal dikhta rahega
+    });
 
     // ================= FORM TOGGLE =================
     showSignup?.addEventListener("click", (e) => {
@@ -46,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function () {
         forgotBox?.classList.remove("active");
     });
 
-    // ✅ FORGOT PASSWORD OPEN
     showForgot?.addEventListener("click", (e) => {
         e.preventDefault();
         loginBox?.classList.remove("active");
@@ -54,7 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
         forgotBox?.classList.add("active");
     });
 
-    // ✅ BACK TO LOGIN
     backLogin?.addEventListener("click", (e) => {
         e.preventDefault();
         forgotBox?.classList.remove("active");
@@ -97,17 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             toast.classList.remove("show");
         }, 3000);
-    }
-
-    // ================= REDIRECT =================
-    function redirectUser() {
-        const setupDone = localStorage.getItem("setupComplete");
-
-        if (setupDone === "true") {
-            window.location.href = "../Pages/dashboard.html";
-        } else {
-            window.location.href = "../Pages/setup.html";
-        }
     }
 
     // ================= GOOGLE LOGIN =================
@@ -234,7 +243,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(() => {
                 showToast("Reset link sent to your email 📩", true);
 
-                // back to login after success
                 forgotBox?.classList.remove("active");
                 loginBox?.classList.add("active");
             })
