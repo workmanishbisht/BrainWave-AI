@@ -110,7 +110,7 @@ body {
 }
 
 
-/* RECENT */
+/* ===================== RECENT ===================== */
 
 .recent-section {
     flex: 1;
@@ -127,7 +127,20 @@ body {
 .recent-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
+}
+
+.recent-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.recent-list::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 4px;
 }
 
 .recent-item {
@@ -149,17 +162,24 @@ body {
 }
 
 .recent-text {
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
     color: #4b5563;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
 }
 
 .pin-icon {
-    font-size: 16px;
+    font-size: 14px;
     color: #9ca3af;
     opacity: 0;
     transition: 0.2s ease;
     cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 6px;
+    line-height: 1;
 }
 
 .recent-item:hover .pin-icon {
@@ -171,8 +191,17 @@ body {
     opacity: 1 !important;
 }
 
+/* Empty recent state */
+.recent-empty {
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
+    padding: 16px 8px;
+    font-weight: 500;
+}
 
-/* UPGRADE */
+
+/* ===================== UPGRADE ===================== */
 
 .upgrade-box {
     margin-top: auto;
@@ -194,7 +223,7 @@ body {
 }
 
 
-/* USER */
+/* ===================== USER ===================== */
 
 .user-section {
     padding-top: 12px;
@@ -229,6 +258,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s ease;
+    flex-shrink: 0;
 }
 
 .user-name {
@@ -242,7 +272,7 @@ body {
 }
 
 
-/* SIDEBAR COLLAPSED */
+/* ===================== SIDEBAR COLLAPSED ===================== */
 
 .sidebar.collapsed {
     width: 80px;
@@ -255,7 +285,8 @@ body {
 .sidebar.collapsed .upgrade-box,
 .sidebar.collapsed .user-name,
 .sidebar.collapsed .user-role,
-.sidebar.collapsed .logo-section {
+.sidebar.collapsed .logo-section,
+.sidebar.collapsed .recent-section {
     display: none;
 }
 
@@ -285,7 +316,7 @@ body {
 }
 
 
-/* SIDEBAR DROPDOWN */
+/* ===================== SIDEBAR DROPDOWN ===================== */
 
 .sidebar-dropdown {
     position: fixed;
@@ -404,7 +435,7 @@ body {
 }
 
 
-/* HEADER */
+/* ===================== HEADER ===================== */
 
 .top-header {
     width: 100%;
@@ -455,7 +486,7 @@ body {
 }
 
 
-/* EMPTY STATE */
+/* ===================== EMPTY STATE ===================== */
 
 .empty-state {
     text-align: center;
@@ -481,7 +512,7 @@ body {
 }
 
 
-/* SEARCH */
+/* ===================== SEARCH ===================== */
 
 .search-container {
     width: 100%;
@@ -539,7 +570,7 @@ body {
 }
 
 
-/* SUGGESTIONS */
+/* ===================== SUGGESTIONS ===================== */
 
 .suggestions-wrapper {
     display: flex;
@@ -588,7 +619,7 @@ body {
 }
 
 
-/* CHAT */
+/* ===================== CHAT ===================== */
 
 .chat-section {
     width: 100%;
@@ -699,13 +730,14 @@ body {
     bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
-    width: 100%;
+    width: calc(100% - 260px);
     max-width: 900px;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     padding: 0 15px;
+    margin-left: 130px;
 }
 
 .input-container {
@@ -745,6 +777,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .send-btn:hover {
@@ -755,7 +788,6 @@ body {
 .send-btn i {
     font-size: 18px;
 }
-
 
 .send-btn svg {
     width: 20px;
@@ -769,8 +801,8 @@ body {
 }
 
 .sidebar.collapsed~.input-section {
-    left: 80px;
     width: calc(100% - 80px);
+    margin-left: 40px;
 }
 
 
@@ -865,9 +897,9 @@ body {
 }
 
 
-/* ===================== RESPONSIVE ===================== */
+/* ===================== RESPONSIVE — TABLET (769px - 1024px) ===================== */
 
-@media (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
     .sidebar {
         width: 220px;
     }
@@ -889,16 +921,24 @@ body {
         margin-left: 70px;
     }
 
+    /* ---- TABLET INPUT FIX ---- */
     .input-section {
-        left: 220px;
-        width: calc(100% - 220px);
+        left: 0 !important;
+        transform: none !important;
+        width: calc(100% - 220px) !important;
+        margin-left: 220px !important;
+        padding: 0 20px;
+        max-width: none;
     }
 
     .sidebar.collapsed~.input-section {
-        left: 70px;
-        width: calc(100% - 70px);
+        width: calc(100% - 70px) !important;
+        margin-left: 70px !important;
     }
 }
+
+
+/* ===================== RESPONSIVE — MOBILE (max 768px) ===================== */
 
 @media (max-width: 768px) {
     .mobile-toggle {
@@ -968,11 +1008,12 @@ body {
         padding-bottom: 120px;
     }
 
-  .input-section {
+    .input-section {
         left: 0 !important;
         width: 100% !important;
+        margin-left: 0 !important;
         padding: 0 8px;
-        transform: none; 
+        transform: none !important;
     }
 
     .sidebar-dropdown {
@@ -982,6 +1023,9 @@ body {
         bottom: 80px;
     }
 }
+
+
+/* ===================== RESPONSIVE — SMALL MOBILE (max 480px) ===================== */
 
 @media (max-width: 480px) {
     .main-heading {
