@@ -63,8 +63,9 @@ function renderRecentChats() {
         return;
     }
 
-    // Pinned items pehle
-    const sorted = [...chats].map((c, i) => ({ ...c, originalIndex: i }))
+    // Pinned items pehle, original index preserve karo
+    const sorted = [...chats]
+        .map((c, i) => ({ ...c, originalIndex: i }))
         .sort((a, b) => b.pinned - a.pinned);
 
     list.innerHTML = sorted
@@ -84,7 +85,6 @@ function renderRecentChats() {
 }
 
 function loadRecentChat(text) {
-    // Agar chat section visible hai toh chatInput mein load karo
     const chatInput = document.getElementById("chatInput");
     const mainInput = document.getElementById("mainInput");
 
@@ -101,12 +101,69 @@ function loadRecentChat(text) {
 window.togglePin = togglePin;
 window.loadRecentChat = loadRecentChat;
 
+// ================= DYNAMIC USER INFO (FIREBASE) =================
+function getInitials(name) {
+    if (!name) return "?";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function loadUserInfo() {
+    if (typeof firebase === "undefined") return;
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBYLS84ZfBdxO8FeIHhgO5ZvbmWBrsarEQ",
+        authDomain: "brainwave-ai-80d64.firebaseapp.com",
+        projectId: "brainwave-ai-80d64",
+        storageBucket: "brainwave-ai-80d64.appspot.com",
+        messagingSenderId: "303848893322",
+        appId: "1:303848893322:web:60eb231d7d9ed07ce0f673",
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            // Login nahi — wapas bhejo
+            window.location.href = "../Pages/account.html";
+            return;
+        }
+
+        // displayName hai toh use karo, warna email ka pehla part
+        const name = user.displayName || user.email.split("@")[0];
+        const email = user.email || "";
+        const initials = getInitials(name);
+
+        // Sidebar bottom user section
+        const sidebarAvatarText = document.getElementById("sidebarAvatarText");
+        const sidebarUserName = document.getElementById("sidebarUserName");
+        const sidebarUserEmail = document.getElementById("sidebarUserEmail");
+
+        // Dropdown profile top
+        const dropdownAvatarText = document.getElementById("dropdownAvatarText");
+        const dropdownUserName = document.getElementById("dropdownUserName");
+        const dropdownUserEmail = document.getElementById("dropdownUserEmail");
+
+        if (sidebarAvatarText) sidebarAvatarText.textContent = initials;
+        if (sidebarUserName) sidebarUserName.textContent = name;
+        if (sidebarUserEmail) sidebarUserEmail.textContent = email;
+
+        if (dropdownAvatarText) dropdownAvatarText.textContent = initials;
+        if (dropdownUserName) dropdownUserName.textContent = name.toUpperCase();
+        if (dropdownUserEmail) dropdownUserEmail.textContent = email;
+    });
+}
+
 // ================= DOM READY =================
 document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.getElementById("sidebar");
     const toggleBtn = document.getElementById("toggleSidebar");
     const mobileBtn = document.getElementById("mobileMenu");
-
     const profileToggle = document.querySelector(".profile-toggle");
     const dropdown = document.querySelector(".sidebar-dropdown");
 
@@ -157,11 +214,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Page load pe recent chats render karo
+    // Recent chats render karo
     renderRecentChats();
+
+    // Firebase se dynamic user info load karo
+    loadUserInfo();
 });
 
-// ================= ELEMENTS =================
+// ================= ELEMENTS (Setup page ke liye) =================
 const step1 = safeQuery("#step1");
 const step2 = safeQuery("#step2");
 const btn = safeQuery("#goStep2");
@@ -293,12 +353,8 @@ finishBtn?.addEventListener("click", () => {
         return;
     }
 
-    const personality = document.querySelector(
-        '[data-type="personality"].active'
-    );
-    const interests = document.querySelectorAll(
-        '[data-type="interest"].active'
-    );
+    const personality = document.querySelector('[data-type="personality"].active');
+    const interests = document.querySelectorAll('[data-type="interest"].active');
 
     if (!personality) {
         alert("Please select a personality");
@@ -316,9 +372,7 @@ finishBtn?.addEventListener("click", () => {
 
 // ================= YEAR =================
 const yearEl = safeQuery("#year");
-if (yearEl) {
-    yearEl.innerText = new Date().getFullYear();
-}
+if (yearEl) yearEl.innerText = new Date().getFullYear();
 
 // ================= LOGOUT =================
 document.addEventListener("DOMContentLoaded", function () {
@@ -335,18 +389,23 @@ document.addEventListener("DOMContentLoaded", function () {
         showToast("Logging out...");
 
         setTimeout(() => {
-            localStorage.removeItem("setupComplete");
-            window.location.href = "../index.html";
-        }, 2000);
+            // Firebase signOut bhi karo taaki session clear ho
+            if (typeof firebase !== "undefined" && firebase.apps.length) {
+                firebase.auth().signOut().then(() => {
+                    localStorage.removeItem("setupComplete");
+                    window.location.href = "../index.html";
+                });
+            } else {
+                localStorage.removeItem("setupComplete");
+                window.location.href = "../index.html";
+            }
+        }, 1500);
     });
 
     function showToast(message) {
         toast.textContent = message;
         toast.classList.add("show");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 3000);
+        setTimeout(() => toast.classList.remove("show"), 3000);
     }
 });
 
@@ -362,28 +421,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let index = 0;
 
     function getCardWidth() {
-        const card = cards[0];
-        const gap = 24;
-        return card.offsetWidth + gap;
+        return cards[0].offsetWidth + 24;
     }
 
     function updateSlider() {
-        const moveX = -(index * getCardWidth());
-        track.style.transform = `translateX(${moveX}px)`;
+        track.style.transform = `translateX(${-(index * getCardWidth())}px)`;
     }
 
     nextBtn?.addEventListener("click", () => {
-        if (index < cards.length - 1) {
-            index++;
-            updateSlider();
-        }
+        if (index < cards.length - 1) { index++; updateSlider(); }
     });
 
     prevBtn?.addEventListener("click", () => {
-        if (index > 0) {
-            index--;
-            updateSlider();
-        }
+        if (index > 0) { index--; updateSlider(); }
     });
 
     window.addEventListener("resize", updateSlider);
@@ -459,9 +509,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             console.log("API:", data);
 
-            if (data.error) {
-                return "API Error: " + data.error.message;
-            }
+            if (data.error) return "API Error: " + data.error.message;
 
             const reply = data.choices?.[0]?.message?.content || "No response 😅";
 
@@ -479,7 +527,6 @@ document.addEventListener("DOMContentLoaded", () => {
     async function startChat(message) {
         if (!message || !message.trim()) return;
 
-        // Recent history mein save karo
         saveRecentChat(message);
 
         if (emptyState) emptyState.style.display = "none";
@@ -499,7 +546,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = chatInput.value.trim();
         if (!message) return;
 
-        // Recent history mein save karo
         saveRecentChat(message);
 
         addMessage(message, "user");
@@ -524,13 +570,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     chatInput?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            sendChatMessage();
-        }
+        if (e.key === "Enter") sendChatMessage();
     });
 
     sendMessageBtn?.addEventListener("click", sendChatMessage);
 
-    // Global expose (suggestion cards ke onclick ke liye)
+    // Global expose
     window.startChat = startChat;
 });
