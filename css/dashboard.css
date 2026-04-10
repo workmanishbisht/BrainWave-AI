@@ -1,1004 +1,306 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-
-:root {
-    --primary: #4f46e5;
-    --secondary: #6366f1;
-    --background: #f9fafb;
-    --card: #ffffff;
-    --text: #111827;
-    --border: #e5e7eb;
-    --radius: 12px;
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: "Montserrat", sans-serif;
-    background: var(--background);
-    color: var(--text);
-    line-height: 1.65;
-}
-
-.dashboard {
-    display: flex;
-    min-height: 100vh;
-}
-
-
-/* ===================== SIDEBAR ===================== */
-
-.sidebar {
-    width: 260px;
-    background: var(--card);
-    border-right: 1px solid var(--border);
-    padding: 25px 18px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    transition: 0.3s ease;
-}
-
-.sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.hamburger {
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.logo-title {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.logo-subtitle {
-    font-size: 12px;
-    font-weight: 500;
-    color: gray;
-}
-
-.nav-menu {
-    margin-bottom: 10px;
-}
-
-.nav-list {
-    list-style: none;
-    margin-top: 30px;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-    background: #e0e7ff;
-}
-
-.nav-item.active {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: #fff;
-}
-
-.nav-item.active .nav-icon,
-.nav-item.active .nav-text {
-    color: #fff;
-}
-
-.nav-icon {
-    font-size: 18px;
-}
-
-
-/* RECENT */
-
-.recent-section {
-    flex: 1;
-    margin-top: 25px;
-    margin-bottom: 15px;
-}
-
-.recent-title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
-.recent-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.recent-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.recent-item:hover {
-    background: #f3f4f6;
-}
-
-.recent-item.pinned {
-    background: rgba(108, 92, 231, 0.08);
-}
-
-.recent-text {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #4b5563;
-}
-
-.pin-icon {
-    font-size: 16px;
-    color: #9ca3af;
-    opacity: 0;
-    transition: 0.2s ease;
-    cursor: pointer;
-}
-
-.recent-item:hover .pin-icon {
-    opacity: 1;
-}
-
-.pin-icon.active {
-    color: var(--primary);
-    opacity: 1 !important;
-}
-
-
-/* UPGRADE */
-
-.upgrade-box {
-    margin-top: auto;
-    margin-bottom: 12px;
-    padding: 16px;
-    background: #eef2ff;
-    border-radius: var(--radius);
-    line-height: 1.6;
-}
-
-.upgrade-text {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.upgrade-sub {
-    font-size: 12px;
-    color: gray;
-}
-
-
-/* USER */
-
-.user-section {
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    position: relative;
-    cursor: pointer;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    border-radius: 10px;
-    transition: 0.2s ease;
-}
-
-.user-info:hover {
-    background: #f3f4f6;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-.user-name {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.user-role {
-    font-size: 12px;
-    color: gray;
-}
-
-
-/* SIDEBAR COLLAPSED */
-
-.sidebar.collapsed {
-    width: 80px;
-}
-
-.sidebar.collapsed .nav-text,
-.sidebar.collapsed .logo-subtitle,
-.sidebar.collapsed .recent-title,
-.sidebar.collapsed .recent-text,
-.sidebar.collapsed .upgrade-box,
-.sidebar.collapsed .user-name,
-.sidebar.collapsed .user-role,
-.sidebar.collapsed .logo-section {
-    display: none;
-}
-
-.sidebar.collapsed .nav-item {
-    justify-content: center;
-}
-
-.sidebar.collapsed .logo-title {
-    font-size: 16px;
-}
-
-.sidebar.collapsed .sidebar-header {
-    justify-content: center;
-}
-
-.sidebar.collapsed .hamburger {
-    margin: auto;
-}
-
-.sidebar.collapsed .user-section {
-    display: flex;
-    justify-content: center;
-}
-
-.sidebar.collapsed .user-avatar {
-    margin: auto;
-}
-
-
-/* SIDEBAR DROPDOWN */
-
-.sidebar-dropdown {
-    position: fixed;
-    bottom: 20px;
-    left: 270px;
-    width: 260px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    padding: 10px 0;
-    display: none;
-    z-index: 9999;
-}
-
-.sidebar.collapsed .sidebar-dropdown {
-    left: 90px;
-}
-
-.profile-top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 18px;
-}
-
-.avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.profile-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-}
-
-.profile-plan {
-    font-size: 12px;
-    color: #6b7280;
-}
-
-.sidebar-dropdown hr {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 6px 0;
-}
-
-.dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.dropdown-item i {
-    font-size: 18px;
-    color: #6b7280;
-    transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background: rgba(0, 0, 0, 0.04);
-    transform: translateX(4px);
-}
-
-.dropdown-item:hover i {
-    color: var(--primary);
-}
-
-.dropdown-item.logout {
-    color: #ef4444;
-}
-
-.dropdown-item.logout i {
-    color: #ef4444;
-}
-
-.dropdown-item.logout:hover {
-    background: rgba(239, 68, 68, 0.08);
-}
-
-.profile-dropdown.show {
-    display: block;
-}
-
-
-/* ===================== MAIN CONTENT ===================== */
-
-.main-content {
-    flex: 1;
-    padding: 40px 30px;
-    margin-left: 260px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: margin-left 0.3s ease;
-}
-
-.main-content>* {
-    width: 100%;
-    max-width: 1200px;
-}
-
-
-/* HEADER */
-
-.top-header {
-    width: 100%;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #6b7280;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.icon-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--card);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.25s ease;
-}
-
-.icon-btn i {
-    font-size: 18px;
-    color: var(--text);
-    transition: 0.25s ease;
-}
-
-.icon-btn:hover {
-    background: #eef2ff;
-    border-color: var(--primary);
-}
-
-.icon-btn:hover i {
-    color: var(--primary);
-}
-
-
-/* EMPTY STATE */
-
-.empty-state {
-    text-align: center;
-    margin-top: 80px;
-}
-
-.empty-content {
-    max-width: 750px;
-    margin: auto;
-}
-
-.main-heading {
-    font-size: 42px;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 12px;
-}
-
-.sub-heading {
-    font-size: 15px;
-    color: #6b7280;
-    margin-bottom: 30px;
-}
-
-
-/* SEARCH */
-
-.search-container {
-    width: 100%;
-}
-
-.search-box {
-    display: flex;
-    align-items: center;
-    background: #ffffff;
-    border-radius: 50px;
-    padding: 6px;
-    max-width: 650px;
-    margin: auto;
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    transition: 0.25s ease;
-}
-
-.search-box:focus-within {
-    border-color: var(--primary);
-    box-shadow: 0 10px 35px rgba(79, 70, 229, 0.15);
-}
-
-.search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 16px;
-    font-size: 15px;
-    border-radius: 50px;
-    background: transparent;
-}
-
-.search-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-btn i {
-    font-size: 18px;
-}
-
-.enter-text {
-    font-size: 12px;
-    color: #9ca3af;
-    margin-top: 10px;
-}
-
-
-/* SUGGESTIONS */
-
-.suggestions-wrapper {
-    display: flex;
-    justify-content: center;
-    gap: 18px;
-    margin-top: 40px;
-    flex-wrap: wrap;
-}
-
-.suggestion-card {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    background: #ffffff;
-    padding: 16px;
-    border-radius: 16px;
-    width: 240px;
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.suggestion-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-}
-
-.suggestion-icon {
-    font-size: 20px;
-    color: var(--primary);
-}
-
-.suggestion-content {
-    text-align: left;
-}
-
-.suggestion-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.suggestion-text {
-    font-size: 12px;
-    color: #6b7280;
-}
-
-
-/* CHAT */
-
-.chat-section {
-    width: 100%;
-    margin-top: 30px;
-}
-
-.chat-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding-bottom: 160px;
-}
-
-.message {
-    display: flex;
-    margin-bottom: 16px;
-}
-
-.message.user {
-    justify-content: flex-end;
-}
-
-.message.ai {
-    justify-content: flex-start;
-}
-
-.message-bubble {
-    max-width: 70%;
-    padding: 14px 18px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.message.user .message-bubble {
-    background: #4f46e5;
-    color: #fff;
-    font-weight: 500;
-    border-bottom-right-radius: 4px;
-}
-
-.message.ai .message-bubble {
-    background: #f3f4f6;
-    color: #111;
-    border-bottom-left-radius: 4px;
-}
-
-.chat-bubble {
-    padding: 16px 18px;
-    border-radius: 16px;
-    max-width: 720px;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.user-bubble {
-    margin-left: auto;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff;
-}
-
-.ai-bubble {
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-}
-
-.chat-text {
-    font-size: 14.5px;
-    font-weight: 500;
-    line-height: 1.7;
-}
-
-.card-group {
-    display: flex;
-    gap: 20px;
-    margin: 18px 0;
-}
-
-.info-card {
-    background: #f3f4f6;
-    padding: 16px;
-    border-radius: 14px;
-    flex: 1;
-}
-
-.card-title {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-
-.card-text {
-    font-size: 13px;
-    font-weight: 500;
-    color: gray;
-    line-height: 1.5;
-}
-
-
-/* ===================== INPUT SECTION (FIXED) ===================== */
-
-.input-section {
-    position: fixed;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 900px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 0 15px;
-}
-
-.input-container {
-    width: 100%;
-}
-
-.input-box {
-    width: 100%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 60px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-.chat-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    font-weight: 500;
-    padding: 10px;
-    font-family: "Montserrat", sans-serif;
-    background: transparent;
-}
-
-.send-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.send-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-}
-
-.send-btn i {
-    font-size: 18px;
-}
-
-
-.send-btn svg {
-    width: 20px;
-    height: 20px;
-    color: #fff;
-}
-
-/* Sidebar collapsed hone par input section adjust */
-.sidebar.collapsed~.main-content {
-    margin-left: 80px;
-}
-
-.sidebar.collapsed~.input-section {
-    left: 80px;
-    width: calc(100% - 80px);
-}
-
-
-/* ===================== TOAST ===================== */
-
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #111827;
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 14px;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 9999;
-}
-
-.toast.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-}
-
-
-/* ===================== MOBILE TOGGLE ===================== */
-
-.mobile-toggle {
-    display: none;
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    background: #4f46e5;
-    color: #fff;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 3000;
-}
-
-
-/* ===================== TYPING DOTS ===================== */
-
-.typing-dots {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    height: 20px;
-}
-
-.typing-dots span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #9ca3af;
-    display: block;
-    animation: bounce 1.2s infinite ease-in-out;
-}
-
-.typing-dots span:nth-child(1) {
-    animation-delay: 0s;
-}
-
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes bounce {
-
-    0%,
-    60%,
-    100% {
-        transform: translateY(0);
-        opacity: 0.4;
-    }
-
-    30% {
-        transform: translateY(-6px);
-        opacity: 1;
-    }
-}
-
-
-/* ===================== RESPONSIVE ===================== */
-
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 220px;
-    }
-
-    .sidebar.collapsed {
-        width: 70px;
-    }
-
-    .main-content {
-        margin-left: 220px;
-        padding: 30px;
-    }
-
-    .main-heading {
-        font-size: 32px;
-    }
-
-    .sidebar.collapsed~.main-content {
-        margin-left: 70px;
-    }
-
-    .input-section {
-        left: 220px;
-        width: calc(100% - 220px);
-    }
-
-    .sidebar.collapsed~.input-section {
-        left: 70px;
-        width: calc(100% - 70px);
-    }
-}
-
-@media (max-width: 768px) {
-    .mobile-toggle {
-        display: flex;
-    }
-
-    .sidebar {
-        position: fixed;
-        left: -100%;
-        top: 0;
-        width: 240px;
-        z-index: 2000;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .sidebar.collapsed {
-        width: 240px;
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding: 15px;
-    }
-
-    .main-content>* {
-        max-width: 100%;
-    }
-
-    .sidebar.collapsed~.main-content {
-        margin-left: 0;
-    }
-
-    .main-heading {
-        font-size: 26px;
-    }
-
-    .sub-heading {
-        font-size: 13px;
-    }
-
-    .header-title {
-        margin-top: 60px;
-    }
-
-    .card-group {
-        flex-direction: column;
-    }
-
-    .suggestion-card {
-        width: 100%;
-    }
-
-    .suggestions-wrapper {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .search-box {
-        margin: 0 5px;
-    }
-
-    .chat-container {
-        padding: 10px;
-        padding-bottom: 120px;
-    }
-
-    .input-section {
-        left: 0 !important;
-        width: 100% !important;
-        padding: 0 8px;
-    }
-
-    .sidebar-dropdown {
-        left: 20px;
-        right: 20px;
-        width: auto;
-        bottom: 80px;
-    }
-}
-
-@media (max-width: 480px) {
-    .main-heading {
-        font-size: 22px;
-    }
-
-    .search-input {
-        font-size: 14px;
-        padding: 12px;
-    }
-
-    .input-box {
-        padding: 10px 14px;
-    }
-
-    .search-btn,
-    .send-btn {
-        width: 40px;
-        height: 40px;
-    }
-}
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- remixicons CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet" />
+    <!-- Main File Link -->
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/media.css">
+    <title>BrainWave AI</title>
+  </head>
+
+  <body>
+    <main>
+      <!-- Header -->
+      <header class="header">
+        <nav class="navbar">
+          <div class="nav-container">
+
+            <!-- LOGO -->
+            <a href="index.html" class="logo">
+              <span class="logo-text">
+                <span class="logoHeading">BrainWave</span> AI
+              </span>
+            </a>
+
+            <!-- HAMBURGER (Mobile) -->
+            <div class="hamburger">
+              <i class="ri-menu-line"></i>
+            </div>
+
+            <!-- NAV MENU -->
+            <ul class="nav-menu">
+              <li><a href="#Features" class="nav-link">Features</a></li>
+              <li><a href="#Testimonials" class="nav-link">Testimonials</a></li>
+              <li><a href="#Pricing" class="nav-link">Pricing</a></li>
+              <li><a href="#help" class="nav-link">Help & Support</a></li>
+            </ul>
+
+            <!-- ACTION BUTTONS -->
+            <div class="nav-actions">
+
+              <!-- THEME TOGGLE -->
+              <button id="themeToggle" class="theme-toggle">
+                <i class="ri-moon-line moon"></i>
+                <i class="ri-sun-line sun"></i>
+              </button>
+
+              <!-- LOGIN BUTTON -->
+              <a href="./Pages/account.html" class="btn btn-outline">Log In</a>
+
+              <!-- CTA BUTTON -->
+              <a href="./Pages/account.html" class="btn btn-primary">Get
+                Started</a>
+
+            </div>
+
+          </div>
+        </nav>
+      </header>
+
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="container hero-container">
+          <div class="hero-content">
+            <p class="hero-badge">THE NEW STANDARD</p>
+            <h1 class="hero-title">Your Smart AI Assistant</h1>
+            <p class="hero-subtitle">
+              Experience the next evolution of digital companionship. BrainWave
+              AI understands context, anticipates needs, and streamlines your
+              workflow with architectural precision.
+            </p>
+
+            <div class="hero-buttons">
+              <button class="btn btn-primary btn-large">
+                Get Started Free
+              </button>
+              <button class="btn btn-outline btn-large">View Demo →</button>
+            </div>
+          </div>
+
+          <!-- Chat Preview -->
+          <div class="chat-preview">
+            <div class="chat-window">
+              <div class="chat-header">
+                <div class="chat-avatar">B</div>
+                <div class="chat-info">
+                  <h4 class="chat-name">BrainWave AI</h4>
+                  <p class="chat-status">
+                    <span class="status-dot"></span>Active
+                  </p>
+                </div>
+              </div>
+
+              <div class="chat-messages">
+                <div class="message user-message">
+                  Can you help me design a scalable microservices architecture
+                  for a fintech app?
+                </div>
+                <div class="message ai-message">
+                  Absolutely! I recommend NestJS with TypeScript, PostgreSQL,
+                  Redis cache, and Kafka for event-driven communication.
+                </div>
+              </div>
+
+              <div class="chat-input-area">
+                <input type="text" placeholder="Type your message..." />
+                <button class="send-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="m2.6 10.42 7.64 3.34 3.34 7.64c.16.37.52.6.92.6h.05a1 1 0 0 0 .9-.69l5.5-17c.12-.36.02-.75-.24-1.01a.98.98 0 0 0-1.01-.24L2.69 8.55c-.4.13-.67.49-.69.9-.02.42.22.8.6.97m15.85-4.86-4.09 12.63-2.44-5.59c-.1-.23-.28-.41-.52-.52L5.81 9.64l12.63-4.09Z">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>tes
+      </section>
+
+      <!-- Enterprise Section -->
+      <section class="enterprise-section" id="Features">
+        <div class="container">
+          <p class="enterprise-tag">UNRIVALED PERFORMANCE</p>
+          <h2 class="enterprise-heading">Built for the Modern Enterprise</h2>
+
+          <div class="enterprise-grid">
+            <div class="enterprise-card">
+              <div class="icon-box">
+                <i class="ri-flashlight-fill"></i>
+              </div>
+              <h3 class="enterprise-title">Fast</h3>
+              <p class="enterprise-text">
+                Sub-millisecond latency ensures your conversations flow
+                naturally without any lag or interruption.
+              </p>
+            </div>
+
+            <div class="enterprise-card">
+              <div class="icon-box">
+                <i class="ri-brain-fill"></i>
+              </div>
+              <h3 class="enterprise-title">Smart</h3>
+              <p class="enterprise-text">
+                Our proprietary neural engine processes complex inquiries with
+                human-like reasoning and precision.
+              </p>
+            </div>
+
+            <div class="enterprise-card">
+              <div class="icon-box">
+                <i class="ri-shield-check-fill"></i>
+              </div>
+              <h3 class="enterprise-title">Secure</h3>
+              <p class="enterprise-text">
+                Enterprise-grade encryption and isolated data environments keep
+                your sensitive information private.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonial section -->
+      <section class="testimonial-section" id="Testimonials">
+        <div class="container">
+          <p class="testimonial-tag">TESTIMONIALS</p>
+          <h2 class="testimonial-heading">Loved by Developers Worldwide</h2>
+
+          <div class="testimonial-slider">
+            <button class="nav-btn prev">&#10094;</button>
+            <div class="testimonial-track">
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  BrainWave AI completely transformed our development workflow,
+                  helping us design scalable systems faster with clarity,
+                  confidence, and much better architectural decisions.
+                </p>
+                <div class="testimonial-user">
+                  <div class="user-avatar">R</div>
+                  <div>
+                    <h4 class="user-name">Rahul Sharma</h4>
+                    <span class="user-role">CTO, PayScale India</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  The speed and intelligence of this AI tool are incredible,
+                  allowing our engineering team to build, test, and deploy
+                  complex features more efficiently.
+                </p>
+                <div class="testimonial-user">
+                  <div class="user-avatar">P</div>
+                  <div>
+                    <h4 class="user-name">Priya Malhotra</h4>
+                    <span class="user-role">Head of Engineering</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  It feels like having a senior developer guiding every step,
+                  improving code quality, system design, and decision-making
+                  across our entire development lifecycle.
+                </p>
+                <div class="testimonial-user">
+                  <div class="user-avatar">A</div>
+                  <div>
+                    <h4 class="user-name">Amit Verma</h4>
+                    <span class="user-role">Product Lead</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  BrainWave AI helped us reduce development time significantly
+                  while improving performance, scalability, and overall system
+                  reliability in our production environments.
+                </p>
+                <div class="testimonial-user">
+                  <div class="user-avatar">N</div>
+                  <div>
+                    <h4 class="user-name">Neha Kapoor</h4>
+                    <span class="user-role">Project Manager</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  The contextual understanding is outstanding, enabling us to
+                  solve complex technical challenges quickly without spending
+                  hours researching or debugging issues manually.
+                </p>
+                <div class="testimonial-user">
+                  <div class="user-avatar">S</div>
+                  <div>
+                    <h4 class="user-name">Suresh Kumar</h4>
+                    <span class="user-role">Senior Developer</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <p class="testimonial-text">
+                  This AI is a complete game changer, helping teams innovate
+                  faster, collaborate better, and build high-quality products
+                  without compromising performance or scalability.
+                </p>
+                <div class="testimonial-user">
+                  <div class="user-avatar">K</div>
+                  <div>
+                    <h4 class="user-name">Karan Mehta</h4>
+                    <span class="user-role">System Architect</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="nav-btn next">&#10095;</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-container">
+        <div class="footer-left">
+          <h3 class="footer-logo">
+            <span class="footerheading">BrainWave</span> AI
+          </h3>
+          <p class="footer-copy">© <span id="year"></span> BrainWave AI.</p>
+        </div>
+        <div class="footer-right">
+          <a href="#privacy_policy">Privacy Policy</a>
+          <a href="#Terms_of_service">Terms of Service</a>
+          <a href="#Cookie_policy">Cookie Policy</a>
+          <a href="#Security">Security</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Firebase -->
+    <script
+      src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script
+      src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
+    <!-- script file -->
+    <script src="./javascript/script.js"></script>
+    <script src="../javascript/theme.js" defer></script>
+
+  </body>
+
+</html>
