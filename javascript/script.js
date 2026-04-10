@@ -5,13 +5,10 @@ function safeQuery(selector) {
 
 // ================= SETUP CHECK =================
 (function () {
-    const isSetupDone = localStorage.getItem("setupComplete");
-
-    if (
-        window.location.pathname.includes("setup.html") &&
-        isSetupDone === "true"
-    ) {
-        window.location.href = "dashboard.html";
+    // Old key cleanup — agar purani key hai toh remove karo
+    const oldSetup = localStorage.getItem("setupComplete");
+    if (oldSetup) {
+        localStorage.removeItem("setupComplete");
     }
 })();
 
@@ -26,20 +23,13 @@ function saveRecentChat(text) {
     if (!text.trim()) return;
 
     let chats = getRecentChats();
-
-    // Duplicate ho toh pehle remove karo
     chats = chats.filter((c) => c.text !== text.trim());
-
-    // Naya item sabse upar
     chats.unshift({
         text: text.trim().substring(0, 38) + (text.trim().length > 38 ? "..." : ""),
         pinned: false,
         time: Date.now(),
     });
-
-    // Max 8 items
     if (chats.length > MAX_RECENT) chats = chats.slice(0, MAX_RECENT);
-
     localStorage.setItem("recentChats", JSON.stringify(chats));
     renderRecentChats();
 }
@@ -63,7 +53,6 @@ function renderRecentChats() {
         return;
     }
 
-    // Pinned items pehle, original index preserve karo
     const sorted = [...chats]
         .map((c, i) => ({ ...c, originalIndex: i }))
         .sort((a, b) => b.pinned - a.pinned);
@@ -97,7 +86,6 @@ function loadRecentChat(text) {
     }
 }
 
-// Global expose
 window.togglePin = togglePin;
 window.loadRecentChat = loadRecentChat;
 
@@ -107,6 +95,15 @@ function getInitials(name) {
     const parts = name.trim().split(" ");
     if (parts.length === 1) return parts[0][0].toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function setAvatar(el, photoURL, initials) {
+    if (!el) return;
+    if (photoURL) {
+        el.innerHTML = `<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+        el.textContent = initials;
+    }
 }
 
 function loadUserInfo() {
@@ -129,31 +126,34 @@ function loadUserInfo() {
 
     auth.onAuthStateChanged((user) => {
         if (!user) {
-            // Login nahi — wapas bhejo
-            window.location.href = "../Pages/account.html";
+            // FIX: sirf dashboard.html se hi redirect karo — loop nahi hoga
+            if (window.location.pathname.includes("dashboard.html")) {
+                window.location.href = "../Pages/account.html";
+            }
             return;
         }
 
-        // displayName hai toh use karo, warna email ka pehla part
-        const name = user.displayName || user.email.split("@")[0];
-        const email = user.email || "";
+        // FIX: email correctly lena — providerData se fallback
+        const name = user.displayName || user.providerData?.[0]?.displayName || user.email.split("@")[0];
+        const email = user.email || user.providerData?.[0]?.email || "";
+        const photoURL = user.photoURL || user.providerData?.[0]?.photoURL || "";
         const initials = getInitials(name);
 
-        // Sidebar bottom user section
-        const sidebarAvatarText = document.getElementById("sidebarAvatarText");
+        // Sidebar avatar
+        const sidebarAvatarEl = document.getElementById("sidebarAvatarText");
+        setAvatar(sidebarAvatarEl, photoURL, initials);
+
+        // Dropdown avatar
+        const dropdownAvatarEl = document.getElementById("dropdownAvatarText");
+        setAvatar(dropdownAvatarEl, photoURL, initials);
+
         const sidebarUserName = document.getElementById("sidebarUserName");
         const sidebarUserEmail = document.getElementById("sidebarUserEmail");
-
-        // Dropdown profile top
-        const dropdownAvatarText = document.getElementById("dropdownAvatarText");
         const dropdownUserName = document.getElementById("dropdownUserName");
         const dropdownUserEmail = document.getElementById("dropdownUserEmail");
 
-        if (sidebarAvatarText) sidebarAvatarText.textContent = initials;
         if (sidebarUserName) sidebarUserName.textContent = name;
         if (sidebarUserEmail) sidebarUserEmail.textContent = email;
-
-        if (dropdownAvatarText) dropdownAvatarText.textContent = initials;
         if (dropdownUserName) dropdownUserName.textContent = name.toUpperCase();
         if (dropdownUserEmail) dropdownUserEmail.textContent = email;
     });
@@ -214,10 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Recent chats render karo
     renderRecentChats();
-
-    // Firebase se dynamic user info load karo
     loadUserInfo();
 });
 
@@ -246,16 +243,13 @@ let uploadedImage = null;
 // ================= PROGRESS =================
 function updateProgress() {
     if (!progress) return;
-
     let total = 5;
     let filled = 0;
-
     if (fullName?.value.trim()) filled++;
     if (username?.value.trim()) filled++;
     if (phone?.value.trim()) filled++;
     if (bio?.value.trim()) filled++;
     if (uploadedImage) filled++;
-
     progress.style.width = (filled / total) * 100 + "%";
 }
 
@@ -284,7 +278,6 @@ if (uploadTrigger && fileInput) {
             if (uploadIcon) uploadIcon.style.display = "none";
         };
         reader.readAsDataURL(file);
-
         updateProgress();
     });
 }
@@ -297,7 +290,6 @@ if (uploadTrigger && fileInput) {
 // ================= VALIDATION =================
 function validateStep1() {
     let valid = true;
-
     [fullName, username, phone, bio].forEach((input) => {
         if (input) {
             if (!input.value.trim()) {
@@ -308,22 +300,18 @@ function validateStep1() {
             }
         }
     });
-
     if (!uploadedImage && fileInput) {
         alert("Please upload profile image");
         valid = false;
     }
-
     return valid;
 }
 
 // ================= STEP SWITCH =================
 btn?.addEventListener("click", () => {
     if (!validateStep1()) return;
-
     step1?.classList.add("hidden");
     step2?.classList.remove("hidden");
-
     if (title) title.innerText = "Preferences Setup";
     if (stepText) stepText.innerText = "Step 2 of 2";
     if (progress) progress.style.width = "100%";
@@ -332,9 +320,7 @@ btn?.addEventListener("click", () => {
 // ================= PERSONALITY =================
 document.querySelectorAll('[data-type="personality"]').forEach((el) => {
     el.addEventListener("click", () => {
-        document
-            .querySelectorAll('[data-type="personality"]')
-            .forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll('[data-type="personality"]').forEach((b) => b.classList.remove("active"));
         el.classList.add("active");
     });
 });
@@ -360,13 +346,19 @@ finishBtn?.addEventListener("click", () => {
         alert("Please select a personality");
         return;
     }
-
     if (interests.length === 0) {
         alert("Please select at least one interest");
         return;
     }
 
-    localStorage.setItem("setupComplete", "true");
+    // FIX: UID ke saath save karo taaki auth.js ke saath match kare
+    if (typeof firebase !== "undefined" && firebase.apps.length) {
+        const currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            localStorage.setItem("setupComplete_" + currentUser.uid, "true");
+        }
+    }
+
     window.location.href = "dashboard.html";
 });
 
@@ -389,14 +381,12 @@ document.addEventListener("DOMContentLoaded", function () {
         showToast("Logging out...");
 
         setTimeout(() => {
-            // Firebase signOut bhi karo taaki session clear ho
             if (typeof firebase !== "undefined" && firebase.apps.length) {
                 firebase.auth().signOut().then(() => {
-                    localStorage.removeItem("setupComplete");
+                    // FIX: index.html pe bhejo — account.html loop se bachao
                     window.location.href = "../index.html";
                 });
             } else {
-                localStorage.removeItem("setupComplete");
                 window.location.href = "../index.html";
             }
         }, 1500);
@@ -445,32 +435,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const emptyState = document.getElementById("emptyState");
     const chatSection = document.getElementById("chatSection");
     const chatInputSection = document.getElementById("chatInputSection");
-
     const mainInput = document.getElementById("mainInput");
     const startChatBtn = document.getElementById("startChatBtn");
-
     const chatContainer = document.getElementById("chatContainer");
     const chatInput = document.getElementById("chatInput");
     const sendMessageBtn = document.getElementById("sendMessageBtn");
 
     let chatHistory = [];
 
-    // ================= ADD MESSAGE =================
     function addMessage(text, type) {
         if (!chatContainer) return;
-
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", type);
         messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
-
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // ================= TYPING DOTS LOADER =================
     function showTypingLoader() {
         if (!chatContainer) return null;
-
         const loaderDiv = document.createElement("div");
         loaderDiv.classList.add("message", "ai");
         loaderDiv.innerHTML = `
@@ -479,21 +462,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span></span><span></span><span></span>
                 </div>
             </div>`;
-
         chatContainer.appendChild(loaderDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
-
         return function replaceWithText(text) {
             loaderDiv.querySelector(".message-bubble").innerHTML = text;
             chatContainer.scrollTop = chatContainer.scrollHeight;
         };
     }
 
-    // ================= AI RESPONSE =================
     async function generateResponse(input) {
         try {
             chatHistory.push({ role: "user", content: input });
-
             const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -505,58 +484,41 @@ document.addEventListener("DOMContentLoaded", () => {
                     messages: chatHistory
                 })
             });
-
             const data = await response.json();
-            console.log("API:", data);
-
             if (data.error) return "API Error: " + data.error.message;
-
             const reply = data.choices?.[0]?.message?.content || "No response 😅";
-
             chatHistory.push({ role: "assistant", content: reply });
-
             return reply;
-
         } catch (error) {
             console.error(error);
             return "Network error ❌";
         }
     }
 
-    // ================= START CHAT =================
     async function startChat(message) {
         if (!message || !message.trim()) return;
-
         saveRecentChat(message);
-
         if (emptyState) emptyState.style.display = "none";
         if (chatSection) chatSection.style.display = "block";
         if (chatInputSection) chatInputSection.style.display = "block";
-
         addMessage(message, "user");
-
         const replaceWithText = showTypingLoader();
         const reply = await generateResponse(message);
         replaceWithText(reply);
     }
 
-    // ================= SEND MESSAGE =================
     async function sendChatMessage() {
         if (!chatInput) return;
         const message = chatInput.value.trim();
         if (!message) return;
-
         saveRecentChat(message);
-
         addMessage(message, "user");
         chatInput.value = "";
-
         const replaceWithText = showTypingLoader();
         const reply = await generateResponse(message);
         replaceWithText(reply);
     }
 
-    // ================= EVENTS =================
     mainInput?.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
             startChat(mainInput.value.trim());
@@ -575,6 +537,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendMessageBtn?.addEventListener("click", sendChatMessage);
 
-    // Global expose
     window.startChat = startChat;
 });
