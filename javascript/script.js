@@ -243,13 +243,11 @@ let uploadedImage = null;
 // ================= PROGRESS =================
 function updateProgress() {
     if (!progress) return;
-    let total = 5;
+    let total = 3;
     let filled = 0;
     if (fullName?.value.trim()) filled++;
     if (username?.value.trim()) filled++;
     if (phone?.value.trim()) filled++;
-    if (bio?.value.trim()) filled++;
-    if (uploadedImage) filled++;
     progress.style.width = (filled / total) * 100 + "%";
 }
 
@@ -290,7 +288,8 @@ if (uploadTrigger && fileInput) {
 // ================= VALIDATION =================
 function validateStep1() {
     let valid = true;
-    [fullName, username, phone, bio].forEach((input) => {
+    // Sirf name, username, phone required — bio optional, image optional
+    [fullName, username, phone].forEach((input) => {
         if (input) {
             if (!input.value.trim()) {
                 input.style.borderColor = "red";
@@ -300,10 +299,8 @@ function validateStep1() {
             }
         }
     });
-    if (!uploadedImage && fileInput) {
-        alert("Please upload profile image");
-        valid = false;
-    }
+    // Bio border reset karo (optional hai)
+    if (bio) bio.style.borderColor = "#e5e7eb";
     return valid;
 }
 
@@ -335,7 +332,7 @@ document.querySelectorAll('[data-type="interest"]').forEach((el) => {
 // ================= FINISH SETUP =================
 finishBtn?.addEventListener("click", () => {
     if (!validateStep1()) {
-        alert("Please complete all details");
+        alert("Please fill Name, Username and Phone");
         return;
     }
 
