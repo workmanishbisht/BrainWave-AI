@@ -5,40 +5,57 @@ function safeQuery(selector) {
 
 // ================= SETUP CHECK =================
 (function () {
-    // Old key cleanup — agar purani key hai toh remove karo
     const oldSetup = localStorage.getItem("setupComplete");
     if (oldSetup) {
         localStorage.removeItem("setupComplete");
     }
 })();
 
-// ================= RECENT CHAT HISTORY =================
+// ================= CHAT SESSION MANAGER =================
 const MAX_RECENT = 8;
 
-function getRecentChats() {
-    return JSON.parse(localStorage.getItem("recentChats") || "[]");
+function getSessions() {
+    return JSON.parse(localStorage.getItem("chatSessions") || "[]");
 }
 
-function saveRecentChat(text) {
-    if (!text.trim()) return;
+function saveSessions(sessions) {
+    localStorage.setItem("chatSessions", JSON.stringify(sessions));
+}
 
-    let chats = getRecentChats();
-    chats = chats.filter((c) => c.text !== text.trim());
-    chats.unshift({
-        text: text.trim().substring(0, 38) + (text.trim().length > 38 ? "..." : ""),
+function createSession(firstMessage) {
+    const id = "session_" + Date.now();
+    const session = {
+        id,
+        title: firstMessage.trim().substring(0, 38) + (firstMessage.trim().length > 38 ? "..." : ""),
         pinned: false,
         time: Date.now(),
-    });
-    if (chats.length > MAX_RECENT) chats = chats.slice(0, MAX_RECENT);
-    localStorage.setItem("recentChats", JSON.stringify(chats));
-    renderRecentChats();
+        messages: [] // { role: "user"|"ai", text: "...", raw: "..." }
+    };
+    const sessions = getSessions();
+    sessions.unshift(session);
+    if (sessions.length > MAX_RECENT) sessions.splice(MAX_RECENT);
+    saveSessions(sessions);
+    return id;
+}
+
+function updateSessionMessages(sessionId, messages) {
+    const sessions = getSessions();
+    const idx = sessions.findIndex(s => s.id === sessionId);
+    if (idx !== -1) {
+        sessions[idx].messages = messages;
+        saveSessions(sessions);
+    }
+}
+
+function getSession(sessionId) {
+    return getSessions().find(s => s.id === sessionId) || null;
 }
 
 function togglePin(index) {
-    let chats = getRecentChats();
-    if (chats[index] === undefined) return;
-    chats[index].pinned = !chats[index].pinned;
-    localStorage.setItem("recentChats", JSON.stringify(chats));
+    const sessions = getSessions();
+    if (!sessions[index]) return;
+    sessions[index].pinned = !sessions[index].pinned;
+    saveSessions(sessions);
     renderRecentChats();
 }
 
@@ -46,48 +63,31 @@ function renderRecentChats() {
     const list = document.querySelector(".recent-list");
     if (!list) return;
 
-    const chats = getRecentChats();
+    const sessions = getSessions();
 
-    if (chats.length === 0) {
+    if (sessions.length === 0) {
         list.innerHTML = '<p class="recent-empty">No recent chats yet</p>';
         return;
     }
 
-    const sorted = [...chats]
-        .map((c, i) => ({ ...c, originalIndex: i }))
+    const sorted = [...sessions]
+        .map((s, i) => ({ ...s, originalIndex: i }))
         .sort((a, b) => b.pinned - a.pinned);
 
-    list.innerHTML = sorted
-        .map(
-            (chat) => `
-        <div class="recent-item ${chat.pinned ? "pinned" : ""}"
-             onclick="loadRecentChat('${chat.text.replace(/'/g, "\\'")}')">
-            <span class="recent-text">${chat.text}</span>
-            <span class="pin-icon ${chat.pinned ? "active" : ""}"
-                  onclick="event.stopPropagation(); togglePin(${chat.originalIndex})"
-                  title="${chat.pinned ? "Unpin" : "Pin"}">
-                <i class="${chat.pinned ? "ri-pushpin-fill" : "ri-pushpin-line"}"></i>
+    list.innerHTML = sorted.map(session => `
+        <div class="recent-item ${session.pinned ? "pinned" : ""} ${window.__activeSessionId === session.id ? "active-session" : ""}"
+             onclick="loadSession('${session.id}')">
+            <span class="recent-text">${session.title}</span>
+            <span class="pin-icon ${session.pinned ? "active" : ""}"
+                  onclick="event.stopPropagation(); togglePin(${session.originalIndex})"
+                  title="${session.pinned ? "Unpin" : "Pin"}">
+                <i class="${session.pinned ? "ri-pushpin-fill" : "ri-pushpin-line"}"></i>
             </span>
         </div>`
-        )
-        .join("");
-}
-
-function loadRecentChat(text) {
-    const chatInput = document.getElementById("chatInput");
-    const mainInput = document.getElementById("mainInput");
-
-    if (chatInput && document.getElementById("chatSection")?.style.display !== "none") {
-        chatInput.value = text;
-        chatInput.focus();
-    } else if (mainInput) {
-        mainInput.value = text;
-        mainInput.focus();
-    }
+    ).join("");
 }
 
 window.togglePin = togglePin;
-window.loadRecentChat = loadRecentChat;
 
 // ================= DYNAMIC USER INFO (FIREBASE) =================
 function getInitials(name) {
@@ -126,24 +126,20 @@ function loadUserInfo() {
 
     auth.onAuthStateChanged((user) => {
         if (!user) {
-            // FIX: sirf dashboard.html se hi redirect karo — loop nahi hoga
             if (window.location.pathname.includes("dashboard.html")) {
                 window.location.href = "../Pages/account.html";
             }
             return;
         }
 
-        // FIX: email correctly lena — providerData se fallback
         const name = user.displayName || user.providerData?.[0]?.displayName || user.email.split("@")[0];
         const email = user.email || user.providerData?.[0]?.email || "";
         const photoURL = user.photoURL || user.providerData?.[0]?.photoURL || "";
         const initials = getInitials(name);
 
-        // Sidebar avatar
         const sidebarAvatarEl = document.getElementById("sidebarAvatarText");
         setAvatar(sidebarAvatarEl, photoURL, initials);
 
-        // Dropdown avatar
         const dropdownAvatarEl = document.getElementById("dropdownAvatarText");
         setAvatar(dropdownAvatarEl, photoURL, initials);
 
@@ -214,11 +210,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // New Chat nav item click → reset to empty state
+    const newChatNavItem = document.querySelector(".nav-item.active");
+    if (newChatNavItem) {
+        newChatNavItem.addEventListener("click", () => {
+            resetToNewChat();
+        });
+    }
+
+    // Also wire all nav-items so "New Chat" always resets
+    document.querySelectorAll(".nav-item").forEach(item => {
+        const text = item.querySelector(".nav-text")?.textContent?.trim();
+        if (text === "New Chat") {
+            item.addEventListener("click", () => resetToNewChat());
+        }
+    });
+
     renderRecentChats();
     loadUserInfo();
 });
 
-// ================= ELEMENTS (Setup page ke liye) =================
+// ================= SETUP PAGE ELEMENTS =================
 const step1 = safeQuery("#step1");
 const step2 = safeQuery("#step2");
 const btn = safeQuery("#goStep2");
@@ -240,7 +252,6 @@ const uploadIcon = safeQuery("#uploadIcon");
 
 let uploadedImage = null;
 
-// ================= PROGRESS =================
 function updateProgress() {
     if (!progress) return;
     let total = 3;
@@ -251,28 +262,16 @@ function updateProgress() {
     progress.style.width = (filled / total) * 100 + "%";
 }
 
-// ================= IMAGE UPLOAD =================
 if (uploadTrigger && fileInput) {
     uploadTrigger.addEventListener("click", () => fileInput.click());
-
     fileInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Image must be less than 5MB");
-            fileInput.value = "";
-            return;
-        }
-
+        if (file.size > 5 * 1024 * 1024) { alert("Image must be less than 5MB"); fileInput.value = ""; return; }
         uploadedImage = file;
-
         const reader = new FileReader();
         reader.onload = function (e) {
-            if (previewImg) {
-                previewImg.src = e.target.result;
-                previewImg.style.display = "block";
-            }
+            if (previewImg) { previewImg.src = e.target.result; previewImg.style.display = "block"; }
             if (uploadIcon) uploadIcon.style.display = "none";
         };
         reader.readAsDataURL(file);
@@ -280,31 +279,20 @@ if (uploadTrigger && fileInput) {
     });
 }
 
-// ================= INPUT LISTENER =================
-[fullName, username, phone, bio].forEach((input) => {
-    input?.addEventListener("input", updateProgress);
-});
+[fullName, username, phone, bio].forEach((input) => { input?.addEventListener("input", updateProgress); });
 
-// ================= VALIDATION =================
 function validateStep1() {
     let valid = true;
-    // Sirf name, username, phone required — bio optional, image optional
     [fullName, username, phone].forEach((input) => {
         if (input) {
-            if (!input.value.trim()) {
-                input.style.borderColor = "red";
-                valid = false;
-            } else {
-                input.style.borderColor = "#e5e7eb";
-            }
+            if (!input.value.trim()) { input.style.borderColor = "red"; valid = false; }
+            else { input.style.borderColor = "#e5e7eb"; }
         }
     });
-    // Bio border reset karo (optional hai)
     if (bio) bio.style.borderColor = "#e5e7eb";
     return valid;
 }
 
-// ================= STEP SWITCH =================
 btn?.addEventListener("click", () => {
     if (!validateStep1()) return;
     step1?.classList.add("hidden");
@@ -314,7 +302,6 @@ btn?.addEventListener("click", () => {
     if (progress) progress.style.width = "100%";
 });
 
-// ================= PERSONALITY =================
 document.querySelectorAll('[data-type="personality"]').forEach((el) => {
     el.addEventListener("click", () => {
         document.querySelectorAll('[data-type="personality"]').forEach((b) => b.classList.remove("active"));
@@ -322,44 +309,23 @@ document.querySelectorAll('[data-type="personality"]').forEach((el) => {
     });
 });
 
-// ================= INTEREST =================
 document.querySelectorAll('[data-type="interest"]').forEach((el) => {
-    el.addEventListener("click", () => {
-        el.classList.toggle("active");
-    });
+    el.addEventListener("click", () => { el.classList.toggle("active"); });
 });
 
-// ================= FINISH SETUP =================
 finishBtn?.addEventListener("click", () => {
-    if (!validateStep1()) {
-        alert("Please fill Name, Username and Phone");
-        return;
-    }
-
+    if (!validateStep1()) { alert("Please fill Name, Username and Phone"); return; }
     const personality = document.querySelector('[data-type="personality"].active');
     const interests = document.querySelectorAll('[data-type="interest"].active');
-
-    if (!personality) {
-        alert("Please select a personality");
-        return;
-    }
-    if (interests.length === 0) {
-        alert("Please select at least one interest");
-        return;
-    }
-
-    // FIX: UID ke saath save karo taaki auth.js ke saath match kare
+    if (!personality) { alert("Please select a personality"); return; }
+    if (interests.length === 0) { alert("Please select at least one interest"); return; }
     if (typeof firebase !== "undefined" && firebase.apps.length) {
         const currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            localStorage.setItem("setupComplete_" + currentUser.uid, "true");
-        }
+        if (currentUser) { localStorage.setItem("setupComplete_" + currentUser.uid, "true"); }
     }
-
     window.location.href = "dashboard.html";
 });
 
-// ================= YEAR =================
 const yearEl = safeQuery("#year");
 if (yearEl) yearEl.innerText = new Date().getFullYear();
 
@@ -376,13 +342,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     logoutBtn?.addEventListener("click", () => {
         showToast("Logging out...");
-
         setTimeout(() => {
             if (typeof firebase !== "undefined" && firebase.apps.length) {
-                firebase.auth().signOut().then(() => {
-                    // FIX: index.html pe bhejo — account.html loop se bachao
-                    window.location.href = "../index.html";
-                });
+                firebase.auth().signOut().then(() => { window.location.href = "../index.html"; });
             } else {
                 window.location.href = "../index.html";
             }
@@ -402,31 +364,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const cards = document.querySelectorAll(".testimonial-card");
     const prevBtn = document.querySelector(".prev");
     const nextBtn = document.querySelector(".next");
-
     if (!track || cards.length === 0) return;
-
     let index = 0;
-
-    function getCardWidth() {
-        return cards[0].offsetWidth + 24;
-    }
-
-    function updateSlider() {
-        track.style.transform = `translateX(${-(index * getCardWidth())}px)`;
-    }
-
-    nextBtn?.addEventListener("click", () => {
-        if (index < cards.length - 1) { index++; updateSlider(); }
-    });
-
-    prevBtn?.addEventListener("click", () => {
-        if (index > 0) { index--; updateSlider(); }
-    });
-
+    function getCardWidth() { return cards[0].offsetWidth + 24; }
+    function updateSlider() { track.style.transform = `translateX(${-(index * getCardWidth())}px)`; }
+    nextBtn?.addEventListener("click", () => { if (index < cards.length - 1) { index++; updateSlider(); } });
+    prevBtn?.addEventListener("click", () => { if (index > 0) { index--; updateSlider(); } });
     window.addEventListener("resize", updateSlider);
 });
 
-// ================= CHAT =================
+// ================= MARKDOWN FORMATTER =================
+function formatMarkdown(text) {
+    const codeBlocks = [];
+    text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) => {
+        const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        const placeholder = `%%CODEBLOCK_${codeBlocks.length}%%`;
+        codeBlocks.push(`<pre style="background:#1e1e1e;color:#f8f8f2;padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:'Courier New',monospace;font-size:13px;margin:12px 0;line-height:1.6;"><code>${escaped}</code></pre>`);
+        return placeholder;
+    });
+    text = text.replace(/`([^`]+)`/g, (_, code) => {
+        const escaped = code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return `<code style="background:#f0f0f0;color:#d63384;padding:2px 6px;border-radius:4px;font-family:'Courier New',monospace;font-size:13px;">${escaped}</code>`;
+    });
+    text = text.replace(/^### (.+)$/gm, '<h3 style="font-size:16px;font-weight:700;margin:14px 0 6px;">$1</h3>');
+    text = text.replace(/^## (.+)$/gm, '<h2 style="font-size:18px;font-weight:700;margin:16px 0 6px;">$1</h2>');
+    text = text.replace(/^# (.+)$/gm, '<h1 style="font-size:20px;font-weight:700;margin:18px 0 8px;">$1</h1>');
+    text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    text = text.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #e0e0e0;margin:14px 0;">');
+    text = text.replace(/^\d+\. (.+)$/gm, '<li style="margin:4px 0;">$1</li>');
+    text = text.replace(/((<li style="margin:4px 0;">.*?<\/li>\n?)+)/g, (match) => `<ol style="margin:8px 0;padding-left:22px;">${match}</ol>`);
+    text = text.replace(/^[*\-] (.+)$/gm, '<li style="margin:4px 0;list-style:disc;">$1</li>');
+    text = text.replace(/((<li style="margin:4px 0;list-style:disc;">.*?<\/li>\n?)+)/g, (match) => `<ul style="margin:8px 0;padding-left:22px;">${match}</ul>`);
+    text = text.replace(/\n/g, '<br>');
+    codeBlocks.forEach((block, i) => { text = text.replace(`%%CODEBLOCK_${i}%%`, block); });
+    return text;
+}
+
+// ================= CHAT ENGINE =================
 document.addEventListener("DOMContentLoaded", () => {
 
     const emptyState = document.getElementById("emptyState");
@@ -438,14 +414,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendMessageBtn = document.getElementById("sendMessageBtn");
 
-    let chatHistory = [];
+    // Per-session state
+    let currentSessionId = null;
+    let chatHistory = []; // API history for current session
+    let sessionMessages = []; // {role, text(html), raw} for display/restore
 
-    function addMessage(text, type) {
+    // ---- Helpers ----
+
+    function addMessageToDOM(html, type) {
         if (!chatContainer) return;
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message", type);
-        messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
-        chatContainer.appendChild(messageDiv);
+        const div = document.createElement("div");
+        div.classList.add("message", type);
+        div.innerHTML = `<div class="message-bubble">${html}</div>`;
+        chatContainer.appendChild(div);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
@@ -453,74 +434,164 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!chatContainer) return null;
         const loaderDiv = document.createElement("div");
         loaderDiv.classList.add("message", "ai");
-        loaderDiv.innerHTML = `
-            <div class="message-bubble">
-                <div class="typing-dots">
-                    <span></span><span></span><span></span>
-                </div>
-            </div>`;
+        loaderDiv.innerHTML = `<div class="message-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
         chatContainer.appendChild(loaderDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
-        return function replaceWithText(text) {
-            loaderDiv.querySelector(".message-bubble").innerHTML = text;
+        return function replaceWithText(html) {
+            loaderDiv.querySelector(".message-bubble").innerHTML = html;
             chatContainer.scrollTop = chatContainer.scrollHeight;
         };
     }
 
-    async function generateResponse(input) {
+    async function callAPI(input) {
         try {
             chatHistory.push({ role: "user", content: input });
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer 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",
+                    "Authorization": "Bearer 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",
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "meta-llama/llama-3-8b-instruct",
-                    messages: chatHistory
+                    model: "llama-3.3-70b-versatile",
+                    messages: chatHistory,
+                    temperature: 0.7,
+                    max_tokens: 1024
                 })
             });
             const data = await response.json();
-            if (data.error) return "API Error: " + data.error.message;
-            const reply = data.choices?.[0]?.message?.content || "No response 😅";
-            chatHistory.push({ role: "assistant", content: reply });
-            return reply;
+            if (data.error) return { raw: "API Error: " + data.error.message, html: "API Error: " + data.error.message };
+            const raw = data.choices?.[0]?.message?.content || "No response 😅";
+            chatHistory.push({ role: "assistant", content: raw });
+            return { raw, html: formatMarkdown(raw) };
         } catch (error) {
             console.error(error);
-            return "Network error ❌";
+            return { raw: "Network error ❌", html: "Network error ❌" };
         }
     }
 
-    async function startChat(message) {
-        if (!message || !message.trim()) return;
-        saveRecentChat(message);
+    // ---- Session lifecycle ----
+
+    function showChatUI() {
         if (emptyState) emptyState.style.display = "none";
         if (chatSection) chatSection.style.display = "block";
         if (chatInputSection) chatInputSection.style.display = "block";
-        addMessage(message, "user");
-        const replaceWithText = showTypingLoader();
-        const reply = await generateResponse(message);
-        replaceWithText(reply);
     }
 
+    function showEmptyUI() {
+        if (emptyState) emptyState.style.display = "";
+        if (chatSection) chatSection.style.display = "none";
+        if (chatInputSection) chatInputSection.style.display = "none";
+        if (mainInput) mainInput.value = "";
+    }
+
+    // Start a brand new chat session
+    async function startChat(message) {
+        if (!message || !message.trim()) return;
+
+        // Create session
+        currentSessionId = createSession(message);
+        window.__activeSessionId = currentSessionId;
+        chatHistory = [];
+        sessionMessages = [];
+
+        if (chatContainer) chatContainer.innerHTML = "";
+        showChatUI();
+        renderRecentChats();
+
+        // User message
+        const userHtml = escapeHtml(message);
+        addMessageToDOM(userHtml, "user");
+        sessionMessages.push({ role: "user", text: userHtml });
+        updateSessionMessages(currentSessionId, sessionMessages);
+
+        // AI response
+        const replaceWithText = showTypingLoader();
+        const { raw, html } = await callAPI(message);
+        replaceWithText(html);
+        sessionMessages.push({ role: "ai", text: html, raw });
+        updateSessionMessages(currentSessionId, sessionMessages);
+    }
+
+    // Send message in existing session
     async function sendChatMessage() {
         if (!chatInput) return;
         const message = chatInput.value.trim();
         if (!message) return;
-        saveRecentChat(message);
-        addMessage(message, "user");
         chatInput.value = "";
+
+        // If somehow no session, create one
+        if (!currentSessionId) {
+            await startChat(message);
+            return;
+        }
+
+        const userHtml = escapeHtml(message);
+        addMessageToDOM(userHtml, "user");
+        sessionMessages.push({ role: "user", text: userHtml });
+        updateSessionMessages(currentSessionId, sessionMessages);
+
         const replaceWithText = showTypingLoader();
-        const reply = await generateResponse(message);
-        replaceWithText(reply);
+        const { raw, html } = await callAPI(message);
+        replaceWithText(html);
+        sessionMessages.push({ role: "ai", text: html, raw });
+        updateSessionMessages(currentSessionId, sessionMessages);
     }
 
-    mainInput?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            startChat(mainInput.value.trim());
-            mainInput.value = "";
+    // Load an old session from sidebar
+    function loadSession(sessionId) {
+        const session = getSession(sessionId);
+        if (!session) return;
+
+        currentSessionId = sessionId;
+        window.__activeSessionId = sessionId;
+
+        // Rebuild chatHistory for API from stored messages
+        chatHistory = [];
+        session.messages.forEach(msg => {
+            if (msg.role === "user") {
+                // raw text for user — we stored html, recover plain text
+                chatHistory.push({ role: "user", content: unescapeHtml(msg.text) });
+            } else {
+                chatHistory.push({ role: "assistant", content: msg.raw || unescapeHtml(msg.text) });
+            }
+        });
+
+        sessionMessages = session.messages.slice();
+
+        // Render messages
+        if (chatContainer) {
+            chatContainer.innerHTML = "";
+            session.messages.forEach(msg => {
+                addMessageToDOM(msg.text, msg.role === "user" ? "user" : "ai");
+            });
         }
+
+        showChatUI();
+        renderRecentChats();
+        if (chatInput) chatInput.focus();
+    }
+
+    // Reset to new chat (empty state)
+    function resetToNewChat() {
+        currentSessionId = null;
+        window.__activeSessionId = null;
+        chatHistory = [];
+        sessionMessages = [];
+        if (chatContainer) chatContainer.innerHTML = "";
+        showEmptyUI();
+        renderRecentChats();
+    }
+
+    // Expose globally
+    window.startChat = startChat;
+    window.loadSession = loadSession;
+    window.resetToNewChat = resetToNewChat;
+
+    // ---- Event listeners ----
+
+    mainInput?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") { startChat(mainInput.value.trim()); mainInput.value = ""; }
     });
 
     startChatBtn?.addEventListener("click", () => {
@@ -534,5 +605,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendMessageBtn?.addEventListener("click", sendChatMessage);
 
-    window.startChat = startChat;
+    // Suggestion cards
+    document.querySelectorAll(".suggestion-card").forEach(card => {
+        card.addEventListener("click", () => {
+            const text = card.querySelector("h4")?.textContent || card.textContent;
+            // use onclick attr if present, otherwise use title text
+        });
+    });
 });
+
+// ================= UTILS =================
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function unescapeHtml(html) {
+    return html
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"');
+}
+
+// Also add style for active session highlight
+(function addActiveSessionStyle() {
+    const style = document.createElement("style");
+    style.textContent = `
+        .recent-item.active-session {
+            background: rgba(79, 70, 229, 0.12) !important;
+            border-left: 3px solid #4f46e5;
+        }
+        .recent-item.active-session .recent-text {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+    `;
+    document.head.appendChild(style);
+})();
