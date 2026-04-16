@@ -373,6 +373,74 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", updateSlider);
 });
 
+
+// ===== SEARCH VOICE =====
+document.addEventListener("DOMContentLoaded", () => {
+
+    const micBtn = document.getElementById("searchMicBtn");
+    const input = document.getElementById("mainInput");
+    const sendBtn = document.getElementById("startChatBtn");
+
+    let recognition;
+    let isRecording = false;
+
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition || !micBtn) return;
+
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.continuous = false;
+
+    micBtn.addEventListener("click", async () => {
+
+        // STOP
+        if (isRecording) {
+            recognition.stop();
+            micBtn.classList.remove("recording");
+            isRecording = false;
+            return;
+        }
+
+        // PERMISSION
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            micBtn.classList.add("recording");
+            isRecording = true;
+            recognition.start();
+
+        } catch (err) {
+            alert("Mic permission denied ❌");
+        }
+    });
+
+    recognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+
+        micBtn.classList.remove("recording");
+        micBtn.classList.add("processing");
+        isRecording = false;
+
+        input.value = text;
+
+        // AUTO START CHAT
+        setTimeout(() => {
+            micBtn.classList.remove("processing");
+            sendBtn.click();
+        }, 800);
+    };
+
+    recognition.onerror = () => {
+        micBtn.classList.remove("recording");
+        micBtn.classList.remove("processing");
+        isRecording = false;
+        alert("Voice error ❌");
+    };
+
+});
+
 // ================= MARKDOWN FORMATTER =================
 function formatMarkdown(text) {
     const codeBlocks = [];
