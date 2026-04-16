@@ -34,7 +34,9 @@
 
         <nav class="nav-menu">
           <ul class="nav-list">
-            <li class="nav-item active">
+            <!-- New Chat: onclick se resetToNewChat() call hoga -->
+            <li class="nav-item active" id="newChatBtn"
+              onclick="resetToNewChat()">
               <i class="ri-chat-3-line nav-icon"></i>
               <span class="nav-text">New Chat</span>
             </li>
@@ -66,7 +68,7 @@
           <span class="upgrade-sub">Access more powerful curation modes</span>
         </div>
 
-        <!-- USER SECTION — sab JS se fill hoga -->
+        <!-- USER SECTION -->
         <div class="user-section">
           <div class="user-info profile-toggle">
             <div class="user-avatar">
@@ -125,6 +127,14 @@
           <h3 class="header-title" id="headerTitle">
             AI Intelligence Assistant
           </h3>
+          <!-- New Chat button in header (visible during chat) -->
+          <div class="header-actions">
+            <button class="new-chat-header-btn" id="newChatHeaderBtn"
+              onclick="resetToNewChat()" title="New Chat" style="display:none;">
+              <i class="ri-edit-line"></i>
+              <span>New Chat</span>
+            </button>
+          </div>
         </header>
 
         <!-- EMPTY STATE -->
@@ -158,20 +168,22 @@
               <div class="suggestion-icon">
                 <i class="ri-file-list-3-line"></i>
               </div>
-              <div>
-                <h4>Summarize Article</h4>
-                <p>Paste a link to distill key insights.</p>
+              <div class="suggestion-content">
+                <h4 class="suggestion-title">Summarize Article</h4>
+                <p class="suggestion-text">Paste a link to distill key
+                  insights.</p>
               </div>
             </div>
 
             <div class="suggestion-card"
-              onclick="startChat('Give me creative ideas')">
+              onclick="startChat('Give me creative ideas for my next project')">
               <div class="suggestion-icon">
                 <i class="ri-lightbulb-line"></i>
               </div>
-              <div>
-                <h4>Brainstorm Ideas</h4>
-                <p>Get fresh concepts for your project.</p>
+              <div class="suggestion-content">
+                <h4 class="suggestion-title">Brainstorm Ideas</h4>
+                <p class="suggestion-text">Get fresh concepts for your
+                  project.</p>
               </div>
             </div>
 
@@ -180,9 +192,9 @@
               <div class="suggestion-icon">
                 <i class="ri-code-s-slash-line"></i>
               </div>
-              <div>
-                <h4>Write Code</h4>
-                <p>Generate snippets or debug logic.</p>
+              <div class="suggestion-content">
+                <h4 class="suggestion-title">Write Code</h4>
+                <p class="suggestion-text">Generate snippets or debug logic.</p>
               </div>
             </div>
           </div>
