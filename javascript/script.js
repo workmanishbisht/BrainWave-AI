@@ -29,7 +29,7 @@ function createSession(firstMessage) {
         title: firstMessage.trim().substring(0, 38) + (firstMessage.trim().length > 38 ? "..." : ""),
         pinned: false,
         time: Date.now(),
-        messages: [] // { role: "user"|"ai", text: "...", raw: "..." }
+        messages: []
     };
     const sessions = getSessions();
     sessions.unshift(session);
@@ -57,8 +57,218 @@ function togglePin(index) {
     sessions[index].pinned = !sessions[index].pinned;
     saveSessions(sessions);
     renderRecentChats();
+    showToast(sessions[index].pinned ? "Chat pinned 📌" : "Chat unpinned");
 }
 
+function deleteSession(sessionId) {
+    let sessions = getSessions();
+    sessions = sessions.filter(s => s.id !== sessionId);
+    saveSessions(sessions);
+    
+    if (window.__activeSessionId === sessionId) {
+        window.__activeSessionId = null;
+        if (typeof resetToNewChat === 'function') {
+            resetToNewChat();
+        }
+    }
+    
+    renderRecentChats();
+    showToast("Chat deleted", "success");
+}
+
+function renameSession(sessionId, newTitle) {
+    const sessions = getSessions();
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+        session.title = newTitle.substring(0, 38) + (newTitle.length > 38 ? "..." : "");
+        saveSessions(sessions);
+        renderRecentChats();
+        showToast("Chat renamed", "success");
+    }
+}
+
+// ================= TOAST NOTIFICATION =================
+function showToast(message, type = 'info') {
+    let toast = document.querySelector('.toast-notification');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        document.body.appendChild(toast);
+    }
+    
+    toast.textContent = message;
+    toast.className = `toast-notification ${type}`;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// ================= MODAL MANAGEMENT =================
+let currentModalSessionId = null;
+
+function showChatOptionsModal(sessionId, event) {
+    event.stopPropagation();
+    currentModalSessionId = sessionId;
+    
+    const session = getSession(sessionId);
+    if (!session) return;
+    
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) existingModal.remove();
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="chat-options-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Chat Options</h3>
+                <p>${session.title}</p>
+            </div>
+            <div class="modal-body">
+                <div class="modal-option" onclick="handleRenameClick('${sessionId}')">
+                    <i class="ri-edit-line"></i>
+                    <div class="option-content">
+                        <div class="option-title">Rename</div>
+                        <div class="option-desc">Give this chat a new name</div>
+                    </div>
+                </div>
+                <div class="modal-option" onclick="handlePinClick('${sessionId}')">
+                    <i class="${session.pinned ? 'ri-unpin-line' : 'ri-pushpin-line'}"></i>
+                    <div class="option-content">
+                        <div class="option-title">${session.pinned ? 'Unpin' : 'Pin'}</div>
+                        <div class="option-desc">${session.pinned ? 'Remove from top' : 'Keep at the top'}</div>
+                    </div>
+                </div>
+                <div class="modal-option" onclick="handleShareClick('${sessionId}')">
+                    <i class="ri-share-line"></i>
+                    <div class="option-content">
+                        <div class="option-title">Share</div>
+                        <div class="option-desc">Export or share this chat</div>
+                    </div>
+                </div>
+                <div class="modal-option danger" onclick="handleDeleteClick('${sessionId}')">
+                    <i class="ri-delete-bin-line"></i>
+                    <div class="option-content">
+                        <div class="option-title">Delete</div>
+                        <div class="option-desc">Permanently remove this chat</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.addEventListener('click', closeModal);
+}
+
+function closeModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) modal.remove();
+    currentModalSessionId = null;
+}
+
+function showRenameInput(sessionId) {
+    const session = getSession(sessionId);
+    if (!session) return;
+    
+    const modal = document.querySelector('.chat-options-modal');
+    if (!modal) return;
+    
+    modal.innerHTML = `
+        <div class="modal-header">
+            <h3>Rename Chat</h3>
+            <p>Enter a new name for this conversation</p>
+        </div>
+        <div class="rename-input-container">
+            <input type="text" 
+                   class="rename-input" 
+                   id="renameInput" 
+                   value="${session.title.replace('...', '')}" 
+                   maxlength="50"
+                   placeholder="Chat name">
+            <div class="rename-actions">
+                <button class="rename-btn save" onclick="handleRenameSave('${sessionId}')">Save</button>
+                <button class="rename-btn cancel" onclick="showChatOptionsModal('${sessionId}', event)">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => document.getElementById('renameInput')?.focus(), 100);
+    
+    const input = document.getElementById('renameInput');
+    if (input) {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleRenameSave(sessionId);
+            }
+        });
+    }
+}
+
+// ================= MODAL ACTION HANDLERS =================
+window.handleRenameClick = function(sessionId) {
+    showRenameInput(sessionId);
+};
+
+window.handleRenameSave = function(sessionId) {
+    const input = document.getElementById('renameInput');
+    if (input && input.value.trim()) {
+        renameSession(sessionId, input.value.trim());
+        closeModal();
+    }
+};
+
+window.handlePinClick = function(sessionId) {
+    const sessions = getSessions();
+    const index = sessions.findIndex(s => s.id === sessionId);
+    if (index !== -1) {
+        togglePin(index);
+        closeModal();
+    }
+};
+
+window.handleShareClick = function(sessionId) {
+    const session = getSession(sessionId);
+    if (!session) return;
+    
+    const shareText = `BrainWave AI Chat: ${session.title}\n${new Date(session.time).toLocaleString()}\n\n`;
+    const messageText = session.messages.map(m => 
+        `${m.role === 'user' ? 'You' : 'AI'}: ${m.raw || unescapeHtml(m.text)}`
+    ).join('\n\n');
+    
+    const fullText = shareText + messageText;
+    
+    navigator.clipboard?.writeText(fullText).then(() => {
+        showToast("Chat copied to clipboard", "success");
+    }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = fullText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast("Chat copied to clipboard", "success");
+    });
+    
+    closeModal();
+};
+
+window.handleDeleteClick = function(sessionId) {
+    if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+        deleteSession(sessionId);
+        closeModal();
+    }
+};
+
+window.closeModal = closeModal;
+window.showChatOptionsModal = showChatOptionsModal;
+
+// ================= RENDER RECENT CHATS =================
 function renderRecentChats() {
     const list = document.querySelector(".recent-list");
     if (!list) return;
@@ -72,16 +282,19 @@ function renderRecentChats() {
 
     const sorted = [...sessions]
         .map((s, i) => ({ ...s, originalIndex: i }))
-        .sort((a, b) => b.pinned - a.pinned);
+        .sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return b.time - a.time;
+        });
 
     list.innerHTML = sorted.map(session => `
         <div class="recent-item ${session.pinned ? "pinned" : ""} ${window.__activeSessionId === session.id ? "active-session" : ""}"
              onclick="loadSession('${session.id}')">
             <span class="recent-text">${session.title}</span>
-            <span class="pin-icon ${session.pinned ? "active" : ""}"
-                  onclick="event.stopPropagation(); togglePin(${session.originalIndex})"
-                  title="${session.pinned ? "Unpin" : "Pin"}">
-                <i class="${session.pinned ? "ri-pushpin-fill" : "ri-pushpin-line"}"></i>
+            ${session.pinned ? '<i class="ri-pushpin-fill pin-icon active"></i>' : ''}
+            <span class="recent-options-btn" onclick="showChatOptionsModal('${session.id}', event)">
+                <i class="ri-more-2-fill"></i>
             </span>
         </div>`
     ).join("");
@@ -210,7 +423,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // New Chat nav item click → reset to empty state
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+
     const newChatNavItem = document.querySelector(".nav-item.active");
     if (newChatNavItem) {
         newChatNavItem.addEventListener("click", () => {
@@ -218,7 +436,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Also wire all nav-items so "New Chat" always resets
     document.querySelectorAll(".nav-item").forEach(item => {
         const text = item.querySelector(".nav-text")?.textContent?.trim();
         if (text === "New Chat") {
@@ -350,12 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }, 1500);
     });
-
-    function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 3000);
-    }
 });
 
 // ================= TESTIMONIALS =================
@@ -373,10 +584,8 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", updateSlider);
 });
 
-
 // ===== SEARCH VOICE =====
 document.addEventListener("DOMContentLoaded", () => {
-
     const micBtn = document.getElementById("searchMicBtn");
     const input = document.getElementById("mainInput");
     const sendBtn = document.getElementById("startChatBtn");
@@ -384,8 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let recognition;
     let isRecording = false;
 
-    const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition || !micBtn) return;
 
@@ -394,8 +602,6 @@ document.addEventListener("DOMContentLoaded", () => {
     recognition.continuous = false;
 
     micBtn.addEventListener("click", async () => {
-
-        // STOP
         if (isRecording) {
             recognition.stop();
             micBtn.classList.remove("recording");
@@ -403,14 +609,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // PERMISSION
         try {
             await navigator.mediaDevices.getUserMedia({ audio: true });
-
             micBtn.classList.add("recording");
             isRecording = true;
             recognition.start();
-
         } catch (err) {
             alert("Mic permission denied ❌");
         }
@@ -418,14 +621,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     recognition.onresult = (event) => {
         const text = event.results[0][0].transcript;
-
         micBtn.classList.remove("recording");
         micBtn.classList.add("processing");
         isRecording = false;
-
         input.value = text;
-
-        // AUTO START CHAT
         setTimeout(() => {
             micBtn.classList.remove("processing");
             sendBtn.click();
@@ -438,7 +637,6 @@ document.addEventListener("DOMContentLoaded", () => {
         isRecording = false;
         alert("Voice error ❌");
     };
-
 });
 
 // ================= MARKDOWN FORMATTER =================
@@ -470,7 +668,7 @@ function formatMarkdown(text) {
     return text;
 }
 
-// ================= CHAT ENGINE =================
+// ================= CHAT ENGINE WITH STATE PERSISTENCE =================
 document.addEventListener("DOMContentLoaded", () => {
 
     const emptyState = document.getElementById("emptyState");
@@ -482,12 +680,84 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chatInput");
     const sendMessageBtn = document.getElementById("sendMessageBtn");
 
-    // Per-session state
     let currentSessionId = null;
-    let chatHistory = []; // API history for current session
-    let sessionMessages = []; // {role, text(html), raw} for display/restore
+    let chatHistory = [];
+    let sessionMessages = [];
 
-    // ---- Helpers ----
+    // ================= STATE PERSISTENCE =================
+    
+    function saveCurrentChatState() {
+        if (currentSessionId) {
+            const state = {
+                sessionId: currentSessionId,
+                chatHistory: chatHistory,
+                sessionMessages: sessionMessages,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('currentChatState', JSON.stringify(state));
+        } else {
+            localStorage.removeItem('currentChatState');
+        }
+    }
+
+    function loadChatState() {
+        const savedState = localStorage.getItem('currentChatState');
+        if (!savedState) return false;
+
+        try {
+            const state = JSON.parse(savedState);
+            
+            if (Date.now() - state.timestamp > 24 * 60 * 60 * 1000) {
+                localStorage.removeItem('currentChatState');
+                return false;
+            }
+
+            currentSessionId = state.sessionId;
+            chatHistory = state.chatHistory || [];
+            sessionMessages = state.sessionMessages || [];
+            window.__activeSessionId = currentSessionId;
+
+            const session = getSession(currentSessionId);
+            if (!session) {
+                localStorage.removeItem('currentChatState');
+                return false;
+            }
+
+            if (chatContainer) {
+                chatContainer.innerHTML = "";
+                sessionMessages.forEach(msg => {
+                    addMessageToDOM(msg.text, msg.role === "user" ? "user" : "ai");
+                });
+            }
+
+            showChatUI();
+            renderRecentChats();
+            
+            return true;
+        } catch (e) {
+            console.error('Error loading chat state:', e);
+            localStorage.removeItem('currentChatState');
+            return false;
+        }
+    }
+
+    function clearChatState() {
+        localStorage.removeItem('currentChatState');
+    }
+
+    setInterval(saveCurrentChatState, 2000);
+
+    window.addEventListener('beforeunload', () => {
+        saveCurrentChatState();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            saveCurrentChatState();
+        }
+    });
+
+    // ================= HELPER FUNCTIONS =================
 
     function addMessageToDOM(html, type) {
         if (!chatContainer) return;
@@ -514,6 +784,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function callAPI(input) {
         try {
             chatHistory.push({ role: "user", content: input });
+            saveCurrentChatState();
+            
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -538,8 +810,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---- Session lifecycle ----
-
     function showChatUI() {
         if (emptyState) emptyState.style.display = "none";
         if (chatSection) chatSection.style.display = "block";
@@ -551,13 +821,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (chatSection) chatSection.style.display = "none";
         if (chatInputSection) chatInputSection.style.display = "none";
         if (mainInput) mainInput.value = "";
+        clearChatState();
     }
 
-    // Start a brand new chat session
     async function startChat(message) {
         if (!message || !message.trim()) return;
 
-        // Create session
+        clearChatState();
+
         currentSessionId = createSession(message);
         window.__activeSessionId = currentSessionId;
         chatHistory = [];
@@ -567,28 +838,26 @@ document.addEventListener("DOMContentLoaded", () => {
         showChatUI();
         renderRecentChats();
 
-        // User message
         const userHtml = escapeHtml(message);
         addMessageToDOM(userHtml, "user");
-        sessionMessages.push({ role: "user", text: userHtml });
+        sessionMessages.push({ role: "user", text: userHtml, raw: message });
         updateSessionMessages(currentSessionId, sessionMessages);
+        saveCurrentChatState();
 
-        // AI response
         const replaceWithText = showTypingLoader();
         const { raw, html } = await callAPI(message);
         replaceWithText(html);
         sessionMessages.push({ role: "ai", text: html, raw });
         updateSessionMessages(currentSessionId, sessionMessages);
+        saveCurrentChatState();
     }
 
-    // Send message in existing session
     async function sendChatMessage() {
         if (!chatInput) return;
         const message = chatInput.value.trim();
         if (!message) return;
         chatInput.value = "";
 
-        // If somehow no session, create one
         if (!currentSessionId) {
             await startChat(message);
             return;
@@ -596,17 +865,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const userHtml = escapeHtml(message);
         addMessageToDOM(userHtml, "user");
-        sessionMessages.push({ role: "user", text: userHtml });
+        sessionMessages.push({ role: "user", text: userHtml, raw: message });
         updateSessionMessages(currentSessionId, sessionMessages);
+        saveCurrentChatState();
 
         const replaceWithText = showTypingLoader();
         const { raw, html } = await callAPI(message);
         replaceWithText(html);
         sessionMessages.push({ role: "ai", text: html, raw });
         updateSessionMessages(currentSessionId, sessionMessages);
+        saveCurrentChatState();
     }
 
-    // Load an old session from sidebar
     function loadSession(sessionId) {
         const session = getSession(sessionId);
         if (!session) return;
@@ -614,12 +884,10 @@ document.addEventListener("DOMContentLoaded", () => {
         currentSessionId = sessionId;
         window.__activeSessionId = sessionId;
 
-        // Rebuild chatHistory for API from stored messages
         chatHistory = [];
         session.messages.forEach(msg => {
             if (msg.role === "user") {
-                // raw text for user — we stored html, recover plain text
-                chatHistory.push({ role: "user", content: unescapeHtml(msg.text) });
+                chatHistory.push({ role: "user", content: msg.raw || unescapeHtml(msg.text) });
             } else {
                 chatHistory.push({ role: "assistant", content: msg.raw || unescapeHtml(msg.text) });
             }
@@ -627,7 +895,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         sessionMessages = session.messages.slice();
 
-        // Render messages
         if (chatContainer) {
             chatContainer.innerHTML = "";
             session.messages.forEach(msg => {
@@ -637,10 +904,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showChatUI();
         renderRecentChats();
+        saveCurrentChatState();
+        
         if (chatInput) chatInput.focus();
     }
 
-    // Reset to new chat (empty state)
     function resetToNewChat() {
         currentSessionId = null;
         window.__activeSessionId = null;
@@ -649,17 +917,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (chatContainer) chatContainer.innerHTML = "";
         showEmptyUI();
         renderRecentChats();
+        clearChatState();
     }
 
-    // Expose globally
     window.startChat = startChat;
     window.loadSession = loadSession;
     window.resetToNewChat = resetToNewChat;
 
-    // ---- Event listeners ----
-
     mainInput?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") { startChat(mainInput.value.trim()); mainInput.value = ""; }
+        if (e.key === "Enter") { 
+            startChat(mainInput.value.trim()); 
+            mainInput.value = ""; 
+        }
     });
 
     startChatBtn?.addEventListener("click", () => {
@@ -673,13 +942,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendMessageBtn?.addEventListener("click", sendChatMessage);
 
-    // Suggestion cards
     document.querySelectorAll(".suggestion-card").forEach(card => {
         card.addEventListener("click", () => {
-            const text = card.querySelector("h4")?.textContent || card.textContent;
-            // use onclick attr if present, otherwise use title text
+            const title = card.querySelector("h4")?.textContent;
+            if (title) {
+                startChat(title);
+            }
         });
     });
+
+    const stateLoaded = loadChatState();
+    
+    if (!stateLoaded) {
+        showEmptyUI();
+        renderRecentChats();
+    } else {
+        renderRecentChats();
+        if (chatInput) chatInput.focus();
+    }
+
+    const newChatHeaderBtn = document.querySelector('.new-chat-header-btn');
+    if (newChatHeaderBtn) {
+        newChatHeaderBtn.addEventListener('click', resetToNewChat);
+    }
 });
 
 // ================= UTILS =================
@@ -699,7 +984,7 @@ function unescapeHtml(html) {
         .replace(/&quot;/g, '"');
 }
 
-// Also add style for active session highlight
+// Add active session style
 (function addActiveSessionStyle() {
     const style = document.createElement("style");
     style.textContent = `
