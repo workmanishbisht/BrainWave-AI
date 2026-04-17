@@ -31,10 +31,9 @@ body {
 
 /* ===================== CUSTOM SCROLLBAR (THIN) ===================== */
 
-/* For Webkit browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
 }
 
 ::-webkit-scrollbar-track {
@@ -42,18 +41,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: #d1d5db;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: #9ca3af;
 }
 
-/* For Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-color: #d1d5db transparent;
 }
 
 /* ===================== SIDEBAR ===================== */
@@ -71,27 +69,14 @@ body {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    transition: 0.3s ease;
-}
-
-/* Thin scrollbar specifically for sidebar */
-.sidebar::-webkit-scrollbar {
-    width: 3px;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 10px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+    transition: width 0.3s ease;
 }
 
 .sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .hamburger {
@@ -160,6 +145,7 @@ body {
     margin-top: 25px;
     margin-bottom: 15px;
     min-width: 0;
+    overflow: hidden;
 }
 
 .recent-title {
@@ -174,17 +160,6 @@ body {
     gap: 4px;
     max-height: 280px;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #e5e7eb transparent;
-}
-
-.recent-list::-webkit-scrollbar {
-    width: 3px;
-}
-
-.recent-list::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 4px;
 }
 
 .recent-item {
@@ -207,8 +182,6 @@ body {
 .recent-item.pinned {
     background: rgba(108, 92, 231, 0.08);
 }
-
-/* ===================== ACTIVE SESSION HIGHLIGHT ===================== */
 
 .recent-item.active-session {
     background: rgba(79, 70, 229, 0.1) !important;
@@ -252,7 +225,6 @@ body {
     opacity: 1 !important;
 }
 
-/* Empty recent state */
 .recent-empty {
     font-size: 12px;
     color: #9ca3af;
@@ -287,12 +259,12 @@ body {
 /* ===================== UPGRADE ===================== */
 
 .upgrade-box {
-    margin-top: auto;
     margin-bottom: 12px;
     padding: 16px;
     background: #eef2ff;
     border-radius: var(--radius);
     line-height: 1.6;
+    flex-shrink: 0;
 }
 
 .upgrade-text {
@@ -313,6 +285,8 @@ body {
     position: relative;
     cursor: pointer;
     min-width: 0;
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 .user-info {
@@ -336,28 +310,22 @@ body {
 }
 
 .user-avatar {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    max-width: 40px !important;
-    max-height: 40px !important;
-    border-radius: 50% !important;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #fff;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s ease;
-    flex-shrink: 0 !important;
-    flex-grow: 0 !important;
-    flex-basis: 40px !important;
+    flex-shrink: 0;
     overflow: hidden;
     line-height: 1;
-    box-sizing: border-box !important;
 }
 
 .user-avatar span {
@@ -366,7 +334,6 @@ body {
     font-size: 14px;
     font-weight: 600;
     color: #fff;
-    flex-shrink: 0;
 }
 
 .user-name {
@@ -391,22 +358,22 @@ body {
 
 .sidebar.collapsed {
     width: 80px;
+    padding: 25px 12px;
 }
 
 .sidebar.collapsed .nav-text,
 .sidebar.collapsed .logo-subtitle,
-.sidebar.collapsed .recent-title,
-.sidebar.collapsed .recent-text,
+.sidebar.collapsed .recent-section,
 .sidebar.collapsed .upgrade-box,
 .sidebar.collapsed .user-name,
 .sidebar.collapsed .user-role,
-.sidebar.collapsed .logo-section,
-.sidebar.collapsed .recent-section {
+.sidebar.collapsed .logo-section {
     display: none;
 }
 
 .sidebar.collapsed .nav-item {
     justify-content: center;
+    padding: 12px 0;
 }
 
 .sidebar.collapsed .logo-title {
@@ -421,13 +388,20 @@ body {
     margin: auto;
 }
 
+/* FIX: Profile stays at bottom in collapsed state */
 .sidebar.collapsed .user-section {
-    display: flex;
-    justify-content: center;
+    width: 100%;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
 }
 
-.sidebar.collapsed .user-avatar {
-    margin: auto;
+.sidebar.collapsed .user-info {
+    justify-content: center;
+    padding: 8px 0;
+}
+
+.sidebar.collapsed .user-info>div {
+    display: none;
 }
 
 /* ===================== SIDEBAR DROPDOWN ===================== */
@@ -465,26 +439,20 @@ body {
 }
 
 .avatar {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    min-height: 42px !important;
-    max-width: 42px !important;
-    max-height: 42px !important;
-    border-radius: 50% !important;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #fff;
     font-size: 15px;
     font-weight: 600;
-    flex-shrink: 0 !important;
-    flex-grow: 0 !important;
-    flex-basis: 42px !important;
+    flex-shrink: 0;
     overflow: hidden;
     line-height: 1;
-    box-sizing: border-box !important;
 }
 
 .avatar span {
@@ -493,7 +461,6 @@ body {
     font-size: 15px;
     font-weight: 600;
     color: #fff;
-    flex-shrink: 0;
 }
 
 .profile-name {
@@ -938,59 +905,6 @@ body {
     word-break: break-word;
 }
 
-.chat-bubble {
-    padding: 16px 18px;
-    border-radius: 16px;
-    max-width: 720px;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.user-bubble {
-    margin-left: auto;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff;
-}
-
-.ai-bubble {
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-}
-
-.chat-text {
-    font-size: 14.5px;
-    font-weight: 500;
-    line-height: 1.7;
-}
-
-.card-group {
-    display: flex;
-    gap: 20px;
-    margin: 18px 0;
-}
-
-.info-card {
-    background: #f3f4f6;
-    padding: 16px;
-    border-radius: 14px;
-    flex: 1;
-    min-width: 0;
-}
-
-.card-title {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-
-.card-text {
-    font-size: 13px;
-    font-weight: 500;
-    color: gray;
-    line-height: 1.5;
-}
-
 /* ===================== INPUT SECTION ===================== */
 
 .input-section {
@@ -1071,30 +985,6 @@ body {
 .sidebar.collapsed~.input-section {
     width: calc(100% - 80px);
     margin-left: 40px;
-}
-
-/* ===================== TOAST ===================== */
-
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #111827;
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 14px;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 9999;
-}
-
-.toast.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
 }
 
 /* ===================== TOAST NOTIFICATION ===================== */
@@ -1460,6 +1350,7 @@ body {
         top: 0;
         width: 240px;
         z-index: 2000;
+        transition: left 0.3s ease;
     }
 
     .sidebar.active {
@@ -1493,10 +1384,6 @@ body {
 
     .header-title {
         margin-top: 60px;
-    }
-
-    .card-group {
-        flex-direction: column;
     }
 
     .suggestion-card {
