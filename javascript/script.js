@@ -57,23 +57,23 @@ function togglePin(index) {
     sessions[index].pinned = !sessions[index].pinned;
     saveSessions(sessions);
     renderRecentChats();
-    showToast(sessions[index].pinned ? "Chat pinned 📌" : "Chat unpinned");
+    showToast(sessions[index].pinned ? "Chat pinned 📌" : "Chat unpinned", "success");
 }
 
 function deleteSession(sessionId) {
     let sessions = getSessions();
     sessions = sessions.filter(s => s.id !== sessionId);
     saveSessions(sessions);
-    
+
     if (window.__activeSessionId === sessionId) {
         window.__activeSessionId = null;
         if (typeof resetToNewChat === 'function') {
             resetToNewChat();
         }
     }
-    
+
     renderRecentChats();
-    showToast("Chat deleted", "success");
+    showToast("Chat deleted", "error");
 }
 
 function renameSession(sessionId, newTitle) {
@@ -95,15 +95,325 @@ function showToast(message, type = 'info') {
         toast.className = 'toast-notification';
         document.body.appendChild(toast);
     }
-    
+
     toast.textContent = message;
     toast.className = `toast-notification ${type}`;
     toast.classList.add('show');
-    
-    setTimeout(() => {
+
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
 }
+
+// ================= SUBSCRIPTION MODAL =================
+
+const plans = {
+    monthly: {
+        go: { inr: 649, usd: 8, original: null },
+        plus: { inr: 1649, usd: 20, original: null },
+        pro: { inr: 8299, usd: 100, original: null }
+    },
+    yearly: {
+        go: { inr: 499, usd: 6, original: 649 },
+        plus: { inr: 1299, usd: 16, original: 1649 },
+        pro: { inr: 6599, usd: 79, original: 8299 }
+    }
+};
+
+let currentBilling = 'monthly';
+
+function openSubscriptionModal() {
+    const existing = document.getElementById('subscriptionOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'subscription-overlay';
+    overlay.id = 'subscriptionOverlay';
+    overlay.innerHTML = buildSubscriptionHTML(currentBilling);
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeSubscriptionModal();
+    });
+
+    document.addEventListener('keydown', onSubEscape);
+}
+
+function onSubEscape(e) {
+    if (e.key === 'Escape') closeSubscriptionModal();
+}
+
+function closeSubscriptionModal() {
+    const overlay = document.getElementById('subscriptionOverlay');
+    if (overlay) overlay.remove();
+    document.removeEventListener('keydown', onSubEscape);
+}
+
+function switchBilling(type) {
+    currentBilling = type;
+    const overlay = document.getElementById('subscriptionOverlay');
+    if (overlay) {
+        overlay.innerHTML = buildSubscriptionHTML(type);
+    }
+}
+
+function buildSubscriptionHTML(billing) {
+    const p = plans[billing];
+
+    function fmt(inr) { return '₹' + inr.toLocaleString('en-IN'); }
+    function origRow(orig) {
+        return orig ? `<div class="plan-original">Was ${fmt(orig)}/month</div>` : `<div class="plan-original"></div>`;
+    }
+
+    return `
+    <div class="subscription-modal">
+        <button class="sub-modal-close" onclick="closeSubscriptionModal()">✕</button>
+
+        <div class="sub-modal-header">
+            <h2 class="sub-modal-title">Upgrade your plan</h2>
+            <p class="sub-modal-subtitle">Choose the plan that works best for you</p>
+        </div>
+
+        <div style="text-align:center;">
+            <div class="billing-toggle">
+                <button class="billing-btn ${billing === 'monthly' ? 'active' : ''}" onclick="switchBilling('monthly')">Monthly</button>
+                <button class="billing-btn ${billing === 'yearly' ? 'active' : ''}" onclick="switchBilling('yearly')">Yearly ${billing === 'yearly' ? '' : '<span style="font-size:10px;color:#10b981;font-weight:700;">Save 20%</span>'}</button>
+            </div>
+        </div>
+        <p class="currency-note">Prices shown in Indian Rupees (INR) • Billed ${billing}</p>
+
+        <div class="plans-grid">
+
+            <!-- GO PLAN -->
+            <div class="plan-card">
+                <div class="plan-name">Go</div>
+                <div class="plan-desc">Keep chatting with expanded access</div>
+                <div class="plan-price-row">
+                    <span class="plan-currency">₹</span>
+                    <span class="plan-amount">${p.go.inr.toLocaleString('en-IN')}</span>
+                    <span class="plan-period">/month</span>
+                </div>
+                ${origRow(p.go.original)}
+                <button class="plan-btn current" disabled>Your current plan</button>
+                <ul class="plan-features">
+                    <li>Core AI model</li>
+                    <li>More messages and uploads</li>
+                    <li>More image creation</li>
+                    <li>Longer memory</li>
+                    <li>Expanded voice mode</li>
+                </ul>
+            </div>
+
+            <!-- PLUS PLAN -->
+            <div class="plan-card popular">
+                <div class="popular-badge">Most Popular</div>
+                <div class="plan-name">Plus</div>
+                <div class="plan-desc">Unlock the full experience</div>
+                <div class="plan-price-row">
+                    <span class="plan-currency">₹</span>
+                    <span class="plan-amount">${p.plus.inr.toLocaleString('en-IN')}</span>
+                    <span class="plan-period">/month</span>
+                </div>
+                ${origRow(p.plus.original)}
+                <button class="plan-btn filled" onclick="handleUpgradeClick('Plus')">Upgrade to Plus</button>
+                <ul class="plan-features">
+                    <li>Advanced AI models</li>
+                    <li>Even more messages and uploads</li>
+                    <li>Faster image creation</li>
+                    <li>Expanded memory across chats</li>
+                    <li>Codex coding agent</li>
+                    <li>Expanded deep research</li>
+                    <li>Projects and custom GPTs</li>
+                </ul>
+            </div>
+
+            <!-- PRO PLAN -->
+            <div class="plan-card">
+                <div class="plan-name">Pro</div>
+                <div class="plan-desc">Maximize your productivity</div>
+                <div class="plan-price-row">
+                    <span class="plan-currency">₹</span>
+                    <span class="plan-amount">${p.pro.inr.toLocaleString('en-IN')}</span>
+                    <span class="plan-period">/month</span>
+                </div>
+                ${origRow(p.pro.original)}
+                <button class="plan-btn" onclick="handleUpgradeClick('Pro')">Upgrade to Pro</button>
+                <ul class="plan-features">
+                    <li>Everything in Plus</li>
+                    <li>5x more usage than Plus</li>
+                    <li>Frontier Pro model</li>
+                    <li>Maximum access to Codex</li>
+                    <li>Maximum deep research</li>
+                    <li>Unlimited core chat</li>
+                    <li>Unlimited faster image creation</li>
+                    <li>Maximum memory and context</li>
+                    <li>Early access to experimental features</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <p class="sub-footer-note">All prices in INR · GST may apply · Cancel anytime</p>
+    </div>`;
+}
+
+function handleUpgradeClick(planName) {
+    closeSubscriptionModal();
+    showToast(`Redirecting to ${planName} checkout...`, "success");
+}
+
+window.openSubscriptionModal = openSubscriptionModal;
+window.closeSubscriptionModal = closeSubscriptionModal;
+window.switchBilling = switchBilling;
+window.handleUpgradeClick = handleUpgradeClick;
+
+
+// ================= HISTORY POPUP =================
+
+function openHistoryPopup() {
+    const existing = document.getElementById('historyOverlay');
+    if (existing) existing.remove();
+
+    const sessions = getSessions();
+    const overlay = document.createElement('div');
+    overlay.className = 'history-overlay';
+    overlay.id = 'historyOverlay';
+    overlay.innerHTML = buildHistoryHTML(sessions, '');
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeHistoryPopup();
+    });
+
+    const searchInput = overlay.querySelector('.history-search-input');
+    if (searchInput) {
+        searchInput.focus();
+        searchInput.addEventListener('input', (e) => {
+            updateHistoryList(e.target.value.trim());
+        });
+    }
+
+    document.addEventListener('keydown', onHistEscape);
+}
+
+function onHistEscape(e) {
+    if (e.key === 'Escape') closeHistoryPopup();
+}
+
+function closeHistoryPopup() {
+    const overlay = document.getElementById('historyOverlay');
+    if (overlay) overlay.remove();
+    document.removeEventListener('keydown', onHistEscape);
+}
+
+function updateHistoryList(query) {
+    const sessions = getSessions();
+    const listEl = document.getElementById('historyList');
+    if (!listEl) return;
+    listEl.innerHTML = buildHistoryItems(sessions, query);
+}
+
+function highlight(text, query) {
+    if (!query) return text;
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+}
+
+function buildHistoryItems(sessions, query) {
+    const sorted = [...sessions].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return b.time - a.time;
+    });
+
+    const filtered = query
+        ? sorted.filter(s => {
+            const inTitle = s.title.toLowerCase().includes(query.toLowerCase());
+            const inMessages = s.messages && s.messages.some(m =>
+                (m.raw || '').toLowerCase().includes(query.toLowerCase())
+            );
+            return inTitle || inMessages;
+        })
+        : sorted;
+
+    if (filtered.length === 0) {
+        return `<div class="history-empty">
+            <i class="ri-search-line"></i>
+            ${query ? 'No chats found for "' + escapeHtml(query) + '"' : 'No recent chats yet'}
+        </div>`;
+    }
+
+    return filtered.map(session => {
+        const isActive = window.__activeSessionId === session.id;
+        const lastMsg = session.messages && session.messages.length > 0
+            ? (session.messages[session.messages.length - 1].raw ||
+                unescapeHtml(session.messages[session.messages.length - 1].text || ''))
+                .replace(/<[^>]+>/g, '').substring(0, 70) + '...'
+            : 'No messages yet';
+
+        const timeStr = formatRelativeTime(session.time);
+        const msgCount = session.messages ? session.messages.length : 0;
+        const pairs = Math.floor(msgCount / 2);
+
+        return `<div class="history-chat-item ${isActive ? 'active' : ''}"
+                     onclick="loadSessionFromHistory('${session.id}')">
+            <div class="history-chat-title">${highlight(session.title, query)}</div>
+            <div class="history-chat-preview">${highlight(lastMsg, query)}</div>
+            <div class="history-chat-meta">
+                <span class="history-chat-time">${timeStr}</span>
+                ${session.pinned ? '<span class="history-pin-badge">📌 Pinned</span>' : ''}
+                <span class="history-msg-count">${pairs} message${pairs !== 1 ? 's' : ''}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function buildHistoryHTML(sessions, query) {
+    return `
+    <div class="history-popup">
+        <div class="history-popup-header">
+            <div class="history-popup-title">Chat History</div>
+            <div class="history-search-box">
+                <i class="ri-search-line"></i>
+                <input class="history-search-input" placeholder="Search your chats..." value="${escapeHtml(query)}" autocomplete="off">
+            </div>
+        </div>
+        <div class="history-popup-body">
+            <div id="historyList">
+                ${buildHistoryItems(sessions, query)}
+            </div>
+        </div>
+        <div class="history-popup-footer">
+            <button class="history-close-btn" onclick="closeHistoryPopup()">Close</button>
+        </div>
+    </div>`;
+}
+
+function loadSessionFromHistory(sessionId) {
+    closeHistoryPopup();
+    if (typeof loadSession === 'function') {
+        loadSession(sessionId);
+    }
+}
+
+function formatRelativeTime(timestamp) {
+    const diff = Date.now() - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return new Date(timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+window.openHistoryPopup = openHistoryPopup;
+window.closeHistoryPopup = closeHistoryPopup;
+window.loadSessionFromHistory = loadSessionFromHistory;
+
 
 // ================= MODAL MANAGEMENT =================
 let currentModalSessionId = null;
@@ -111,13 +421,13 @@ let currentModalSessionId = null;
 function showChatOptionsModal(sessionId, event) {
     event.stopPropagation();
     currentModalSessionId = sessionId;
-    
+
     const session = getSession(sessionId);
     if (!session) return;
-    
+
     const existingModal = document.querySelector('.modal-overlay');
     if (existingModal) existingModal.remove();
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
@@ -161,7 +471,7 @@ function showChatOptionsModal(sessionId, event) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     modal.addEventListener('click', closeModal);
 }
@@ -175,10 +485,10 @@ function closeModal() {
 function showRenameInput(sessionId) {
     const session = getSession(sessionId);
     if (!session) return;
-    
+
     const modal = document.querySelector('.chat-options-modal');
     if (!modal) return;
-    
+
     modal.innerHTML = `
         <div class="modal-header">
             <h3>Rename Chat</h3>
@@ -197,25 +507,23 @@ function showRenameInput(sessionId) {
             </div>
         </div>
     `;
-    
+
     setTimeout(() => document.getElementById('renameInput')?.focus(), 100);
-    
+
     const input = document.getElementById('renameInput');
     if (input) {
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleRenameSave(sessionId);
-            }
+            if (e.key === 'Enter') handleRenameSave(sessionId);
         });
     }
 }
 
 // ================= MODAL ACTION HANDLERS =================
-window.handleRenameClick = function(sessionId) {
+window.handleRenameClick = function (sessionId) {
     showRenameInput(sessionId);
 };
 
-window.handleRenameSave = function(sessionId) {
+window.handleRenameSave = function (sessionId) {
     const input = document.getElementById('renameInput');
     if (input && input.value.trim()) {
         renameSession(sessionId, input.value.trim());
@@ -223,7 +531,7 @@ window.handleRenameSave = function(sessionId) {
     }
 };
 
-window.handlePinClick = function(sessionId) {
+window.handlePinClick = function (sessionId) {
     const sessions = getSessions();
     const index = sessions.findIndex(s => s.id === sessionId);
     if (index !== -1) {
@@ -232,17 +540,17 @@ window.handlePinClick = function(sessionId) {
     }
 };
 
-window.handleShareClick = function(sessionId) {
+window.handleShareClick = function (sessionId) {
     const session = getSession(sessionId);
     if (!session) return;
-    
+
     const shareText = `BrainWave AI Chat: ${session.title}\n${new Date(session.time).toLocaleString()}\n\n`;
-    const messageText = session.messages.map(m => 
+    const messageText = session.messages.map(m =>
         `${m.role === 'user' ? 'You' : 'AI'}: ${m.raw || unescapeHtml(m.text)}`
     ).join('\n\n');
-    
+
     const fullText = shareText + messageText;
-    
+
     navigator.clipboard?.writeText(fullText).then(() => {
         showToast("Chat copied to clipboard", "success");
     }).catch(() => {
@@ -254,11 +562,11 @@ window.handleShareClick = function(sessionId) {
         document.body.removeChild(textarea);
         showToast("Chat copied to clipboard", "success");
     });
-    
+
     closeModal();
 };
 
-window.handleDeleteClick = function(sessionId) {
+window.handleDeleteClick = function (sessionId) {
     if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
         deleteSession(sessionId);
         closeModal();
@@ -424,9 +732,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
+        if (e.key === 'Escape') closeModal();
     });
 
     const newChatNavItem = document.querySelector(".nav-item.active");
@@ -440,6 +746,31 @@ document.addEventListener("DOMContentLoaded", function () {
         const text = item.querySelector(".nav-text")?.textContent?.trim();
         if (text === "New Chat") {
             item.addEventListener("click", () => resetToNewChat());
+        }
+        // History nav item → open popup
+        if (text === "History") {
+            item.addEventListener("click", (e) => {
+                e.stopPropagation();
+                openHistoryPopup();
+            });
+        }
+    });
+
+    // Upgrade box click → open subscription modal
+    const upgradeBox = document.querySelector(".upgrade-box");
+    if (upgradeBox) {
+        upgradeBox.style.cursor = "pointer";
+        upgradeBox.addEventListener("click", openSubscriptionModal);
+    }
+
+    // Upgrade plan dropdown item → open subscription modal
+    document.querySelectorAll(".dropdown-item").forEach(item => {
+        if (item.textContent.trim().toLowerCase().includes("upgrade")) {
+            item.addEventListener("click", () => {
+                const dd = document.querySelector(".sidebar-dropdown");
+                if (dd) dd.classList.remove("show");
+                openSubscriptionModal();
+            });
         }
     });
 
@@ -558,7 +889,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     logoutBtn?.addEventListener("click", () => {
-        showToast("Logging out...");
+        showToast("Logging out...", "info");
         setTimeout(() => {
             if (typeof firebase !== "undefined" && firebase.apps.length) {
                 firebase.auth().signOut().then(() => { window.location.href = "../index.html"; });
@@ -685,7 +1016,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let sessionMessages = [];
 
     // ================= STATE PERSISTENCE =================
-    
+
     function saveCurrentChatState() {
         if (currentSessionId) {
             const state = {
@@ -706,7 +1037,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const state = JSON.parse(savedState);
-            
+
             if (Date.now() - state.timestamp > 24 * 60 * 60 * 1000) {
                 localStorage.removeItem('currentChatState');
                 return false;
@@ -732,7 +1063,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             showChatUI();
             renderRecentChats();
-            
+
             return true;
         } catch (e) {
             console.error('Error loading chat state:', e);
@@ -785,7 +1116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             chatHistory.push({ role: "user", content: input });
             saveCurrentChatState();
-            
+
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -905,7 +1236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showChatUI();
         renderRecentChats();
         saveCurrentChatState();
-        
+
         if (chatInput) chatInput.focus();
     }
 
@@ -925,9 +1256,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.resetToNewChat = resetToNewChat;
 
     mainInput?.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") { 
-            startChat(mainInput.value.trim()); 
-            mainInput.value = ""; 
+        if (e.key === "Enter") {
+            startChat(mainInput.value.trim());
+            mainInput.value = "";
         }
     });
 
@@ -944,15 +1275,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".suggestion-card").forEach(card => {
         card.addEventListener("click", () => {
-            const title = card.querySelector("h4")?.textContent;
-            if (title) {
-                startChat(title);
-            }
+            const titleEl = card.querySelector("h4")?.textContent;
+            if (titleEl) startChat(titleEl);
         });
     });
 
     const stateLoaded = loadChatState();
-    
+
     if (!stateLoaded) {
         showEmptyUI();
         renderRecentChats();
@@ -984,7 +1313,6 @@ function unescapeHtml(html) {
         .replace(/&quot;/g, '"');
 }
 
-// Add active session style
 (function addActiveSessionStyle() {
     const style = document.createElement("style");
     style.textContent = `
