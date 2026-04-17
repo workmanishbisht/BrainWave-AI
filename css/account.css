@@ -403,3 +403,15 @@ body {
 .auth-form.active {
     display: block;
 }
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.google-btn svg,
+.github-btn svg {
+    flex-shrink: 0;
+}
