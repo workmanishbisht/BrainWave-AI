@@ -437,7 +437,7 @@ body {
     min-width: 0;
 }
 
-.profile-top > div {
+.profile-top>div {
     overflow: hidden;
     min-width: 0;
     flex: 1;
@@ -1359,9 +1359,10 @@ body {
     .sidebar {
         position: fixed;
         left: -100%;
-        top: 30px;
+        top: 0px;
         width: 240px;
         z-index: 2000;
+        padding-top: 70px;
         transition: left 0.3s ease;
     }
 
@@ -1621,7 +1622,7 @@ body {
 .billing-btn.active {
     background: #fff;
     color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .currency-note {
@@ -1816,10 +1817,12 @@ body {
     .plans-grid {
         grid-template-columns: 1fr;
     }
+
     .subscription-modal {
         padding: 20px;
         margin-top: 40px;
     }
+
     .sub-modal-title {
         font-size: 20px;
     }
