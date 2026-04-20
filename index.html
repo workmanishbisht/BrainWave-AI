@@ -1,291 +1,486 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- remixicons CDN -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
-      rel="stylesheet" />
-    <!-- Main File Link -->
-    <link rel="stylesheet" href="./css/style.css" />
-    <link rel="stylesheet" href="./css/media.css">
-    <title>BrainWave AI</title>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/media.css" />
+  <title>BrainWave AI</title>
+</head>
 
-  <body>
-    <main>
-      <!-- Header -->
-      <!-- Header -->
-      <header class="header">
-        <nav class="navbar">
-          <div class="nav-container">
-            <a href="index.html" class="logo">
-              <span class="logo-text"><span class="logoHeading">BrainWave</span>
-                AI</span>
-            </a>
+<body>
 
-            <!-- Hamburger -->
-            <div class="hamburger">
-              <i class="ri-menu-line"></i>
+  <!-- ====== HEADER ====== -->
+  <header class="header" id="mainHeader">
+    <div class="navbar-inner">
+
+      <a href="#" class="logo">
+        <div class="logo-dot"></div>
+        <span><span class="logo-accent">BrainWave</span> AI</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#footer">Help</a></li>
+      </ul>
+
+      <div class="nav-actions">
+
+        <!-- Theme Dropdown -->
+        <div class="theme-wrapper" id="themeWrapper">
+          <button class="theme-btn" id="themeBtn">
+            <i id="themeIcon" class="ri-sun-line"></i>
+            <span id="themeLabel">Light</span>
+            <i class="ri-arrow-down-s-line chevron"></i>
+          </button>
+          <div class="theme-dropdown" id="themeDropdown">
+            <div class="theme-option" data-t="light">
+              <i class="ri-sun-line"></i>
+              <span>Light</span>
+              <i class="ri-check-line check"></i>
             </div>
-
-            <ul class="nav-menu">
-              <li><a href="#Features" class="nav-link">Features</a></li>
-              <li><a href="#Solutions" class="nav-link">Solutions</a></li>
-              <li><a href="#Pricing" class="nav-link">Pricing</a></li>
-              <li><a href="#About" class="nav-link">About</a></li>
-              <li><a href="#Contact" class="nav-link">Contact</a></li>
-            </ul>
-
-            <div class="nav-actions">
-              <a href="./Pages/account.html" class="btn btn-outline">Log In</a>
-              <a href="./Pages/account.html" class="btn btn-primary">Get
-                Started</a>
+            <div class="theme-option" data-t="dark">
+              <i class="ri-moon-line"></i>
+              <span>Dark</span>
+              <i class="ri-check-line check"></i>
             </div>
-          </div>
-        </nav>
-      </header>
-
-      <!-- Hero Section -->
-      <section class="hero-section">
-        <div class="container hero-container">
-          <div class="hero-content">
-            <p class="hero-badge">THE NEW STANDARD</p>
-            <h1 class="hero-title">Your Smart AI Assistant</h1>
-            <p class="hero-subtitle">
-              Experience the next evolution of digital companionship. BrainWave
-              AI understands context, anticipates needs, and streamlines your
-              workflow with architectural precision.
-            </p>
-
-            <div class="hero-buttons">
-              <button class="btn btn-primary btn-large">
-                Get Started Free
-              </button>
-              <button class="btn btn-outline btn-large">View Demo →</button>
-            </div>
-          </div>
-
-          <!-- Chat Preview -->
-          <div class="chat-preview">
-            <div class="chat-window">
-              <div class="chat-header">
-                <div class="chat-avatar">B</div>
-                <div class="chat-info">
-                  <h4 class="chat-name">BrainWave AI</h4>
-                  <p class="chat-status">
-                    <span class="status-dot"></span>Active
-                  </p>
-                </div>
-              </div>
-
-              <div class="chat-messages">
-                <div class="message user-message">
-                  Can you help me design a scalable microservices architecture
-                  for a fintech app?
-                </div>
-                <div class="message ai-message">
-                  Absolutely! I recommend NestJS with TypeScript, PostgreSQL,
-                  Redis cache, and Kafka for event-driven communication.
-                </div>
-              </div>
-
-              <div class="chat-input-area">
-                <input type="text" placeholder="Type your message..." />
-                <button class="send-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="m2.6 10.42 7.64 3.34 3.34 7.64c.16.37.52.6.92.6h.05a1 1 0 0 0 .9-.69l5.5-17c.12-.36.02-.75-.24-1.01a.98.98 0 0 0-1.01-.24L2.69 8.55c-.4.13-.67.49-.69.9-.02.42.22.8.6.97m15.85-4.86-4.09 12.63-2.44-5.59c-.1-.23-.28-.41-.52-.52L5.81 9.64l12.63-4.09Z">
-                    </path>
-                  </svg>
-                </button>
-              </div>
+            <div class="theme-option" data-t="auto">
+              <i class="ri-computer-line"></i>
+              <span>Auto</span>
+              <i class="ri-check-line check"></i>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- Enterprise Section -->
-      <section class="enterprise-section">
-        <div class="container">
-          <p class="enterprise-tag">UNRIVALED PERFORMANCE</p>
-          <h2 class="enterprise-heading">Built for the Modern Enterprise</h2>
+        <a href="./Pages/account.html" class="btn-login">Log In</a>
+        <a href="./Pages/account.html" class="btn-cta">Get Started</a>
 
-          <div class="enterprise-grid">
-            <div class="enterprise-card">
-              <div class="icon-box">
-                <i class="ri-flashlight-fill"></i>
-              </div>
-              <h3 class="enterprise-title">Fast</h3>
-              <p class="enterprise-text">
-                Sub-millisecond latency ensures your conversations flow
-                naturally without any lag or interruption.
-              </p>
-            </div>
+        <button class="hamburger" id="hamburger">
+          <i class="ri-menu-line"></i>
+        </button>
 
-            <div class="enterprise-card">
-              <div class="icon-box">
-                <i class="ri-brain-fill"></i>
-              </div>
-              <h3 class="enterprise-title">Smart</h3>
-              <p class="enterprise-text">
-                Our proprietary neural engine processes complex inquiries with
-                human-like reasoning and precision.
-              </p>
-            </div>
+      </div>
+    </div>
 
-            <div class="enterprise-card">
-              <div class="icon-box">
-                <i class="ri-shield-check-fill"></i>
-              </div>
-              <h3 class="enterprise-title">Secure</h3>
-              <p class="enterprise-text">
-                Enterprise-grade encryption and isolated data environments keep
-                your sensitive information private.
-              </p>
-            </div>
+    <!-- Mobile menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#features">Features</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#footer">Help & Support</a>
+    </div>
+  </header>
+
+  <!-- ====== HERO ====== -->
+  <section class="hero" id="home">
+    <div class="hero-grid container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i class="ri-flashlight-fill"></i>
+          The New Standard in AI
+        </div>
+        <h1 class="hero-title">
+          Your Smart<br>
+          <span class="gradient-text">AI Assistant</span>
+        </h1>
+        <p class="hero-sub">
+          Experience the next evolution of digital intelligence. BrainWave AI understands context, anticipates needs,
+          and transforms your workflow with precision.
+        </p>
+        <div class="hero-btns">
+          <button class="btn-hero-primary">Get Started Free</button>
+          <button class="btn-hero-outline">
+            <i class="ri-play-circle-line"></i>
+            View Demo
+          </button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">50K+</span>
+            <span class="stat-label">Active users</span>
           </div>
-        </div>
-      </section>
-
-      <!-- Testimonial section -->
-      <section class="testimonial-section">
-        <div class="container">
-          <p class="testimonial-tag">TESTIMONIALS</p>
-          <h2 class="testimonial-heading">Loved by Developers Worldwide</h2>
-
-          <div class="testimonial-slider">
-            <button class="nav-btn prev">&#10094;</button>
-
-            <div class="testimonial-track">
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  BrainWave AI completely transformed our development workflow,
-                  helping us design scalable systems faster with clarity,
-                  confidence, and much better architectural decisions.
-                </p>
-                <div class="testimonial-user">
-                  <div class="user-avatar">R</div>
-                  <div>
-                    <h4 class="user-name">Rahul Sharma</h4>
-                    <span class="user-role">CTO, PayScale India</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  The speed and intelligence of this AI tool are incredible,
-                  allowing our engineering team to build, test, and deploy
-                  complex features more efficiently.
-                </p>
-                <div class="testimonial-user">
-                  <div class="user-avatar">P</div>
-                  <div>
-                    <h4 class="user-name">Priya Malhotra</h4>
-                    <span class="user-role">Head of Engineering</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  It feels like having a senior developer guiding every step,
-                  improving code quality, system design, and decision-making
-                  across our entire development lifecycle.
-                </p>
-                <div class="testimonial-user">
-                  <div class="user-avatar">A</div>
-                  <div>
-                    <h4 class="user-name">Amit Verma</h4>
-                    <span class="user-role">Product Lead</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  BrainWave AI helped us reduce development time significantly
-                  while improving performance, scalability, and overall system
-                  reliability in our production environments.
-                </p>
-                <div class="testimonial-user">
-                  <div class="user-avatar">N</div>
-                  <div>
-                    <h4 class="user-name">Neha Kapoor</h4>
-                    <span class="user-role">Project Manager</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  The contextual understanding is outstanding, enabling us to
-                  solve complex technical challenges quickly without spending
-                  hours researching or debugging issues manually.
-                </p>
-                <div class="testimonial-user">
-                  <div class="user-avatar">S</div>
-                  <div>
-                    <h4 class="user-name">Suresh Kumar</h4>
-                    <span class="user-role">Senior Developer</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="testimonial-card">
-                <p class="testimonial-text">
-                  This AI is a complete game changer, helping teams innovate
-                  faster, collaborate better, and build high-quality products
-                  without compromising performance or scalability.
-                </p>
-                <div class="testimonial-user">
-                  <div class="user-avatar">K</div>
-                  <div>
-                    <h4 class="user-name">Karan Mehta</h4>
-                    <span class="user-role">System Architect</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button class="nav-btn next">&#10095;</button>
+          <div class="stat-item">
+            <span class="stat-num">99.9%</span>
+            <span class="stat-label">Uptime SLA</span>
           </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container footer-container">
-        <div class="footer-left">
-          <h3 class="footer-logo">
-            <span class="footerheading">BrainWave</span> AI
-          </h3>
-          <p class="footer-copy">© <span id="year"></span> BrainWave AI.</p>
-        </div>
-        <div class="footer-right">
-          <a href="#privacy_policy">Privacy Policy</a>
-          <a href="#Terms_of_service">Terms of Service</a>
-          <a href="#Cookie_policy">Cookie Policy</a>
-          <a href="#Security">Security</a>
+          <div class="stat-item">
+            <span class="stat-num">&lt;80ms</span>
+            <span class="stat-label">Avg latency</span>
+          </div>
         </div>
       </div>
-    </footer>
 
-    <!-- Firebase -->
-    <script
-      src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script
-      src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+      <!-- Chat Preview Card -->
+      <div class="chat-card">
+        <div class="chat-top">
+          <div class="chat-avatar-wrap">B</div>
+          <div>
+            <div class="chat-info-name">BrainWave AI</div>
+            <div class="chat-info-status">
+              <div class="status-pulse"></div>
+              Active
+            </div>
+          </div>
+        </div>
+        <div class="chat-body">
+          <div class="msg msg-user">Can you help me design a scalable microservices architecture for a fintech app?
+          </div>
+          <div class="msg msg-ai">Absolutely! I recommend NestJS with TypeScript, PostgreSQL, Redis cache, and Kafka for
+            event-driven communication. Here's a high-level plan…</div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" placeholder="Ask me anything…" readonly />
+          <button class="chat-send">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="m2.6 10.42 7.64 3.34 3.34 7.64c.16.37.52.6.92.6h.05a1 1 0 0 0 .9-.69l5.5-17c.12-.36.02-.75-.24-1.01a.98.98 0 0 0-1.01-.24L2.69 8.55c-.4.13-.67.49-.69.9-.02.42.22.8.6.97m15.85-4.86-4.09 12.63-2.44-5.59c-.1-.23-.28-.41-.52-.52L5.81 9.64l12.63-4.09Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- script file -->
-    <script src="../javascript/script.js"></script>
+  <!-- ====== FEATURES ====== -->
+  <section class="section features-section" id="features">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="section-tag">Unrivaled Performance</span>
+        <h2 class="section-title">Built for the Modern Enterprise</h2>
+        <p class="section-sub">Everything you need to supercharge your team's productivity and creativity — in one
+          powerful platform.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card fade-up">
+          <div class="feat-icon"><i class="ri-flashlight-fill"></i></div>
+          <div class="feat-title">Lightning Fast</div>
+          <p class="feat-text">Sub-millisecond latency ensures conversations flow naturally without any lag or
+            interruption.</p>
+        </div>
+        <div class="feat-card fade-up">
+          <div class="feat-icon"><i class="ri-brain-fill"></i></div>
+          <div class="feat-title">Deeply Smart</div>
+          <p class="feat-text">Our neural engine processes complex inquiries with human-like reasoning and precision.
+          </p>
+        </div>
+        <div class="feat-card fade-up">
+          <div class="feat-icon"><i class="ri-shield-check-fill"></i></div>
+          <div class="feat-title">Enterprise Secure</div>
+          <p class="feat-text">End-to-end encryption and isolated data environments keep your information private.</p>
+        </div>
+        <div class="feat-card fade-up">
+          <div class="feat-icon"><i class="ri-code-s-slash-line"></i></div>
+          <div class="feat-title">Code Generation</div>
+          <p class="feat-text">Generate, review, and debug code across 50+ programming languages instantly.</p>
+        </div>
+        <div class="feat-card fade-up">
+          <div class="feat-icon"><i class="ri-translate-2"></i></div>
+          <div class="feat-title">Multilingual</div>
+          <p class="feat-text">Communicate seamlessly across 30+ languages with context-aware translation.</p>
+        </div>
+        <div class="feat-card fade-up">
+          <div class="feat-icon"><i class="ri-database-2-line"></i></div>
+          <div class="feat-title">Memory & Context</div>
+          <p class="feat-text">Persistent memory across sessions ensures continuity and personalized experiences.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  </body>
+  <!-- ====== TESTIMONIALS ====== -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="section-header fade-up" style="text-align:center;">
+        <span class="section-tag">Testimonials</span>
+        <h2 class="section-title">Loved by Developers Worldwide</h2>
+      </div>
+      <div class="testi-track-wrap">
+        <div class="testi-track" id="testiTrack">
+          <div class="testi-card">
+            <div class="testi-stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+            <p class="testi-text">BrainWave AI completely transformed our development workflow, helping us design
+              scalable systems faster with clarity and confidence.</p>
+            <div class="testi-user">
+              <div class="testi-avatar">RS</div>
+              <div>
+                <div class="testi-name">Rahul Sharma</div>
+                <div class="testi-role">CTO, PayScale India</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+            <p class="testi-text">The speed and intelligence are incredible — our engineering team builds, tests, and
+              deploys complex features more efficiently than ever.</p>
+            <div class="testi-user">
+              <div class="testi-avatar">PM</div>
+              <div>
+                <div class="testi-name">Priya Malhotra</div>
+                <div class="testi-role">Head of Engineering</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+            <p class="testi-text">It feels like having a senior developer guiding every step, improving code quality,
+              system design, and decision-making across our lifecycle.</p>
+            <div class="testi-user">
+              <div class="testi-avatar">AV</div>
+              <div>
+                <div class="testi-name">Amit Verma</div>
+                <div class="testi-role">Product Lead</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+            <p class="testi-text">BrainWave AI helped us reduce development time significantly while improving
+              performance and scalability in our production environments.</p>
+            <div class="testi-user">
+              <div class="testi-avatar">NK</div>
+              <div>
+                <div class="testi-name">Neha Kapoor</div>
+                <div class="testi-role">Project Manager</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                class="ri-star-fill"></i><i class="ri-star-half-fill"></i>
+            </div>
+            <p class="testi-text">The contextual understanding is outstanding, enabling us to solve complex technical
+              challenges quickly without hours of manual debugging.</p>
+            <div class="testi-user">
+              <div class="testi-avatar">SK</div>
+              <div>
+                <div class="testi-name">Suresh Kumar</div>
+                <div class="testi-role">Senior Developer</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
+                class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+            <p class="testi-text">A complete game changer — helping teams innovate faster, collaborate better, and build
+              high-quality products without compromising performance.</p>
+            <div class="testi-user">
+              <div class="testi-avatar">KM</div>
+              <div>
+                <div class="testi-name">Karan Mehta</div>
+                <div class="testi-role">System Architect</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-nav">
+        <button class="testi-btn" id="testiPrev"><i class="ri-arrow-left-line"></i></button>
+        <div class="testi-dots" id="testiDots"></div>
+        <button class="testi-btn" id="testiNext"><i class="ri-arrow-right-line"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PRICING ====== -->
+  <section class="section pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-header fade-up" style="text-align:center;">
+        <span class="section-tag">Pricing</span>
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <p class="section-sub" style="margin:0 auto;">Choose the plan that works best for you. No hidden fees, cancel
+          anytime.</p>
+      </div>
+      <div class="billing-toggle-wrap">
+        <div class="billing-toggle">
+          <button class="bill-btn active" id="billMonthly">Monthly</button>
+          <button class="bill-btn" id="billYearly">
+            Yearly
+            <span class="save-badge">Save 20%</span>
+          </button>
+        </div>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card fade-up">
+          <div class="plan-name">Go</div>
+          <div class="plan-desc">Keep chatting with expanded access</div>
+          <div class="plan-price-wrap">
+            <span class="plan-currency">₹</span>
+            <span class="plan-amount" id="goPrice">649</span>
+            <span class="plan-period">/month</span>
+          </div>
+          <div class="plan-original" id="goOrig"></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><i class="ri-check-line"></i>Core AI model</li>
+            <li><i class="ri-check-line"></i>More messages and uploads</li>
+            <li><i class="ri-check-line"></i>More image creation</li>
+            <li><i class="ri-check-line"></i>Longer memory</li>
+            <li><i class="ri-check-line"></i>Expanded voice mode</li>
+          </ul>
+          <button class="plan-btn current" disabled>Your current plan</button>
+        </div>
+        <div class="price-card popular fade-up">
+          <div class="popular-label">Most Popular</div>
+          <div class="plan-name">Plus</div>
+          <div class="plan-desc">Unlock the full experience</div>
+          <div class="plan-price-wrap">
+            <span class="plan-currency">₹</span>
+            <span class="plan-amount" id="plusPrice">1,649</span>
+            <span class="plan-period">/month</span>
+          </div>
+          <div class="plan-original" id="plusOrig"></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><i class="ri-check-line"></i>Advanced AI models</li>
+            <li><i class="ri-check-line"></i>Even more messages & uploads</li>
+            <li><i class="ri-check-line"></i>Faster image creation</li>
+            <li><i class="ri-check-line"></i>Expanded memory across chats</li>
+            <li><i class="ri-check-line"></i>Codex coding agent</li>
+            <li><i class="ri-check-line"></i>Expanded deep research</li>
+            <li><i class="ri-check-line"></i>Projects & custom GPTs</li>
+          </ul>
+          <button class="plan-btn filled">Upgrade to Plus</button>
+        </div>
+        <div class="price-card fade-up">
+          <div class="plan-name">Pro</div>
+          <div class="plan-desc">Maximize your productivity</div>
+          <div class="plan-price-wrap">
+            <span class="plan-currency">₹</span>
+            <span class="plan-amount" id="proPrice">8,299</span>
+            <span class="plan-period">/month</span>
+          </div>
+          <div class="plan-original" id="proOrig"></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><i class="ri-check-line"></i>Everything in Plus</li>
+            <li><i class="ri-check-line"></i>5x more usage than Plus</li>
+            <li><i class="ri-check-line"></i>Frontier Pro model</li>
+            <li><i class="ri-check-line"></i>Maximum Codex access</li>
+            <li><i class="ri-check-line"></i>Maximum deep research</li>
+            <li><i class="ri-check-line"></i>Unlimited core chat</li>
+            <li><i class="ri-check-line"></i>Unlimited image creation</li>
+            <li><i class="ri-check-line"></i>Early access to experiments</li>
+          </ul>
+          <button class="plan-btn">Upgrade to Pro</button>
+        </div>
+      </div>
+      <p class="pricing-note">All prices in INR · GST may apply · Cancel anytime</p>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer" id="footer">
+    <div class="footer-glow"></div>
+    <div class="container">
+
+      <!-- Top row -->
+      <div class="footer-top">
+
+        <!-- Brand col -->
+        <div class="footer-brand">
+          <a href="#" class="footer-logo">
+            <div class="footer-logo-dot"></div>
+            <span><span class="logo-accent">BrainWave</span> AI</span>
+          </a>
+          <p class="footer-tagline">The next evolution of digital intelligence. Built for teams who ship.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-btn" aria-label="Twitter"><i class="ri-twitter-x-line"></i></a>
+            <a href="#" class="social-btn" aria-label="GitHub"><i class="ri-github-line"></i></a>
+            <a href="#" class="social-btn" aria-label="LinkedIn"><i class="ri-linkedin-line"></i></a>
+            <a href="#" class="social-btn" aria-label="Discord"><i class="ri-discord-line"></i></a>
+          </div>
+        </div>
+
+        <!-- Link cols -->
+        <div class="footer-links-grid">
+          <div class="footer-col">
+            <h4 class="footer-col-title">Product</h4>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#pricing">Pricing</a></li>
+              <li><a href="#">Changelog</a></li>
+              <li><a href="#">Roadmap</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 class="footer-col-title">Developers</h4>
+            <ul>
+              <li><a href="#">Documentation</a></li>
+              <li><a href="#">API Reference</a></li>
+              <li><a href="#">SDKs</a></li>
+              <li><a href="#">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 class="footer-col-title">Company</h4>
+            <ul>
+              <li><a href="#">About</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 class="footer-col-title">Legal</h4>
+            <ul>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Cookie Policy</a></li>
+              <li><a href="#">Security</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter row -->
+      <div class="footer-newsletter">
+        <div class="newsletter-text">
+          <h4>Stay in the loop</h4>
+          <p>Get product updates, AI insights, and early access to new features.</p>
+        </div>
+        <div class="newsletter-form">
+          <input type="email" placeholder="you@company.com" />
+          <button>Subscribe <i class="ri-arrow-right-line"></i></button>
+        </div>
+      </div>
+
+      <!-- Bottom row -->
+      <div class="footer-bottom">
+        <p class="footer-copy">© <span id="footerYear"></span> BrainWave AI. All rights reserved.</p>
+        <div class="footer-badges">
+          <span class="footer-badge"><i class="ri-shield-check-line"></i> SOC 2 Compliant</span>
+          <span class="footer-badge"><i class="ri-lock-line"></i> End-to-End Encrypted</span>
+          <span class="footer-badge"><i class="ri-server-line"></i> 99.9% Uptime</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script src="./javascript/script.js"></script>
+</body>
 
 </html>
