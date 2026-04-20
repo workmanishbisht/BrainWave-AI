@@ -1664,10 +1664,10 @@ if (yearEl) yearEl.innerText = new Date().getFullYear();
        5. PRICING TOGGLE
     ---------------------------------------------------------- */
     const plans = {
-        monthly: { go: 649, plus: 1649, pro: 8299 },
-        yearly: { go: 499, plus: 1299, pro: 6599 }
+        monthly: { free: 0, plus: 1649, pro: 8299 },
+        yearly: { free: 0, plus: 1299, pro: 6599 }
     };
-    const originals = { go: 649, plus: 1649, pro: 8299 };
+    const originals = { free: 0, plus: 1649, pro: 8299 };
 
     const billMonthly = document.getElementById("billMonthly");
     const billYearly = document.getElementById("billYearly");
@@ -1685,11 +1685,11 @@ if (yearEl) yearEl.innerText = new Date().getFullYear();
         billMonthly.classList.toggle("active", type === "monthly");
         billYearly.classList.toggle("active", type === "yearly");
 
-        goPrice.textContent = fmt(p.go);
+        goPrice.textContent = fmt(p.free);
         plusPrice.textContent = fmt(p.plus);
         proPrice.textContent = fmt(p.pro);
 
-        goOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.go) + "/month" : "";
+        goOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.free) + "/month" : "";
         plusOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.plus) + "/month" : "";
         proOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.pro) + "/month" : "";
     }
