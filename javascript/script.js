@@ -1469,3 +1469,285 @@ finishBtn?.addEventListener("click", () => {
 
 const yearEl = safeQuery("#year");
 if (yearEl) yearEl.innerText = new Date().getFullYear();
+
+
+
+
+
+
+
+
+/* ============================================================
+   BrainWave AI — Landing Page Script
+   ============================================================ */
+
+(function () {
+    "use strict";
+
+    /* ----------------------------------------------------------
+       1. NAVBAR — show after 6s, glass on scroll
+    ---------------------------------------------------------- */
+    const header = document.getElementById("mainHeader");
+    let navShown = false;
+
+    function revealNav() {
+        if (navShown) return;
+        navShown = true;
+        header.classList.add("visible");
+    }
+
+    // Show after 6 seconds
+    setTimeout(revealNav, 6000);
+
+    // Also reveal on first user scroll
+    window.addEventListener("scroll", function onFirstScroll() {
+        revealNav();
+        window.removeEventListener("scroll", onFirstScroll);
+    }, { passive: true });
+
+    // Glass effect on scroll
+    window.addEventListener("scroll", function () {
+        header.classList.toggle("scrolled", window.scrollY > 8);
+    }, { passive: true });
+
+
+    /* ----------------------------------------------------------
+       2. THEME SYSTEM (Light / Dark / Auto)
+    ---------------------------------------------------------- */
+    const THEME_KEY = "bw-theme";
+
+    const themeBtn = document.getElementById("themeBtn");
+    const themeDropdown = document.getElementById("themeDropdown");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeLabel = document.getElementById("themeLabel");
+    const themeOptions = document.querySelectorAll(".theme-option");
+
+    const ICONS = { light: "ri-sun-line", dark: "ri-moon-line", auto: "ri-computer-line" };
+    const LABELS = { light: "Light", dark: "Dark", auto: "Auto" };
+
+    let currentTheme = localStorage.getItem(THEME_KEY) || "auto";
+
+    function applyTheme(theme) {
+        const html = document.documentElement;
+        if (theme === "auto") {
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            html.setAttribute("data-theme", prefersDark ? "dark" : "light");
+        } else {
+            html.setAttribute("data-theme", theme);
+        }
+        themeIcon.className = ICONS[theme];
+        themeLabel.textContent = LABELS[theme];
+
+        themeOptions.forEach(function (opt) {
+            const t = opt.getAttribute("data-t");
+            const isActive = t === theme;
+            opt.classList.toggle("active", isActive);
+            opt.querySelector(".check").style.display = isActive ? "inline" : "none";
+        });
+    }
+
+    function setTheme(theme) {
+        currentTheme = theme;
+        localStorage.setItem(THEME_KEY, theme);
+        applyTheme(theme);
+        closeThemeDropdown();
+    }
+
+    function openThemeDropdown() {
+        themeDropdown.classList.add("open");
+        themeBtn.classList.add("open");
+    }
+
+    function closeThemeDropdown() {
+        themeDropdown.classList.remove("open");
+        themeBtn.classList.remove("open");
+    }
+
+    function toggleThemeDropdown() {
+        themeDropdown.classList.contains("open")
+            ? closeThemeDropdown()
+            : openThemeDropdown();
+    }
+
+    themeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleThemeDropdown();
+    });
+
+    themeOptions.forEach(function (opt) {
+        opt.addEventListener("click", function () {
+            setTheme(opt.getAttribute("data-t"));
+        });
+    });
+
+    document.addEventListener("click", function (e) {
+        const wrapper = document.getElementById("themeWrapper");
+        if (!wrapper.contains(e.target)) closeThemeDropdown();
+    });
+
+    // Sync when system preference changes (for "auto" mode)
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+        if (currentTheme === "auto") applyTheme("auto");
+    });
+
+    // Init on load
+    applyTheme(currentTheme);
+
+
+    /* ----------------------------------------------------------
+       3. MOBILE MENU
+    ---------------------------------------------------------- */
+    const hamburger = document.getElementById("hamburger");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    hamburger.addEventListener("click", function () {
+        mobileMenu.classList.toggle("open");
+        hamburger.querySelector("i").className =
+            mobileMenu.classList.contains("open") ? "ri-close-line" : "ri-menu-line";
+    });
+
+    // Close on link click
+    mobileMenu.querySelectorAll("a").forEach(function (a) {
+        a.addEventListener("click", function () {
+            mobileMenu.classList.remove("open");
+            hamburger.querySelector("i").className = "ri-menu-line";
+        });
+    });
+
+
+    /* ----------------------------------------------------------
+       4. TESTIMONIALS SLIDER
+    ---------------------------------------------------------- */
+    const track = document.getElementById("testiTrack");
+    const dotsWrap = document.getElementById("testiDots");
+    const cards = track ? Array.from(track.querySelectorAll(".testi-card")) : [];
+    const prevBtn = document.getElementById("testiPrev");
+    const nextBtn = document.getElementById("testiNext");
+    let testiIndex = 0;
+
+    if (cards.length) {
+        // Build dots
+        cards.forEach(function (_, i) {
+            const dot = document.createElement("button");
+            dot.className = "testi-dot" + (i === 0 ? " active" : "");
+            dot.setAttribute("aria-label", "Go to slide " + (i + 1));
+            dot.addEventListener("click", function () { goToSlide(i); });
+            dotsWrap.appendChild(dot);
+        });
+
+        function getCardWidth() {
+            return cards[0].offsetWidth + 20; // gap = 20px
+        }
+
+        function goToSlide(index) {
+            testiIndex = Math.max(0, Math.min(index, cards.length - 1));
+            track.style.transform = "translateX(" + (-(testiIndex * getCardWidth())) + "px)";
+            dotsWrap.querySelectorAll(".testi-dot").forEach(function (d, i) {
+                d.classList.toggle("active", i === testiIndex);
+            });
+        }
+
+        prevBtn.addEventListener("click", function () { goToSlide(testiIndex - 1); });
+        nextBtn.addEventListener("click", function () { goToSlide(testiIndex + 1); });
+
+        // Recalculate on resize
+        window.addEventListener("resize", function () { goToSlide(testiIndex); }, { passive: true });
+
+        // Auto-advance every 5s
+        setInterval(function () {
+            goToSlide(testiIndex < cards.length - 1 ? testiIndex + 1 : 0);
+        }, 5000);
+    }
+
+
+    /* ----------------------------------------------------------
+       5. PRICING TOGGLE
+    ---------------------------------------------------------- */
+    const plans = {
+        monthly: { go: 649, plus: 1649, pro: 8299 },
+        yearly: { go: 499, plus: 1299, pro: 6599 }
+    };
+    const originals = { go: 649, plus: 1649, pro: 8299 };
+
+    const billMonthly = document.getElementById("billMonthly");
+    const billYearly = document.getElementById("billYearly");
+    const goPrice = document.getElementById("goPrice");
+    const plusPrice = document.getElementById("plusPrice");
+    const proPrice = document.getElementById("proPrice");
+    const goOrig = document.getElementById("goOrig");
+    const plusOrig = document.getElementById("plusOrig");
+    const proOrig = document.getElementById("proOrig");
+
+    function fmt(n) { return n.toLocaleString("en-IN"); }
+
+    function setBilling(type) {
+        const p = plans[type];
+        billMonthly.classList.toggle("active", type === "monthly");
+        billYearly.classList.toggle("active", type === "yearly");
+
+        goPrice.textContent = fmt(p.go);
+        plusPrice.textContent = fmt(p.plus);
+        proPrice.textContent = fmt(p.pro);
+
+        goOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.go) + "/month" : "";
+        plusOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.plus) + "/month" : "";
+        proOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.pro) + "/month" : "";
+    }
+
+    billMonthly.addEventListener("click", function () { setBilling("monthly"); });
+    billYearly.addEventListener("click", function () { setBilling("yearly"); });
+
+
+    /* ----------------------------------------------------------
+       6. SCROLL FADE-IN (IntersectionObserver)
+    ---------------------------------------------------------- */
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("in-view");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll(".fade-up").forEach(function (el) {
+        observer.observe(el);
+    });
+
+
+    /* ----------------------------------------------------------
+       7. FOOTER YEAR
+    ---------------------------------------------------------- */
+    const yearEl = document.getElementById("footerYear");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+
+    /* ----------------------------------------------------------
+       8. NEWSLETTER BUTTON (basic feedback)
+    ---------------------------------------------------------- */
+    const newsletterForm = document.querySelector(".newsletter-form");
+    if (newsletterForm) {
+        const btn = newsletterForm.querySelector("button");
+        const input = newsletterForm.querySelector("input");
+
+        btn.addEventListener("click", function () {
+            const email = input.value.trim();
+            if (!email || !email.includes("@")) {
+                input.style.borderColor = "#ef4444";
+                input.focus();
+                setTimeout(function () {
+                    input.style.borderColor = "";
+                }, 2000);
+                return;
+            }
+            btn.textContent = "✓ Subscribed!";
+            btn.style.background = "#10b981";
+            input.value = "";
+            setTimeout(function () {
+                btn.innerHTML = "Subscribe <i class='ri-arrow-right-line'></i>";
+                btn.style.background = "";
+            }, 3000);
+        });
+    }
+
+})();
