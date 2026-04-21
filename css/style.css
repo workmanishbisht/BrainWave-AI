@@ -457,10 +457,25 @@ textarea {
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, var(--primary), var(--accent), #ec4899);
+    background: linear-gradient(270deg, #6c5ce7, #a29bfe, #fd79a8, #6c5ce7);
+    background-size: 300% 300%;
+    
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
+
+    animation: gradientMove 6s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .hero-sub {
