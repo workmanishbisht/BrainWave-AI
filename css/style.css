@@ -123,7 +123,6 @@ textarea {
     left: 0;
     right: 0;
     z-index: 1000;
-    /* Removed transform/opacity hide — navbar always visible */
     transform: translateY(0);
     opacity: 1;
 }
@@ -227,7 +226,6 @@ textarea {
     display: flex;
     align-items: center;
     gap: 6px;
-    /* Equal size with Get Started button */
     height: 38px;
     padding: 0 14px;
     background: var(--bg3);
@@ -321,14 +319,14 @@ textarea {
 }
 
 /* ============================================================
-   LOGIN BUTTON — hidden (removed from design, keep class for safety)
+   LOGIN BUTTON — hidden
    ============================================================ */
 .btn-login {
     display: none !important;
 }
 
 /* ============================================================
-   GET STARTED BUTTON — equal height with theme button
+   GET STARTED BUTTON
    ============================================================ */
 .btn-cta {
     display: inline-flex;
@@ -459,10 +457,8 @@ textarea {
 .gradient-text {
     background: linear-gradient(270deg, #6c5ce7, #a29bfe, #fd79a8, #6c5ce7);
     background-size: 300% 300%;
-    
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
     animation: gradientMove 6s ease infinite;
 }
 
@@ -470,9 +466,11 @@ textarea {
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
@@ -841,8 +839,10 @@ textarea {
     border-bottom: 1px solid var(--border);
 }
 
+/* FIX: Ensure wrap never shows overflow */
 .testi-track-wrap {
     overflow: hidden;
+    width: 100%;
 }
 
 .testi-track {
@@ -858,6 +858,7 @@ textarea {
     border-radius: var(--radius);
     padding: 24px;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .testi-stars {
@@ -875,6 +876,9 @@ textarea {
     margin-bottom: 18px;
     position: relative;
     padding-left: 16px;
+    /* FIX: prevent text overflow */
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .testi-text::before {
