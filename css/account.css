@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap");
 
-/* ===== CSS VARIABLES ===== */
 :root {
     --primary: #3b31d8;
     --primary-hover: #2f27b0;
@@ -33,7 +32,6 @@ body.dark-mode {
     --shadow: 0 24px 64px rgba(0, 0, 0, 0.40);
 }
 
-/* ===== BASE ===== */
 *,
 *::before,
 *::after {
@@ -55,7 +53,6 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* ===== PAGE WRAPPER ===== */
 .page-wrapper {
     min-height: 100vh;
     display: flex;
@@ -64,7 +61,6 @@ body {
     padding: 32px 20px;
 }
 
-/* ===== CARD ===== */
 .card {
     display: flex;
     width: 100%;
@@ -76,7 +72,6 @@ body {
     background: var(--card-bg);
 }
 
-/* ===== LEFT PANEL ===== */
 .left-panel {
     width: 42%;
     background: var(--left-bg);
@@ -202,7 +197,6 @@ body {
     flex-shrink: 0;
 }
 
-/* ===== RIGHT PANEL ===== */
 .right-panel {
     flex: 1;
     display: flex;
@@ -218,7 +212,6 @@ body {
     justify-content: center;
 }
 
-/* ===== AUTH FORM TOGGLE ===== */
 .auth-form {
     display: none;
     flex-direction: column;
@@ -228,7 +221,6 @@ body {
     display: flex;
 }
 
-/* ===== FORM HEADER ===== */
 .form-header {
     margin-bottom: 28px;
 }
@@ -249,7 +241,6 @@ body {
     line-height: 1.5;
 }
 
-/* ===== SOCIAL BUTTONS ===== */
 .social-row {
     display: flex;
     gap: 10px;
@@ -283,7 +274,6 @@ body {
     flex-shrink: 0;
 }
 
-/* ===== DIVIDER ===== */
 .divider {
     display: flex;
     align-items: center;
@@ -304,7 +294,6 @@ body {
     background: var(--border);
 }
 
-/* ===== FIELD ===== */
 .field {
     margin-bottom: 16px;
 }
@@ -353,7 +342,6 @@ body {
     background: var(--card-bg);
 }
 
-/* ===== PASSWORD INPUT WRAP ===== */
 .input-wrap {
     position: relative;
 }
@@ -383,7 +371,6 @@ body {
     color: var(--primary);
 }
 
-/* ===== LINKS ===== */
 .link-small {
     font-size: 12.5px;
     font-weight: 600;
@@ -406,7 +393,6 @@ body {
     opacity: 0.75;
 }
 
-/* ===== CHECKBOX ===== */
 .check-row {
     margin: 14px 0 4px;
 }
@@ -456,7 +442,6 @@ body {
     display: block;
 }
 
-/* ===== SUBMIT BUTTON ===== */
 .submit-btn {
     width: 100%;
     margin-top: 20px;
@@ -481,7 +466,6 @@ body {
     transform: scale(0.985);
 }
 
-/* ===== SWITCH LINE ===== */
 .switch-line {
     text-align: center;
     margin-top: 20px;
@@ -500,7 +484,6 @@ body {
     opacity: 0.75;
 }
 
-/* ===== FOOTER ===== */
 .footer-copy {
     text-align: center;
     padding: 16px 52px 24px;
@@ -514,7 +497,6 @@ body {
     color: var(--text);
 }
 
-/* ===== TOAST ===== */
 .toast {
     position: fixed;
     bottom: 32px;
@@ -540,7 +522,6 @@ body {
     pointer-events: auto;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 860px) {
     .card {
         flex-direction: column;
@@ -558,8 +539,7 @@ body {
     }
 
     .banner-img {
-        max-width: 180px;
-        margin-bottom: 20px;
+        display: none;
     }
 
     .left-heading {
@@ -594,12 +574,18 @@ body {
         padding: 24px 20px 22px;
     }
 
-    .banner-img {
-        max-width: 140px;
+    .left-heading {
+        font-size: 26px;
+        line-height: 1.3;
     }
 
-    .left-heading {
-        font-size: 21px;
+    .brand-name {
+        font-size: 18px;
+    }
+
+    .brand-dot {
+        width: 12px;
+        height: 12px;
     }
 
     .stat-num {
@@ -615,7 +601,7 @@ body {
     }
 
     .form-title {
-        font-size: 23px;
+        font-size: 24px;
     }
 
     .social-row {
