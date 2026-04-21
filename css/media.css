@@ -1,3 +1,17 @@
+/* ============================================================
+   RESPONSIVE — media.css
+   ============================================================ */
+
+@media (max-width: 1400px) {
+    .container {
+        padding: 0 32px;
+    }
+
+    .navbar-inner {
+        padding: 0 32px;
+    }
+}
+
 @media (max-width: 1100px) {
     .features-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -73,7 +87,7 @@
         padding: 0 18px;
     }
 
-    /* Navbar mobile fixes */
+    /* Navbar mobile */
     .nav-links {
         display: none;
     }
@@ -82,8 +96,9 @@
         display: block;
     }
 
+    /* Login button already hidden globally, ensure mobile too */
     .btn-login {
-        display: none;
+        display: none !important;
     }
 
     .navbar-inner {
@@ -91,27 +106,29 @@
         height: 60px;
     }
 
-    /* Keep logo visible and properly sized */
     .logo {
         font-size: 1.1rem;
         gap: 7px;
     }
 
-    /* Theme button: hide text label on mobile, keep icon only */
+    /* Theme button: hide text + chevron on mobile, keep icon only */
     .theme-btn span,
     .theme-btn .chevron {
         display: none;
     }
 
     .theme-btn {
-        padding: 6px 8px;
+        padding: 0 10px;
         gap: 0;
+        width: 38px;
+        justify-content: center;
     }
 
     /* CTA button compact on mobile */
     .btn-cta {
-        padding: 6px 12px;
+        padding: 0 12px;
         font-size: 0.8rem;
+        height: 34px;
     }
 
     /* Hero */
@@ -265,10 +282,10 @@
         grid-template-columns: 1fr;
     }
 
-
     .btn-cta {
-        padding: 6px 10px;
+        padding: 0 10px;
         font-size: 0.78rem;
+        height: 32px;
     }
 
     .logo {
