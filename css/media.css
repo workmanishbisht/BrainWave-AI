@@ -80,6 +80,20 @@
         width: auto;
         min-width: 0;
     }
+
+    /* ── TESTIMONIALS — Tablet fix ── */
+    .testi-track-wrap {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .testi-card {
+        min-width: calc(100vw - 96px);
+        /* viewport minus container padding (32px * 2) + gap */
+        max-width: calc(100vw - 96px);
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
 }
 
 @media (max-width: 768px) {
@@ -96,7 +110,6 @@
         display: block;
     }
 
-    /* Login button already hidden globally, ensure mobile too */
     .btn-login {
         display: none !important;
     }
@@ -111,7 +124,7 @@
         gap: 7px;
     }
 
-    /* Theme button: hide text + chevron on mobile, keep icon only */
+    /* Theme button: icon only on mobile */
     .theme-btn span,
     .theme-btn .chevron {
         display: none;
@@ -158,9 +171,22 @@
         gap: 14px;
     }
 
-    /* Testimonials */
+    /* ── TESTIMONIALS — Mobile fix ── */
+    .testi-track-wrap {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .testi-track {
+        gap: 16px;
+    }
+
     .testi-card {
-        min-width: 290px;
+        min-width: calc(100vw - 52px);
+        /* viewport minus container padding (18px * 2) + a little gap */
+        max-width: calc(100vw - 52px);
+        box-sizing: border-box;
+        flex-shrink: 0;
     }
 
     /* Footer */
@@ -232,8 +258,15 @@
         padding: 22px 18px;
     }
 
+    /* ── TESTIMONIALS — Small mobile fix ── */
     .testi-card {
-        min-width: calc(100vw - 54px);
+        min-width: calc(100vw - 36px);
+        /* viewport minus 18px padding on each side */
+        max-width: calc(100vw - 36px);
+    }
+
+    .testi-text {
+        font-size: 0.85rem;
     }
 
     .billing-toggle {
@@ -276,6 +309,13 @@
     .btn-hero-primary {
         width: 100%;
         justify-content: center;
+    }
+
+    /* ── TESTIMONIALS — Extra small ── */
+    .testi-card {
+        min-width: calc(100vw - 28px);
+        max-width: calc(100vw - 28px);
+        padding: 18px 14px;
     }
 
     .footer-links-grid {
