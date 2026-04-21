@@ -1309,6 +1309,7 @@ finishBtn?.addEventListener("click", () => {
     window.location.href = "dashboard.html";
 });
 
+
 // ================= FOOTER YEAR =================
 const yearEl = safeQuery("#year");
 if (yearEl) yearEl.innerText = new Date().getFullYear();
