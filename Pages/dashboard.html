@@ -1,286 +1,293 @@
 <!doctype html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
-      rel="stylesheet" />
-    <link rel="stylesheet" href="../css/dashboard.css" />
-    <title>Dashboard - BrainWave AI</title>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <title>Dashboard - BrainWave AI</title>
+</head>
 
-  <body>
-    <div class="mobile-toggle" id="mobileMenu">☰</div>
+<body>
+  <div class="mobile-toggle" id="mobileMenu">☰</div>
 
-    <div class="dashboard">
+  <div class="dashboard">
 
-      <!-- SIDEBAR -->
-      <aside class="sidebar" id="sidebar">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
 
-        <div class="sidebar-header">
-          <div class="logo-section">
-            <h2 class="logo-title">BrainWave AI</h2>
-            <p class="logo-subtitle">Go</p>
+      <div class="sidebar-header">
+        <div class="logo-section">
+          <h2 class="logo-title">BrainWave AI</h2>
+          <p class="logo-subtitle">Go</p>
+        </div>
+        <div class="hamburger" id="toggleSidebar">☰</div>
+      </div>
+
+      <nav class="nav-menu">
+        <ul class="nav-list">
+          <li class="nav-item active">
+            <i class="ri-chat-3-line nav-icon"></i>
+            <span class="nav-text">New Chat</span>
+          </li>
+          <li class="nav-item">
+            <i class="ri-history-line nav-icon"></i>
+            <span class="nav-text">History</span>
+          </li>
+          <li class="nav-item">
+            <i class="ri-bar-chart-line nav-icon"></i>
+            <span class="nav-text">Analytics</span>
+          </li>
+          <li class="nav-item">
+            <i class="ri-settings-3-line nav-icon"></i>
+            <span class="nav-text">Settings</span>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="recent-section">
+        <h4 class="recent-title">Recent Chats</h4>
+        <div class="recent-list"></div>
+      </div>
+
+      <div class="upgrade-box">
+        <p class="upgrade-text">Upgrade to Pro</p>
+        <span class="upgrade-sub">Access more powerful curation modes</span>
+      </div>
+
+      <div class="user-section">
+        <div class="user-info profile-toggle">
+          <div class="user-avatar">
+            <span id="sidebarAvatarText">?</span>
           </div>
-          <div class="hamburger" id="toggleSidebar">☰</div>
+          <div>
+            <p class="user-name" id="sidebarUserName">Loading...</p>
+            <span class="user-role" id="sidebarUserEmail">...</span>
+          </div>
         </div>
 
-        <nav class="nav-menu">
-          <ul class="nav-list">
-            <li class="nav-item active">
-              <i class="ri-chat-3-line nav-icon"></i>
-              <span class="nav-text">New Chat</span>
-            </li>
-            <li class="nav-item">
-              <i class="ri-history-line nav-icon"></i>
-              <span class="nav-text">History</span>
-            </li>
-            <li class="nav-item">
-              <i class="ri-bar-chart-line nav-icon"></i>
-              <span class="nav-text">Analytics</span>
-            </li>
-            <li class="nav-item">
-              <i class="ri-settings-3-line nav-icon"></i>
-              <span class="nav-text">Settings</span>
-            </li>
-          </ul>
-        </nav>
-
-        <div class="recent-section">
-          <h4 class="recent-title">Recent Chats</h4>
-          <div class="recent-list"></div>
-        </div>
-
-        <div class="upgrade-box">
-          <p class="upgrade-text">Upgrade to Pro</p>
-          <span class="upgrade-sub">Access more powerful curation modes</span>
-        </div>
-
-        <div class="user-section">
-          <div class="user-info profile-toggle">
-            <div class="user-avatar">
-              <span id="sidebarAvatarText">?</span>
+        <div class="profile-dropdown sidebar-dropdown">
+          <div class="profile-top">
+            <div class="avatar">
+              <span id="dropdownAvatarText">?</span>
             </div>
             <div>
-              <p class="user-name" id="sidebarUserName">Loading...</p>
-              <span class="user-role" id="sidebarUserEmail">...</span>
+              <p class="profile-name" id="dropdownUserName">Loading...</p>
+              <span class="profile-plan" id="dropdownUserEmail">...</span>
             </div>
           </div>
 
-          <div class="profile-dropdown sidebar-dropdown">
-            <div class="profile-top">
-              <div class="avatar">
-                <span id="dropdownAvatarText">?</span>
-              </div>
-              <div>
-                <p class="profile-name" id="dropdownUserName">Loading...</p>
-                <span class="profile-plan" id="dropdownUserEmail">...</span>
-              </div>
-            </div>
+          <div class="dropdown-item">
+            <i class="ri-add-line"></i> Add another account
+          </div>
+          <hr />
+          <div class="dropdown-item">
+            <i class="ri-flashlight-line"></i> Upgrade plan
+          </div>
+          <div class="dropdown-item" id="profileDropdownItem">
+            <i class="ri-user-line"></i> Profile
+          </div>
+          <div class="dropdown-item theme-wrapper" id="themeWrapper">
+            <div class="theme-btn">
+              <i id="themeIcon" class="ri-computer-line"></i>
+              <span id="themeLabel">Auto</span>
 
-            <div class="dropdown-item">
-              <i class="ri-add-line"></i> Add another account
+              <!-- Arrow -->
+              <i class="ri-arrow-right-s-line theme-arrow" id="themeArrow"></i>
             </div>
-            <hr />
-            <div class="dropdown-item">
-              <i class="ri-flashlight-line"></i> Upgrade plan
+          </div>
+
+          <!-- THEME MODAL -->
+          <div class="theme-modal-overlay" id="themeModal">
+            <div class="theme-modal">
+
+              <div class="theme-modal-header">
+                <h3>Choose Theme</h3>
+                <i class="ri-close-line" id="closeThemeModal"></i>
+              </div>
+
+              <div class="theme-options">
+                <div class="theme-option" data-t="light">
+                  <i class="ri-sun-line"></i>
+                  <span>Light</span>
+                  <i class="ri-check-line check"></i>
+                </div>
+
+                <div class="theme-option" data-t="dark">
+                  <i class="ri-moon-line"></i>
+                  <span>Dark</span>
+                  <i class="ri-check-line check"></i>
+                </div>
+
+                <div class="theme-option" data-t="auto">
+                  <i class="ri-computer-line"></i>
+                  <span>Auto</span>
+                  <i class="ri-check-line check"></i>
+                </div>
+              </div>
+
             </div>
-            <div class="dropdown-item" id="profileDropdownItem">
-              <i class="ri-user-line"></i> Profile
+          </div>
+          <hr />
+          <div class="dropdown-item">
+            <i class="ri-question-line"></i> Help
+          </div>
+          <div class="dropdown-item logout">
+            <i class="ri-logout-box-line"></i> Log out
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="mainContent">
+
+      <header class="top-header" id="topHeader">
+        <h3 class="header-title" id="headerTitle">AI Intelligence Assistant</h3>
+      </header>
+
+      <!-- EMPTY STATE -->
+      <section class="empty-state" id="emptyState">
+        <div class="empty-content" id="emptyContent">
+          <h1 class="main-heading">What's on the agenda today?</h1>
+          <p class="sub-heading">Plan, create, or solve anything — just start typing.</p>
+          <div class="search-container">
+            <div class="search-box">
+              <input type="text" class="search-input" id="mainInput" placeholder="Search or ask anything..." />
+              <button class="mic-btn" id="searchMicBtn" type="button">
+                <span class="mic-wave"></span>
+                <i class="ri-mic-line" id="searchMicIcon"></i>
+              </button>
+              <button class="search-btn" id="startChatBtn" type="button">
+                <i class="ri-arrow-right-line"></i>
+              </button>
             </div>
-            <div class="dropdown-item">
-              <i class="ri-settings-4-line"></i> Settings
-            </div>
-            <hr />
-            <div class="dropdown-item">
-              <i class="ri-question-line"></i> Help
-            </div>
-            <div class="dropdown-item logout">
-              <i class="ri-logout-box-line"></i> Log out
-            </div>
+            <p class="enter-text">Press Enter to continue</p>
           </div>
         </div>
 
-      </aside>
-
-      <!-- MAIN CONTENT -->
-      <main class="main-content" id="mainContent">
-
-        <header class="top-header" id="topHeader">
-          <h3 class="header-title" id="headerTitle">AI Intelligence
-            Assistant</h3>
-        </header>
-
-        <!-- EMPTY STATE -->
-        <section class="empty-state" id="emptyState">
-          <div class="empty-content" id="emptyContent">
-            <h1 class="main-heading">What's on the agenda today?</h1>
-            <p class="sub-heading">Plan, create, or solve anything — just start
-              typing.</p>
-            <div class="search-container">
-              <div class="search-box">
-                <input type="text" class="search-input" id="mainInput"
-                  placeholder="Search or ask anything..." />
-                <button class="mic-btn" id="searchMicBtn" type="button">
-                  <span class="mic-wave"></span>
-                  <i class="ri-mic-line" id="searchMicIcon"></i>
-                </button>
-                <button class="search-btn" id="startChatBtn" type="button">
-                  <i class="ri-arrow-right-line"></i>
-                </button>
-              </div>
-              <p class="enter-text">Press Enter to continue</p>
+        <div class="suggestions-wrapper">
+          <div class="suggestion-card" onclick="startChat('Summarize this article for me')">
+            <div class="suggestion-icon"><i class="ri-file-list-3-line"></i></div>
+            <div>
+              <h4>Summarize Article</h4>
+              <p>Paste a link to distill key insights.</p>
             </div>
           </div>
-
-          <div class="suggestions-wrapper">
-            <div class="suggestion-card"
-              onclick="startChat('Summarize this article for me')">
-              <div class="suggestion-icon"><i
-                  class="ri-file-list-3-line"></i></div>
-              <div>
-                <h4>Summarize Article</h4>
-                <p>Paste a link to distill key insights.</p>
-              </div>
-            </div>
-            <div class="suggestion-card"
-              onclick="startChat('Give me creative ideas')">
-              <div class="suggestion-icon"><i
-                  class="ri-lightbulb-line"></i></div>
-              <div>
-                <h4>Brainstorm Ideas</h4>
-                <p>Get fresh concepts for your project.</p>
-              </div>
-            </div>
-            <div class="suggestion-card"
-              onclick="startChat('Write code for me')">
-              <div class="suggestion-icon"><i
-                  class="ri-code-s-slash-line"></i></div>
-              <div>
-                <h4>Write Code</h4>
-                <p>Generate snippets or debug logic.</p>
-              </div>
+          <div class="suggestion-card" onclick="startChat('Give me creative ideas')">
+            <div class="suggestion-icon"><i class="ri-lightbulb-line"></i></div>
+            <div>
+              <h4>Brainstorm Ideas</h4>
+              <p>Get fresh concepts for your project.</p>
             </div>
           </div>
-        </section>
-
-        <!-- CHAT AREA -->
-        <section class="chat-section" id="chatSection" style="display: none;">
-          <div class="chat-container" id="chatContainer"></div>
-        </section>
-
-        <!-- PROFILE SECTION -->
-        <section class="profile-section" id="profileSection"
-          style="display: none;">
-          <div class="profile-page-container">
-            <div class="profile-page-header">
-              <h2 class="profile-page-title">Account Details</h2>
+          <div class="suggestion-card" onclick="startChat('Write code for me')">
+            <div class="suggestion-icon"><i class="ri-code-s-slash-line"></i></div>
+            <div>
+              <h4>Write Code</h4>
+              <p>Generate snippets or debug logic.</p>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <!-- Change Profile Picture -->
-            <div class="profile-block">
-              <label class="profile-block-label">Change Profile Picture</label>
-              <div class="profile-pic-row">
-                <div class="profile-dropzone" id="profileDropzone">
-                  <input type="file" id="profileFileInput"
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    style="display:none;">
-                  <div class="profile-dropzone-inner" id="profileDropzoneInner">
-                    <div class="profile-upload-icon">
-                      <i class="ri-image-add-line"></i>
-                    </div>
-                    <p class="profile-drop-text">Drop your image here, or <span
-                        class="profile-browse-link"
-                        id="profileBrowseLink">browse</span></p>
-                    <p class="profile-drop-sub">Only formats : PNG, JPEG, JPG,
-                      WEBP</p>
+      <!-- CHAT AREA -->
+      <section class="chat-section" id="chatSection" style="display: none;">
+        <div class="chat-container" id="chatContainer"></div>
+      </section>
+
+      <!-- PROFILE SECTION -->
+      <section class="profile-section" id="profileSection" style="display: none;">
+        <div class="profile-page-container">
+          <div class="profile-page-header">
+            <h2 class="profile-page-title">Account Details</h2>
+          </div>
+
+          <div class="profile-block">
+            <label class="profile-block-label">Change Profile Picture</label>
+            <div class="profile-pic-row">
+              <div class="profile-dropzone" id="profileDropzone">
+                <input type="file" id="profileFileInput" accept="image/png,image/jpeg,image/jpg,image/webp"
+                  style="display:none;">
+                <div class="profile-dropzone-inner" id="profileDropzoneInner">
+                  <div class="profile-upload-icon">
+                    <i class="ri-image-add-line"></i>
                   </div>
-                </div>
-                <div class="profile-current-pic-wrap">
-                  <div class="profile-current-pic" id="profileCurrentPic">
-                    <span id="profileCurrentInitials">?</span>
-                  </div>
-                  <button class="profile-remove-pic-btn"
-                    id="profileRemovePicBtn" style="display:none;">
-                    <i class="ri-delete-bin-line"></i> Remove
-                  </button>
+                  <p class="profile-drop-text">Drop your image here, or <span class="profile-browse-link"
+                      id="profileBrowseLink">browse</span></p>
+                  <p class="profile-drop-sub">Only formats : PNG, JPEG, JPG, WEBP</p>
                 </div>
               </div>
-            </div>
-
-            <!-- Name + Email -->
-            <div class="profile-block">
-              <label class="profile-block-label">First Name</label>
-              <input type="text" class="profile-input" id="profileFirstName"
-                placeholder="First Name">
-            </div>
-            <div class="profile-block">
-              <label class="profile-block-label">Last Name</label>
-              <input type="text" class="profile-input" id="profileLastName"
-                placeholder="Last Name">
-            </div>
-            <div class="profile-block">
-              <label class="profile-block-label">Email Address</label>
-              <input type="email" class="profile-input" id="profileEmail"
-                placeholder="Email Address" readonly>
-            </div>
-
-            <button class="profile-save-btn" id="profileSaveDetailsBtn">Save
-              Changes</button>
-
-            <!-- Change Password -->
-            <div class="profile-page-header" style="margin-top: 36px;">
-              <h2 class="profile-page-title">Change Password</h2>
-            </div>
-            <div class="profile-block">
-              <label class="profile-block-label">Old Password</label>
-              <input type="password" class="profile-input"
-                id="profileOldPassword" placeholder="Enter the old password">
-            </div>
-            <div class="profile-block">
-              <label class="profile-block-label">Create New Password</label>
-              <input type="password" class="profile-input"
-                id="profileNewPassword"
-                placeholder="Create strong new password">
-            </div>
-            <div class="profile-block">
-              <label class="profile-block-label">Confirm New Password</label>
-              <input type="password" class="profile-input"
-                id="profileConfirmPassword"
-                placeholder="Retype the new password">
-            </div>
-            <button class="profile-save-btn" id="profileSavePasswordBtn">Save
-              Changes</button>
-          </div>
-        </section>
-
-        <!-- INPUT BOX -->
-        <section class="input-section" id="chatInputSection"
-          style="display: none;">
-          <div class="input-container">
-            <div class="input-box">
-              <input type="text" class="chat-input" id="chatInput"
-                placeholder="Type your message..." />
-              <button class="send-btn" id="sendMessageBtn" type="button">
-                <i class="ri-send-plane-fill"></i>
-              </button>
+              <div class="profile-current-pic-wrap">
+                <div class="profile-current-pic" id="profileCurrentPic">
+                  <span id="profileCurrentInitials">?</span>
+                </div>
+                <button class="profile-remove-pic-btn" id="profileRemovePicBtn" style="display:none;">
+                  <i class="ri-delete-bin-line"></i> Remove
+                </button>
+              </div>
             </div>
           </div>
-        </section>
 
-      </main>
-    </div>
+          <div class="profile-block">
+            <label class="profile-block-label">First Name</label>
+            <input type="text" class="profile-input" id="profileFirstName" placeholder="First Name">
+          </div>
+          <div class="profile-block">
+            <label class="profile-block-label">Last Name</label>
+            <input type="text" class="profile-input" id="profileLastName" placeholder="Last Name">
+          </div>
+          <div class="profile-block">
+            <label class="profile-block-label">Email Address</label>
+            <input type="email" class="profile-input" id="profileEmail" placeholder="Email Address" readonly>
+          </div>
 
-    <!-- script file -->
-    <script
-      src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script
-      src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-    <script src="../javascript/script.js"></script>
-    <script src="../javascript/theme.js" defer></script>
-  </body>
+          <button class="profile-save-btn" id="profileSaveDetailsBtn">Save Changes</button>
+
+          <div class="profile-page-header" style="margin-top: 36px;">
+            <h2 class="profile-page-title">Change Password</h2>
+          </div>
+          <div class="profile-block">
+            <label class="profile-block-label">Old Password</label>
+            <input type="password" class="profile-input" id="profileOldPassword" placeholder="Enter the old password">
+          </div>
+          <div class="profile-block">
+            <label class="profile-block-label">Create New Password</label>
+            <input type="password" class="profile-input" id="profileNewPassword"
+              placeholder="Create strong new password">
+          </div>
+          <div class="profile-block">
+            <label class="profile-block-label">Confirm New Password</label>
+            <input type="password" class="profile-input" id="profileConfirmPassword"
+              placeholder="Retype the new password">
+          </div>
+          <button class="profile-save-btn" id="profileSavePasswordBtn">Save Changes</button>
+        </div>
+      </section>
+
+      <!-- INPUT BOX -->
+      <section class="input-section" id="chatInputSection" style="display: none;">
+        <div class="input-container">
+          <div class="input-box">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." />
+            <button class="send-btn" id="sendMessageBtn" type="button">
+              <i class="ri-send-plane-fill"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts  -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="../javascript/theme.js"></script>
+  <script src="../javascript/script.js"></script>
+</body>
 
 </html>
