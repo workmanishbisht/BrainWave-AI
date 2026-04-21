@@ -6,9 +6,7 @@ function safeQuery(selector) {
 // ================= SETUP CHECK =================
 (function () {
     const oldSetup = localStorage.getItem("setupComplete");
-    if (oldSetup) {
-        localStorage.removeItem("setupComplete");
-    }
+    if (oldSetup) localStorage.removeItem("setupComplete");
 })();
 
 // ================= CHAT SESSION MANAGER =================
@@ -95,13 +93,11 @@ function showToast(message, type = 'info') {
     toast.className = `toast-notification ${type}`;
     toast.classList.add('show');
     clearTimeout(toast._hideTimer);
-    toast._hideTimer = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 // ================= SUBSCRIPTION MODAL =================
-const plans = {
+const subscriptionPlans = {
     monthly: {
         go: { inr: 649, usd: 8, original: null },
         plus: { inr: 1649, usd: 20, original: null },
@@ -143,7 +139,7 @@ function switchBilling(type) {
 }
 
 function buildSubscriptionHTML(billing) {
-    const p = plans[billing];
+    const p = subscriptionPlans[billing];
     function fmt(inr) { return '₹' + inr.toLocaleString('en-IN'); }
     function origRow(orig) {
         return orig ? `<div class="plan-original">Was ${fmt(orig)}/month</div>` : `<div class="plan-original"></div>`;
@@ -316,7 +312,7 @@ window.openHistoryPopup = openHistoryPopup;
 window.closeHistoryPopup = closeHistoryPopup;
 window.loadSessionFromHistory = loadSessionFromHistory;
 
-// ================= MODAL MANAGEMENT =================
+// ================= CHAT OPTIONS MODAL =================
 let currentModalSessionId = null;
 
 function showChatOptionsModal(sessionId, event) {
@@ -384,15 +380,17 @@ window.handleShareClick = function (sessionId) {
     const shareText = `BrainWave AI Chat: ${session.title}\n${new Date(session.time).toLocaleString()}\n\n`;
     const messageText = session.messages.map(m => `${m.role === 'user' ? 'You' : 'AI'}: ${m.raw || unescapeHtml(m.text)}`).join('\n\n');
     const fullText = shareText + messageText;
-    navigator.clipboard?.writeText(fullText).then(() => showToast("Chat copied to clipboard", "success")).catch(() => {
-        const textarea = document.createElement('textarea');
-        textarea.value = fullText;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast("Chat copied to clipboard", "success");
-    });
+    navigator.clipboard?.writeText(fullText)
+        .then(() => showToast("Chat copied to clipboard", "success"))
+        .catch(() => {
+            const textarea = document.createElement('textarea');
+            textarea.value = fullText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast("Chat copied to clipboard", "success");
+        });
     closeModal();
 };
 window.handleDeleteClick = function (sessionId) {
@@ -401,7 +399,7 @@ window.handleDeleteClick = function (sessionId) {
 window.closeModal = closeModal;
 window.showChatOptionsModal = showChatOptionsModal;
 
-// ================= RENDER RECENT CHATS =================
+// ================= RECENT CHATS RENDERER =================
 function renderRecentChats() {
     const list = document.querySelector(".recent-list");
     if (!list) return;
@@ -426,7 +424,7 @@ function renderRecentChats() {
 
 window.togglePin = togglePin;
 
-// ================= DYNAMIC USER INFO (FIREBASE) =================
+// ================= FIREBASE USER INFO =================
 function getInitials(name) {
     if (!name) return "?";
     const parts = name.trim().split(" ");
@@ -465,10 +463,8 @@ function loadUserInfo() {
         const photoURL = user.photoURL || user.providerData?.[0]?.photoURL || "";
         const initials = getInitials(name);
 
-        const sidebarAvatarEl = document.getElementById("sidebarAvatarText");
-        setAvatar(sidebarAvatarEl, photoURL, initials);
-        const dropdownAvatarEl = document.getElementById("dropdownAvatarText");
-        setAvatar(dropdownAvatarEl, photoURL, initials);
+        setAvatar(document.getElementById("sidebarAvatarText"), photoURL, initials);
+        setAvatar(document.getElementById("dropdownAvatarText"), photoURL, initials);
 
         const sidebarUserName = document.getElementById("sidebarUserName");
         const sidebarUserEmail = document.getElementById("sidebarUserEmail");
@@ -479,7 +475,6 @@ function loadUserInfo() {
         if (dropdownUserName) dropdownUserName.textContent = name.toUpperCase();
         if (dropdownUserEmail) dropdownUserEmail.textContent = email;
 
-        // Save current user to accounts
         const currentAccount = {
             uid: user.uid, email, displayName: name, photoURL,
             providerId: user.providerData?.[0]?.providerId || 'password',
@@ -496,7 +491,6 @@ function loadUserInfo() {
 
 // ================= PROFILE SECTION =================
 function openProfileSection() {
-    // Hide other sections, show profile
     const emptyState = document.getElementById("emptyState");
     const chatSection = document.getElementById("chatSection");
     const chatInputSection = document.getElementById("chatInputSection");
@@ -507,11 +501,9 @@ function openProfileSection() {
     if (chatInputSection) chatInputSection.style.display = "none";
     if (profileSection) profileSection.style.display = "block";
 
-    // Close dropdown
     const dd = document.querySelector(".sidebar-dropdown");
     if (dd) dd.classList.remove("show");
 
-    // Load current user data into form
     if (typeof firebase !== "undefined" && firebase.apps.length) {
         const user = firebase.auth().currentUser;
         if (user) populateProfileForm(user);
@@ -521,7 +513,6 @@ function openProfileSection() {
 function closeProfileSection() {
     const profileSection = document.getElementById("profileSection");
     if (profileSection) profileSection.style.display = "none";
-    // Go back to empty state
     const emptyState = document.getElementById("emptyState");
     if (emptyState) emptyState.style.display = "";
 }
@@ -531,7 +522,6 @@ function populateProfileForm(user) {
     const email = user.email || user.providerData?.[0]?.email || "";
     const photoURL = user.photoURL || user.providerData?.[0]?.photoURL || "";
 
-    // Split name into first/last
     const parts = name.trim().split(" ");
     const firstName = parts[0] || "";
     const lastName = parts.slice(1).join(" ") || "";
@@ -544,12 +534,10 @@ function populateProfileForm(user) {
     if (lastNameEl) lastNameEl.value = lastName;
     if (emailEl) emailEl.value = email;
 
-    // Set current profile picture
     const picEl = document.getElementById("profileCurrentPic");
-    const initialsEl = document.getElementById("profileCurrentInitials");
     const removePicBtn = document.getElementById("profileRemovePicBtn");
 
-    if (picEl && initialsEl) {
+    if (picEl) {
         if (photoURL) {
             picEl.innerHTML = `<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;" id="profileCurrentImg">`;
             if (removePicBtn) removePicBtn.style.display = "flex";
@@ -560,9 +548,9 @@ function populateProfileForm(user) {
     }
 }
 
-// Profile picture upload logic
+// ================= PROFILE PICTURE UPLOAD =================
 let pendingProfilePhotoFile = null;
-let pendingProfilePhotoURL = null; // base64 or URL
+let pendingProfilePhotoURL = null;
 
 function initProfileSection() {
     const dropzone = document.getElementById("profileDropzone");
@@ -570,22 +558,11 @@ function initProfileSection() {
     const browseLink = document.getElementById("profileBrowseLink");
     const removePicBtn = document.getElementById("profileRemovePicBtn");
 
-    // Browse link click
-    if (browseLink) {
-        browseLink.addEventListener("click", (e) => {
-            e.stopPropagation();
-            fileInput?.click();
-        });
-    }
+    if (browseLink) browseLink.addEventListener("click", (e) => { e.stopPropagation(); fileInput?.click(); });
 
-    // Dropzone click
     if (dropzone) {
         dropzone.addEventListener("click", () => fileInput?.click());
-
-        dropzone.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            dropzone.classList.add("dragover");
-        });
+        dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
         dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
         dropzone.addEventListener("drop", (e) => {
             e.preventDefault();
@@ -595,7 +572,6 @@ function initProfileSection() {
         });
     }
 
-    // File input change
     if (fileInput) {
         fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
@@ -604,7 +580,6 @@ function initProfileSection() {
         });
     }
 
-    // Remove picture button
     if (removePicBtn) {
         removePicBtn.addEventListener("click", () => {
             pendingProfilePhotoFile = null;
@@ -620,40 +595,23 @@ function initProfileSection() {
         });
     }
 
-    // Save Details button
     const saveDetailsBtn = document.getElementById("profileSaveDetailsBtn");
-    if (saveDetailsBtn) {
-        saveDetailsBtn.addEventListener("click", saveProfileDetails);
-    }
-
-    // Save Password button
     const savePasswordBtn = document.getElementById("profileSavePasswordBtn");
-    if (savePasswordBtn) {
-        savePasswordBtn.addEventListener("click", saveProfilePassword);
-    }
+    if (saveDetailsBtn) saveDetailsBtn.addEventListener("click", saveProfileDetails);
+    if (savePasswordBtn) savePasswordBtn.addEventListener("click", saveProfilePassword);
 }
 
 function handleProfileFileSelect(file) {
     const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-        showToast("Only PNG, JPEG, JPG, WEBP allowed ❌", "error");
-        return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-        showToast("Image must be less than 5MB ❌", "error");
-        return;
-    }
-
+    if (!allowedTypes.includes(file.type)) { showToast("Only PNG, JPEG, JPG, WEBP allowed ❌", "error"); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast("Image must be less than 5MB ❌", "error"); return; }
     pendingProfilePhotoFile = file;
-
     const reader = new FileReader();
     reader.onload = (e) => {
         pendingProfilePhotoURL = e.target.result;
         const picEl = document.getElementById("profileCurrentPic");
         const removePicBtn = document.getElementById("profileRemovePicBtn");
-        if (picEl) {
-            picEl.innerHTML = `<img src="${pendingProfilePhotoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">`;
-        }
+        if (picEl) picEl.innerHTML = `<img src="${pendingProfilePhotoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">`;
         if (removePicBtn) removePicBtn.style.display = "flex";
         showToast("Image selected — click Save Changes to apply ✅", "info");
     };
@@ -668,48 +626,29 @@ async function saveProfileDetails() {
     const firstName = document.getElementById("profileFirstName")?.value.trim();
     const lastName = document.getElementById("profileLastName")?.value.trim();
     const fullName = [firstName, lastName].filter(Boolean).join(" ");
-
     const btn = document.getElementById("profileSaveDetailsBtn");
     if (btn) { btn.textContent = "Saving..."; btn.disabled = true; }
 
     try {
         let newPhotoURL = user.photoURL;
+        if (pendingProfilePhotoURL === "REMOVE") newPhotoURL = null;
+        else if (pendingProfilePhotoFile) newPhotoURL = pendingProfilePhotoURL;
 
-        // Handle photo
-        if (pendingProfilePhotoURL === "REMOVE") {
-            // Remove photo — set to null
-            newPhotoURL = null;
-        } else if (pendingProfilePhotoFile) {
-            // Firebase Storage se upload karna ideal hai, 
-            // lekin agar Storage nahi hai toh base64 ko photoURL mein save karte hain
-            // (small images ke liye ok, large images ke liye Firebase Storage use karein)
-            newPhotoURL = pendingProfilePhotoURL;
-        }
+        await user.updateProfile({ displayName: fullName || user.displayName, photoURL: newPhotoURL });
 
-        await user.updateProfile({
-            displayName: fullName || user.displayName,
-            photoURL: newPhotoURL
-        });
-
-        // Update all UI avatars
         const initials = getInitials(fullName || user.displayName || user.email);
-        const sidebarAvatarEl = document.getElementById("sidebarAvatarText");
-        setAvatar(sidebarAvatarEl, newPhotoURL, initials);
-        const dropdownAvatarEl = document.getElementById("dropdownAvatarText");
-        setAvatar(dropdownAvatarEl, newPhotoURL, initials);
+        setAvatar(document.getElementById("sidebarAvatarText"), newPhotoURL, initials);
+        setAvatar(document.getElementById("dropdownAvatarText"), newPhotoURL, initials);
 
         const sidebarUserName = document.getElementById("sidebarUserName");
         const dropdownUserName = document.getElementById("dropdownUserName");
         if (sidebarUserName) sidebarUserName.textContent = fullName || user.displayName;
         if (dropdownUserName) dropdownUserName.textContent = (fullName || user.displayName || "").toUpperCase();
 
-        // Reset pending
         pendingProfilePhotoFile = null;
         pendingProfilePhotoURL = null;
-
         showToast("Profile updated successfully ✅", "success");
     } catch (error) {
-        console.error("Profile update error:", error);
         showToast("Failed to update profile: " + (error.message || "Unknown error"), "error");
     } finally {
         if (btn) { btn.textContent = "Save Changes"; btn.disabled = false; }
@@ -725,41 +664,23 @@ async function saveProfilePassword() {
     const newPassword = document.getElementById("profileNewPassword")?.value;
     const confirmPassword = document.getElementById("profileConfirmPassword")?.value;
 
-    if (!oldPassword || !newPassword || !confirmPassword) {
-        showToast("Please fill all password fields", "error");
-        return;
-    }
-    if (newPassword.length < 6) {
-        showToast("New password must be at least 6 characters", "error");
-        return;
-    }
-    if (newPassword !== confirmPassword) {
-        showToast("Passwords do not match ❌", "error");
-        return;
-    }
+    if (!oldPassword || !newPassword || !confirmPassword) { showToast("Please fill all password fields", "error"); return; }
+    if (newPassword.length < 6) { showToast("New password must be at least 6 characters", "error"); return; }
+    if (newPassword !== confirmPassword) { showToast("Passwords do not match ❌", "error"); return; }
 
     const btn = document.getElementById("profileSavePasswordBtn");
     if (btn) { btn.textContent = "Saving..."; btn.disabled = true; }
 
     try {
-        // Re-authenticate first
         const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPassword);
         await user.reauthenticateWithCredential(credential);
         await user.updatePassword(newPassword);
-
-        // Clear fields
         document.getElementById("profileOldPassword").value = "";
         document.getElementById("profileNewPassword").value = "";
         document.getElementById("profileConfirmPassword").value = "";
-
         showToast("Password changed successfully ✅", "success");
     } catch (error) {
-        console.error("Password change error:", error);
-        if (error.code === "auth/wrong-password") {
-            showToast("Old password is incorrect ❌", "error");
-        } else {
-            showToast("Failed: " + (error.message || "Unknown error"), "error");
-        }
+        showToast(error.code === "auth/wrong-password" ? "Old password is incorrect ❌" : "Failed: " + (error.message || "Unknown error"), "error");
     } finally {
         if (btn) { btn.textContent = "Save Changes"; btn.disabled = false; }
     }
@@ -768,7 +689,7 @@ async function saveProfilePassword() {
 window.openProfileSection = openProfileSection;
 window.closeProfileSection = closeProfileSection;
 
-// ================= DOM READY =================
+// ================= SIDEBAR & DROPDOWN SETUP =================
 document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.getElementById("sidebar");
     const toggleBtn = document.getElementById("toggleSidebar");
@@ -791,61 +712,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("click", (e) => {
-        if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains("active") && !sidebar.contains(e.target) && mobileBtn && !mobileBtn.contains(e.target)) {
+        if (window.innerWidth <= 768 && sidebar?.classList.contains("active") && !sidebar.contains(e.target) && !mobileBtn?.contains(e.target)) {
             sidebar.classList.remove("active");
         }
     });
 
     if (profileToggle && dropdown) {
-        profileToggle.addEventListener("click", (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle("show");
-        });
+        profileToggle.addEventListener("click", (e) => { e.stopPropagation(); dropdown.classList.toggle("show"); });
         document.addEventListener("click", (e) => {
-            if (dropdown && !dropdown.contains(e.target) && !profileToggle.contains(e.target)) {
-                dropdown.classList.remove("show");
-            }
+            if (!dropdown.contains(e.target) && !profileToggle.contains(e.target)) dropdown.classList.remove("show");
         });
     }
 
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-    // Nav items
     document.querySelectorAll(".nav-item").forEach(item => {
         const text = item.querySelector(".nav-text")?.textContent?.trim();
         if (text === "New Chat") item.addEventListener("click", () => resetToNewChat());
-        if (text === "History") {
-            item.addEventListener("click", (e) => { e.stopPropagation(); openHistoryPopup(); });
-        }
+        if (text === "History") item.addEventListener("click", (e) => { e.stopPropagation(); openHistoryPopup(); });
     });
 
-    // Profile dropdown item click → open profile section
     const profileDropdownItem = document.getElementById("profileDropdownItem");
-    if (profileDropdownItem) {
-        profileDropdownItem.addEventListener("click", () => openProfileSection());
-    }
+    if (profileDropdownItem) profileDropdownItem.addEventListener("click", () => openProfileSection());
 
-    // Upgrade box
     const upgradeBox = document.querySelector(".upgrade-box");
-    if (upgradeBox) {
-        upgradeBox.style.cursor = "pointer";
-        upgradeBox.addEventListener("click", openSubscriptionModal);
-    }
+    if (upgradeBox) { upgradeBox.style.cursor = "pointer"; upgradeBox.addEventListener("click", openSubscriptionModal); }
 
-    // Dropdown items
     document.querySelectorAll(".dropdown-item").forEach(item => {
         const text = item.textContent.trim().toLowerCase();
         if (text.includes("upgrade")) {
             item.addEventListener("click", () => {
-                const dd = document.querySelector(".sidebar-dropdown");
-                if (dd) dd.classList.remove("show");
+                dropdown?.classList.remove("show");
                 openSubscriptionModal();
             });
         }
         if (text.includes("add another account")) {
             item.addEventListener("click", () => {
-                const dd = document.querySelector(".sidebar-dropdown");
-                if (dd) dd.classList.remove("show");
+                dropdown?.classList.remove("show");
                 addAnotherAccount();
             });
         }
@@ -853,12 +756,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     renderRecentChats();
     loadUserInfo();
-
-    // Init profile section handlers
     initProfileSection();
 });
 
-// ================= CHAT ENGINE WITH STATE PERSISTENCE =================
+// ================= CHAT ENGINE =================
 document.addEventListener("DOMContentLoaded", () => {
     const emptyState = document.getElementById("emptyState");
     const chatSection = document.getElementById("chatSection");
@@ -876,8 +777,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function saveCurrentChatState() {
         if (currentSessionId) {
-            const state = { sessionId: currentSessionId, chatHistory, sessionMessages, timestamp: Date.now() };
-            localStorage.setItem('currentChatState', JSON.stringify(state));
+            localStorage.setItem('currentChatState', JSON.stringify({ sessionId: currentSessionId, chatHistory, sessionMessages, timestamp: Date.now() }));
         } else {
             localStorage.removeItem('currentChatState');
         }
@@ -888,7 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!savedState) return false;
         try {
             const state = JSON.parse(savedState);
-            if (Date.now() - state.timestamp > 24 * 60 * 60 * 1000) { localStorage.removeItem('currentChatState'); return false; }
+            if (Date.now() - state.timestamp > 86400000) { localStorage.removeItem('currentChatState'); return false; }
             currentSessionId = state.sessionId;
             chatHistory = state.chatHistory || [];
             sessionMessages = state.sessionMessages || [];
@@ -911,7 +811,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function clearChatState() { localStorage.removeItem('currentChatState'); }
 
     setInterval(saveCurrentChatState, 2000);
-    window.addEventListener('beforeunload', () => saveCurrentChatState());
+    window.addEventListener('beforeunload', saveCurrentChatState);
     document.addEventListener('visibilitychange', () => { if (document.hidden) saveCurrentChatState(); });
 
     function addMessageToDOM(html, type) {
@@ -972,7 +872,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function startChat(message) {
-        if (!message || !message.trim()) return;
+        if (!message?.trim()) return;
         clearChatState();
         currentSessionId = createSession(message);
         window.__activeSessionId = currentSessionId;
@@ -1020,8 +920,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.__activeSessionId = sessionId;
         chatHistory = [];
         session.messages.forEach(msg => {
-            if (msg.role === "user") chatHistory.push({ role: "user", content: msg.raw || unescapeHtml(msg.text) });
-            else chatHistory.push({ role: "assistant", content: msg.raw || unescapeHtml(msg.text) });
+            chatHistory.push({ role: msg.role === "user" ? "user" : "assistant", content: msg.raw || unescapeHtml(msg.text) });
         });
         sessionMessages = session.messages.slice();
         if (chatContainer) {
@@ -1079,7 +978,7 @@ function unescapeHtml(html) {
 
 (function addActiveSessionStyle() {
     const style = document.createElement("style");
-    style.textContent = `.recent-item.active-session { background: rgba(79, 70, 229, 0.12) !important; border-left: 3px solid #4f46e5; } .recent-item.active-session .recent-text { color: #4f46e5; font-weight: 600; }`;
+    style.textContent = `.recent-item.active-session{background:rgba(79,70,229,0.12)!important;border-left:3px solid #4f46e5}.recent-item.active-session .recent-text{color:#4f46e5;font-weight:600}`;
     document.head.appendChild(style);
 })();
 
@@ -1092,10 +991,7 @@ function formatMarkdown(text) {
         codeBlocks.push(`<pre style="background:#1e1e1e;color:#f8f8f2;padding:14px 16px;border-radius:10px;overflow-x:auto;font-family:'Courier New',monospace;font-size:13px;margin:12px 0;line-height:1.6;"><code>${escaped}</code></pre>`);
         return placeholder;
     });
-    text = text.replace(/`([^`]+)`/g, (_, code) => {
-        const escaped = code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        return `<code style="background:#f0f0f0;color:#d63384;padding:2px 6px;border-radius:4px;font-family:'Courier New',monospace;font-size:13px;">${escaped}</code>`;
-    });
+    text = text.replace(/`([^`]+)`/g, (_, c) => `<code style="background:#f0f0f0;color:#d63384;padding:2px 6px;border-radius:4px;font-family:'Courier New',monospace;font-size:13px;">${c.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code>`);
     text = text.replace(/^### (.+)$/gm, '<h3 style="font-size:16px;font-weight:700;margin:14px 0 6px;">$1</h3>');
     text = text.replace(/^## (.+)$/gm, '<h2 style="font-size:18px;font-weight:700;margin:16px 0 6px;">$1</h2>');
     text = text.replace(/^# (.+)$/gm, '<h1 style="font-size:20px;font-weight:700;margin:18px 0 8px;">$1</h1>');
@@ -1104,9 +1000,9 @@ function formatMarkdown(text) {
     text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
     text = text.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #e0e0e0;margin:14px 0;">');
     text = text.replace(/^\d+\. (.+)$/gm, '<li style="margin:4px 0;">$1</li>');
-    text = text.replace(/((<li style="margin:4px 0;">.*?<\/li>\n?)+)/g, (match) => `<ol style="margin:8px 0;padding-left:22px;">${match}</ol>`);
+    text = text.replace(/((<li style="margin:4px 0;">.*?<\/li>\n?)+)/g, m => `<ol style="margin:8px 0;padding-left:22px;">${m}</ol>`);
     text = text.replace(/^[*\-] (.+)$/gm, '<li style="margin:4px 0;list-style:disc;">$1</li>');
-    text = text.replace(/((<li style="margin:4px 0;list-style:disc;">.*?<\/li>\n?)+)/g, (match) => `<ul style="margin:8px 0;padding-left:22px;">${match}</ul>`);
+    text = text.replace(/((<li style="margin:4px 0;list-style:disc;">.*?<\/li>\n?)+)/g, m => `<ul style="margin:8px 0;padding-left:22px;">${m}</ul>`);
     text = text.replace(/\n/g, '<br>');
     codeBlocks.forEach((block, i) => { text = text.replace(`%%CODEBLOCK_${i}%%`, block); });
     return text;
@@ -1116,16 +1012,10 @@ function formatMarkdown(text) {
 const ACCOUNTS_KEY = "brainwave_accounts";
 const CURRENT_ACCOUNT_KEY = "brainwave_current_account";
 
-function getStoredAccounts() {
-    const accounts = localStorage.getItem(ACCOUNTS_KEY);
-    return accounts ? JSON.parse(accounts) : [];
-}
+function getStoredAccounts() { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "[]"); }
 function saveAccounts(accounts) { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts)); }
-function getCurrentAccount() {
-    const current = localStorage.getItem(CURRENT_ACCOUNT_KEY);
-    return current ? JSON.parse(current) : null;
-}
-function saveCurrentAccount(account) { localStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(account)); }
+function getCurrentAccount() { return JSON.parse(localStorage.getItem(CURRENT_ACCOUNT_KEY) || "null"); }
+function saveCurrentAccount(acct) { localStorage.setItem(CURRENT_ACCOUNT_KEY, JSON.stringify(acct)); }
 
 async function addAnotherAccount() {
     try {
@@ -1133,8 +1023,8 @@ async function addAnotherAccount() {
         if (currentUser) {
             const currentAccount = { uid: currentUser.uid, email: currentUser.email, displayName: currentUser.displayName, photoURL: currentUser.photoURL, providerId: currentUser.providerData?.[0]?.providerId || 'password', lastUsed: Date.now() };
             const accounts = getStoredAccounts();
-            const existingIndex = accounts.findIndex(acc => acc.uid === currentAccount.uid);
-            if (existingIndex !== -1) accounts[existingIndex] = { ...currentAccount, lastUsed: Date.now() };
+            const idx = accounts.findIndex(a => a.uid === currentAccount.uid);
+            if (idx !== -1) accounts[idx] = { ...currentAccount, lastUsed: Date.now() };
             else accounts.push(currentAccount);
             saveAccounts(accounts);
         }
@@ -1153,19 +1043,19 @@ function showAccountSelectionModal() {
     overlay.className = 'subscription-overlay';
     overlay.id = 'accountSelectionOverlay';
     overlay.innerHTML = `
-        <div class="subscription-modal" style="max-width: 450px;">
+        <div class="subscription-modal" style="max-width:450px;">
             <button class="sub-modal-close" onclick="closeAccountSelectionModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Switch Account</h2><p class="sub-modal-subtitle">Choose an account to continue</p></div>
-            <div class="accounts-list" style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
-                ${accounts.length > 0 ? accounts.map(account => `
-                    <div class="account-item" onclick="switchToAccount('${account.uid}')" style="display:flex;align-items:center;gap:15px;padding:15px;margin:8px 0;border-radius:12px;cursor:pointer;transition:all 0.2s;background:#f8f9fa;border:1px solid #e5e7eb;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#f8f9fa'">
-                        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:18px;">${getInitials(account.displayName || account.email)}</div>
-                        <div style="flex:1;"><div style="font-weight:600;color:#1f2937;">${account.displayName || 'User'}</div><div style="font-size:13px;color:#6b7280;">${account.email}</div></div>
-                        <i class="ri-arrow-right-s-line" style="color:#9ca3af;font-size:20px;"></i>
-                    </div>`).join('') : ''}
+            <div style="max-height:400px;overflow-y:auto;margin:20px 0;">
+                ${accounts.map(a => `
+                <div onclick="switchToAccount('${a.uid}')" style="display:flex;align-items:center;gap:15px;padding:15px;margin:8px 0;border-radius:12px;cursor:pointer;background:#f8f9fa;border:1px solid #e5e7eb;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#f8f9fa'">
+                    <div style="width:48px;height:48px;border-radius:50%;background:#4f46e5;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:18px;">${getInitials(a.displayName || a.email)}</div>
+                    <div style="flex:1;"><div style="font-weight:600;color:#1f2937;">${a.displayName || 'User'}</div><div style="font-size:13px;color:#6b7280;">${a.email}</div></div>
+                    <i class="ri-arrow-right-s-line" style="color:#9ca3af;font-size:20px;"></i>
+                </div>`).join('')}
             </div>
-            <div style="border-top:1px solid #e5e7eb;margin:15px 0;padding-top:15px;">
-                <button onclick="showLoginOptions()" style="width:100%;padding:12px;background:#4f46e5;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'"><i class="ri-add-line"></i> Add new account</button>
+            <div style="border-top:1px solid #e5e7eb;padding-top:15px;">
+                <button onclick="showLoginOptions()" style="width:100%;padding:12px;background:#4f46e5;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="ri-add-line"></i> Add new account</button>
             </div>
             <div class="modal-footer" style="margin-top:15px;"><button class="cancel-btn" onclick="closeAccountSelectionModal()">Cancel</button></div>
         </div>`;
@@ -1173,17 +1063,15 @@ function showAccountSelectionModal() {
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeAccountSelectionModal(); });
 }
 
-function closeAccountSelectionModal() { const o = document.getElementById('accountSelectionOverlay'); if (o) o.remove(); }
+function closeAccountSelectionModal() { document.getElementById('accountSelectionOverlay')?.remove(); }
 
 async function switchToAccount(uid) {
     closeAccountSelectionModal();
     showToast("Switching account...", "info");
-    const accounts = getStoredAccounts();
-    const targetAccount = accounts.find(acc => acc.uid === uid);
-    if (!targetAccount) { showToast("Account not found", "error"); return; }
-    saveCurrentAccount(targetAccount);
-    showToast("Please sign in to continue", "info");
-    setTimeout(() => { window.location.href = `../Pages/account.html?email=${encodeURIComponent(targetAccount.email)}`; }, 1500);
+    const target = getStoredAccounts().find(a => a.uid === uid);
+    if (!target) { showToast("Account not found", "error"); return; }
+    saveCurrentAccount(target);
+    setTimeout(() => { window.location.href = `../Pages/account.html?email=${encodeURIComponent(target.email)}`; }, 1500);
 }
 
 function showLoginOptions() {
@@ -1196,9 +1084,9 @@ function showLoginOptions() {
             <button class="sub-modal-close" onclick="closeLoginOptionsModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Add Account</h2><p class="sub-modal-subtitle">Sign in with your preferred method</p></div>
             <div style="padding:20px 0;">
-                <button onclick="signInWithGoogle()" style="width:100%;padding:12px;margin:8px 0;background:white;color:#1f2937;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'"><i class="ri-google-line" style="font-size:20px;"></i> Continue with Google</button>
-                <button onclick="signInWithGithub()" style="width:100%;padding:12px;margin:8px 0;background:#24292e;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;" onmouseover="this.style.background='#1b1f23'" onmouseout="this.style.background='#24292e'"><i class="ri-github-line" style="font-size:20px;"></i> Continue with GitHub</button>
-                <button onclick="signInWithEmail()" style="width:100%;padding:12px;margin:8px 0;background:#4f46e5;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'"><i class="ri-mail-line"></i> Continue with Email</button>
+                <button onclick="signInWithGoogle()" style="width:100%;padding:12px;margin:8px 0;background:white;color:#1f2937;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-google-line" style="font-size:20px;"></i> Continue with Google</button>
+                <button onclick="signInWithGithub()" style="width:100%;padding:12px;margin:8px 0;background:#24292e;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-github-line" style="font-size:20px;"></i> Continue with GitHub</button>
+                <button onclick="signInWithEmail()" style="width:100%;padding:12px;margin:8px 0;background:#4f46e5;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-mail-line"></i> Continue with Email</button>
             </div>
             <div class="modal-footer"><button class="cancel-btn" onclick="closeLoginOptionsModal()">Cancel</button></div>
         </div>`;
@@ -1206,22 +1094,20 @@ function showLoginOptions() {
     modal.addEventListener('click', (e) => { if (e.target === modal) closeLoginOptionsModal(); });
 }
 
-function closeLoginOptionsModal() { const o = document.getElementById('loginOptionsOverlay'); if (o) o.remove(); }
+function closeLoginOptionsModal() { document.getElementById('loginOptionsOverlay')?.remove(); }
 
 async function signInWithGoogle() {
     closeLoginOptionsModal();
     showToast("Redirecting to Google...", "info");
-    const provider = new firebase.auth.GoogleAuthProvider();
-    try { const result = await firebase.auth().signInWithPopup(provider); handleNewAccountLogin(result.user); }
-    catch (error) { showToast("Google sign-in failed", "error"); }
+    try { const r = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()); handleNewAccountLogin(r.user); }
+    catch (e) { showToast("Google sign-in failed", "error"); }
 }
 
 async function signInWithGithub() {
     closeLoginOptionsModal();
     showToast("Redirecting to GitHub...", "info");
-    const provider = new firebase.auth.GithubAuthProvider();
-    try { const result = await firebase.auth().signInWithPopup(provider); handleNewAccountLogin(result.user); }
-    catch (error) { showToast("GitHub sign-in failed", "error"); }
+    try { const r = await firebase.auth().signInWithPopup(new firebase.auth.GithubAuthProvider()); handleNewAccountLogin(r.user); }
+    catch (e) { showToast("GitHub sign-in failed", "error"); }
 }
 
 function signInWithEmail() {
@@ -1234,9 +1120,9 @@ function signInWithEmail() {
             <button class="sub-modal-close" onclick="closeEmailLoginModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Email Sign In</h2><p class="sub-modal-subtitle">Enter your credentials</p></div>
             <div style="padding:20px 0;">
-                <input type="email" id="emailInput" placeholder="Email" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Montserrat',sans-serif;outline:none;">
-                <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Montserrat',sans-serif;outline:none;">
-                <button onclick="handleEmailSignIn()" style="width:100%;padding:12px;margin-top:15px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:'Montserrat',sans-serif;">Sign In</button>
+                <input type="email"    id="emailInput"    placeholder="Email"    style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
+                <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
+                <button onclick="handleEmailSignIn()" style="width:100%;padding:12px;margin-top:15px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Sign In</button>
                 <button onclick="showSignUp()" style="width:100%;padding:10px;margin-top:10px;background:transparent;color:#4f46e5;border:none;cursor:pointer;font-size:14px;">Create new account</button>
             </div>
             <div class="modal-footer"><button class="cancel-btn" onclick="closeEmailLoginModal()">Cancel</button></div>
@@ -1245,15 +1131,15 @@ function signInWithEmail() {
     emailModal.addEventListener('click', (e) => { if (e.target === emailModal) closeEmailLoginModal(); });
 }
 
-function closeEmailLoginModal() { const o = document.getElementById('emailLoginOverlay'); if (o) o.remove(); }
+function closeEmailLoginModal() { document.getElementById('emailLoginOverlay')?.remove(); }
 
 async function handleEmailSignIn() {
     const email = document.getElementById('emailInput')?.value;
     const password = document.getElementById('passwordInput')?.value;
     if (!email || !password) { showToast("Please enter email and password", "error"); return; }
     showToast("Signing in...", "info");
-    try { const result = await firebase.auth().signInWithEmailAndPassword(email, password); handleNewAccountLogin(result.user); }
-    catch (error) { showToast(error.message || "Sign-in failed", "error"); }
+    try { const r = await firebase.auth().signInWithEmailAndPassword(email, password); handleNewAccountLogin(r.user); }
+    catch (e) { showToast(e.message || "Sign-in failed", "error"); }
 }
 
 function showSignUp() {
@@ -1266,10 +1152,10 @@ function showSignUp() {
             <button class="sub-modal-close" onclick="closeSignupModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Create Account</h2><p class="sub-modal-subtitle">Sign up to get started</p></div>
             <div style="padding:20px 0;">
-                <input type="text" id="signupName" placeholder="Full Name" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Montserrat',sans-serif;outline:none;">
-                <input type="email" id="signupEmail" placeholder="Email" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Montserrat',sans-serif;outline:none;">
-                <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Montserrat',sans-serif;outline:none;">
-                <button onclick="handleSignUp()" style="width:100%;padding:12px;margin-top:15px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:'Montserrat',sans-serif;">Create Account</button>
+                <input type="text"     id="signupName"     placeholder="Full Name"               style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
+                <input type="email"    id="signupEmail"    placeholder="Email"                   style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
+                <input type="password" id="signupPassword" placeholder="Password (min 6 chars)"  style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
+                <button onclick="handleSignUp()" style="width:100%;padding:12px;margin-top:15px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Create Account</button>
             </div>
             <div class="modal-footer"><button class="cancel-btn" onclick="closeSignupModal()">Cancel</button></div>
         </div>`;
@@ -1277,7 +1163,7 @@ function showSignUp() {
     signupModal.addEventListener('click', (e) => { if (e.target === signupModal) closeSignupModal(); });
 }
 
-function closeSignupModal() { const o = document.getElementById('signupOverlay'); if (o) o.remove(); }
+function closeSignupModal() { document.getElementById('signupOverlay')?.remove(); }
 
 async function handleSignUp() {
     const name = document.getElementById('signupName')?.value;
@@ -1287,18 +1173,18 @@ async function handleSignUp() {
     if (password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
     showToast("Creating account...", "info");
     try {
-        const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        await result.user.updateProfile({ displayName: name });
-        handleNewAccountLogin(result.user);
-    } catch (error) { showToast(error.message || "Signup failed", "error"); }
+        const r = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        await r.user.updateProfile({ displayName: name });
+        handleNewAccountLogin(r.user);
+    } catch (e) { showToast(e.message || "Signup failed", "error"); }
 }
 
 async function handleNewAccountLogin(user) {
     if (!user) return;
     const newAccount = { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL, providerId: user.providerData?.[0]?.providerId || 'password', lastUsed: Date.now() };
     const accounts = getStoredAccounts();
-    const existingIndex = accounts.findIndex(acc => acc.uid === newAccount.uid);
-    if (existingIndex !== -1) accounts[existingIndex] = newAccount;
+    const idx = accounts.findIndex(a => a.uid === newAccount.uid);
+    if (idx !== -1) accounts[idx] = newAccount;
     else accounts.push(newAccount);
     saveAccounts(accounts);
     saveCurrentAccount(newAccount);
@@ -1335,50 +1221,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// ================= TESTIMONIALS =================
-document.addEventListener("DOMContentLoaded", () => {
-    const track = document.querySelector(".testimonial-track");
-    const cards = document.querySelectorAll(".testimonial-card");
-    const prevBtn = document.querySelector(".prev");
-    const nextBtn = document.querySelector(".next");
-    if (!track || cards.length === 0) return;
-    let index = 0;
-    function getCardWidth() { return cards[0].offsetWidth + 24; }
-    function updateSlider() { track.style.transform = `translateX(${-(index * getCardWidth())}px)`; }
-    nextBtn?.addEventListener("click", () => { if (index < cards.length - 1) { index++; updateSlider(); } });
-    prevBtn?.addEventListener("click", () => { if (index > 0) { index--; updateSlider(); } });
-    window.addEventListener("resize", updateSlider);
-});
-
-// ===== SEARCH VOICE =====
-document.addEventListener("DOMContentLoaded", () => {
-    const micBtn = document.getElementById("searchMicBtn");
-    const input = document.getElementById("mainInput");
-    const sendBtn = document.getElementById("startChatBtn");
-    let recognition;
-    let isRecording = false;
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition || !micBtn) return;
-    recognition = new SpeechRecognition();
-    recognition.lang = "en-IN";
-    recognition.continuous = false;
-    micBtn.addEventListener("click", async () => {
-        if (isRecording) { recognition.stop(); micBtn.classList.remove("recording"); isRecording = false; return; }
-        try {
-            await navigator.mediaDevices.getUserMedia({ audio: true });
-            micBtn.classList.add("recording"); isRecording = true; recognition.start();
-        } catch (err) { alert("Mic permission denied ❌"); }
-    });
-    recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        micBtn.classList.remove("recording"); micBtn.classList.add("processing"); isRecording = false;
-        input.value = text;
-        setTimeout(() => { micBtn.classList.remove("processing"); sendBtn.click(); }, 800);
-    };
-    recognition.onerror = () => { micBtn.classList.remove("recording"); micBtn.classList.remove("processing"); isRecording = false; alert("Voice error ❌"); };
-});
-
-// ================= SETUP PAGE ELEMENTS =================
+// ================= SETUP PAGE =================
 const step1 = safeQuery("#step1");
 const step2 = safeQuery("#step2");
 const btn = safeQuery("#goStep2");
@@ -1398,11 +1241,11 @@ let uploadedImage = null;
 
 function updateProgress() {
     if (!progress) return;
-    let total = 3, filled = 0;
+    let filled = 0;
     if (fullName?.value.trim()) filled++;
     if (username?.value.trim()) filled++;
     if (phone?.value.trim()) filled++;
-    progress.style.width = (filled / total) * 100 + "%";
+    progress.style.width = (filled / 3) * 100 + "%";
 }
 
 if (uploadTrigger && fileInput) {
@@ -1413,7 +1256,7 @@ if (uploadTrigger && fileInput) {
         if (file.size > 5 * 1024 * 1024) { alert("Image must be less than 5MB"); fileInput.value = ""; return; }
         uploadedImage = file;
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = (e) => {
             if (previewImg) { previewImg.src = e.target.result; previewImg.style.display = "block"; }
             if (uploadIcon) uploadIcon.style.display = "none";
         };
@@ -1422,17 +1265,16 @@ if (uploadTrigger && fileInput) {
     });
 }
 
-[fullName, username, phone, bio].forEach((input) => { input?.addEventListener("input", updateProgress); });
+[fullName, username, phone, bio].forEach(input => input?.addEventListener("input", updateProgress));
 
 function validateStep1() {
     let valid = true;
-    [fullName, username, phone].forEach((input) => {
+    [fullName, username, phone].forEach(input => {
         if (input) {
-            if (!input.value.trim()) { input.style.borderColor = "red"; valid = false; }
-            else input.style.borderColor = "#e5e7eb";
+            input.style.borderColor = input.value.trim() ? "#e5e7eb" : "red";
+            if (!input.value.trim()) valid = false;
         }
     });
-    if (bio) bio.style.borderColor = "#e5e7eb";
     return valid;
 }
 
@@ -1445,189 +1287,66 @@ btn?.addEventListener("click", () => {
     if (progress) progress.style.width = "100%";
 });
 
-document.querySelectorAll('[data-type="personality"]').forEach((el) => {
+document.querySelectorAll('[data-type="personality"]').forEach(el => {
     el.addEventListener("click", () => {
-        document.querySelectorAll('[data-type="personality"]').forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll('[data-type="personality"]').forEach(b => b.classList.remove("active"));
         el.classList.add("active");
     });
 });
 
-document.querySelectorAll('[data-type="interest"]').forEach((el) => { el.addEventListener("click", () => el.classList.toggle("active")); });
+document.querySelectorAll('[data-type="interest"]').forEach(el => el.addEventListener("click", () => el.classList.toggle("active")));
 
 finishBtn?.addEventListener("click", () => {
     if (!validateStep1()) { alert("Please fill Name, Username and Phone"); return; }
     const personality = document.querySelector('[data-type="personality"].active');
     const interests = document.querySelectorAll('[data-type="interest"].active');
     if (!personality) { alert("Please select a personality"); return; }
-    if (interests.length === 0) { alert("Please select at least one interest"); return; }
+    if (!interests.length) { alert("Please select at least one interest"); return; }
     if (typeof firebase !== "undefined" && firebase.apps.length) {
-        const currentUser = firebase.auth().currentUser;
-        if (currentUser) localStorage.setItem("setupComplete_" + currentUser.uid, "true");
+        const u = firebase.auth().currentUser;
+        if (u) localStorage.setItem("setupComplete_" + u.uid, "true");
     }
     window.location.href = "dashboard.html";
 });
 
+// ================= FOOTER YEAR =================
 const yearEl = safeQuery("#year");
 if (yearEl) yearEl.innerText = new Date().getFullYear();
 
-
-
-
-
-
-
-
-/* ============================================================
-   BrainWave AI — Landing Page Script
-   ============================================================ */
-
+// ================= LANDING PAGE =================
 (function () {
     "use strict";
 
-    /* ----------------------------------------------------------
-       1. NAVBAR — show after 6s, glass on scroll
-    ---------------------------------------------------------- */
     const header = document.getElementById("mainHeader");
-    let navShown = false;
-
-    function revealNav() {
-        if (navShown) return;
-        navShown = true;
-        header.classList.add("visible");
-    }
-
-    // Show after 6 seconds
-    setTimeout(revealNav, 6000);
-
-    // Also reveal on first user scroll
-    window.addEventListener("scroll", function onFirstScroll() {
-        revealNav();
-        window.removeEventListener("scroll", onFirstScroll);
-    }, { passive: true });
-
-    // Glass effect on scroll
     window.addEventListener("scroll", function () {
-        header.classList.toggle("scrolled", window.scrollY > 8);
+        if (header) header.classList.toggle("scrolled", window.scrollY > 8);
     }, { passive: true });
 
-
-    /* ----------------------------------------------------------
-       2. THEME SYSTEM (Light / Dark / Auto)
-    ---------------------------------------------------------- */
-    const THEME_KEY = "bw-theme";
-
-    const themeBtn = document.getElementById("themeBtn");
-    const themeDropdown = document.getElementById("themeDropdown");
-    const themeIcon = document.getElementById("themeIcon");
-    const themeLabel = document.getElementById("themeLabel");
-    const themeOptions = document.querySelectorAll(".theme-option");
-
-    const ICONS = { light: "ri-sun-line", dark: "ri-moon-line", auto: "ri-computer-line" };
-    const LABELS = { light: "Light", dark: "Dark", auto: "Auto" };
-
-    let currentTheme = localStorage.getItem(THEME_KEY) || "auto";
-
-    function applyTheme(theme) {
-        const html = document.documentElement;
-        if (theme === "auto") {
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            html.setAttribute("data-theme", prefersDark ? "dark" : "light");
-        } else {
-            html.setAttribute("data-theme", theme);
-        }
-        themeIcon.className = ICONS[theme];
-        themeLabel.textContent = LABELS[theme];
-
-        themeOptions.forEach(function (opt) {
-            const t = opt.getAttribute("data-t");
-            const isActive = t === theme;
-            opt.classList.toggle("active", isActive);
-            opt.querySelector(".check").style.display = isActive ? "inline" : "none";
-        });
-    }
-
-    function setTheme(theme) {
-        currentTheme = theme;
-        localStorage.setItem(THEME_KEY, theme);
-        applyTheme(theme);
-        closeThemeDropdown();
-    }
-
-    function openThemeDropdown() {
-        themeDropdown.classList.add("open");
-        themeBtn.classList.add("open");
-    }
-
-    function closeThemeDropdown() {
-        themeDropdown.classList.remove("open");
-        themeBtn.classList.remove("open");
-    }
-
-    function toggleThemeDropdown() {
-        themeDropdown.classList.contains("open")
-            ? closeThemeDropdown()
-            : openThemeDropdown();
-    }
-
-    themeBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        toggleThemeDropdown();
-    });
-
-    themeOptions.forEach(function (opt) {
-        opt.addEventListener("click", function () {
-            setTheme(opt.getAttribute("data-t"));
-        });
-    });
-
-    document.addEventListener("click", function (e) {
-        const wrapper = document.getElementById("themeWrapper");
-        if (!wrapper.contains(e.target)) closeThemeDropdown();
-    });
-
-    // Sync when system preference changes (for "auto" mode)
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-        if (currentTheme === "auto") applyTheme("auto");
-    });
-
-    // Init on load
-    applyTheme(currentTheme);
-
-
-    /* ----------------------------------------------------------
-       3. MOBILE MENU
-    ---------------------------------------------------------- */
     const hamburger = document.getElementById("hamburger");
     const mobileMenu = document.getElementById("mobileMenu");
 
-    hamburger.addEventListener("click", function () {
-        mobileMenu.classList.toggle("open");
-        hamburger.querySelector("i").className =
-            mobileMenu.classList.contains("open") ? "ri-close-line" : "ri-menu-line";
-    });
-
-    // Close on link click
-    mobileMenu.querySelectorAll("a").forEach(function (a) {
-        a.addEventListener("click", function () {
-            mobileMenu.classList.remove("open");
-            hamburger.querySelector("i").className = "ri-menu-line";
+    if (hamburger && mobileMenu) {
+        hamburger.addEventListener("click", function () {
+            mobileMenu.classList.toggle("open");
+            hamburger.querySelector("i").className = mobileMenu.classList.contains("open") ? "ri-close-line" : "ri-menu-line";
         });
-    });
+        mobileMenu.querySelectorAll("a").forEach(function (a) {
+            a.addEventListener("click", function () {
+                mobileMenu.classList.remove("open");
+                hamburger.querySelector("i").className = "ri-menu-line";
+            });
+        });
+    }
 
-
-    /* ----------------------------------------------------------
-       4. TESTIMONIALS SLIDER
-    ---------------------------------------------------------- */
-    const track = document.getElementById("testiTrack");
+    const testiTrack = document.getElementById("testiTrack");
     const dotsWrap = document.getElementById("testiDots");
-    const cards = track ? Array.from(track.querySelectorAll(".testi-card")) : [];
+    const testiCards = testiTrack ? Array.from(testiTrack.querySelectorAll(".testi-card")) : [];
     const prevBtn = document.getElementById("testiPrev");
     const nextBtn = document.getElementById("testiNext");
     let testiIndex = 0;
 
-    if (cards.length) {
-        // Build dots
-        cards.forEach(function (_, i) {
+    if (testiCards.length) {
+        testiCards.forEach(function (_, i) {
             const dot = document.createElement("button");
             dot.className = "testi-dot" + (i === 0 ? " active" : "");
             dot.setAttribute("aria-label", "Go to slide " + (i + 1));
@@ -1635,39 +1354,22 @@ if (yearEl) yearEl.innerText = new Date().getFullYear();
             dotsWrap.appendChild(dot);
         });
 
-        function getCardWidth() {
-            return cards[0].offsetWidth + 20; // gap = 20px
-        }
+        function getCardWidth() { return testiCards[0].offsetWidth + 20; }
 
         function goToSlide(index) {
-            testiIndex = Math.max(0, Math.min(index, cards.length - 1));
-            track.style.transform = "translateX(" + (-(testiIndex * getCardWidth())) + "px)";
-            dotsWrap.querySelectorAll(".testi-dot").forEach(function (d, i) {
-                d.classList.toggle("active", i === testiIndex);
-            });
+            testiIndex = Math.max(0, Math.min(index, testiCards.length - 1));
+            testiTrack.style.transform = "translateX(" + (-(testiIndex * getCardWidth())) + "px)";
+            dotsWrap.querySelectorAll(".testi-dot").forEach(function (d, i) { d.classList.toggle("active", i === testiIndex); });
         }
 
-        prevBtn.addEventListener("click", function () { goToSlide(testiIndex - 1); });
-        nextBtn.addEventListener("click", function () { goToSlide(testiIndex + 1); });
-
-        // Recalculate on resize
+        prevBtn?.addEventListener("click", function () { goToSlide(testiIndex - 1); });
+        nextBtn?.addEventListener("click", function () { goToSlide(testiIndex + 1); });
         window.addEventListener("resize", function () { goToSlide(testiIndex); }, { passive: true });
-
-        // Auto-advance every 5s
-        setInterval(function () {
-            goToSlide(testiIndex < cards.length - 1 ? testiIndex + 1 : 0);
-        }, 5000);
+        setInterval(function () { goToSlide(testiIndex < testiCards.length - 1 ? testiIndex + 1 : 0); }, 5000);
     }
 
-
-    /* ----------------------------------------------------------
-       5. PRICING TOGGLE
-    ---------------------------------------------------------- */
-    const plans = {
-        monthly: { free: 0, plus: 1649, pro: 8299 },
-        yearly: { free: 0, plus: 1299, pro: 6599 }
-    };
-    const originals = { free: 0, plus: 1649, pro: 8299 };
+    const landingPlans = { monthly: { go: 649, plus: 1649, pro: 8299 }, yearly: { go: 499, plus: 1299, pro: 6599 } };
+    const landingOriginals = { go: 649, plus: 1649, pro: 8299 };
 
     const billMonthly = document.getElementById("billMonthly");
     const billYearly = document.getElementById("billYearly");
@@ -1678,76 +1380,83 @@ if (yearEl) yearEl.innerText = new Date().getFullYear();
     const plusOrig = document.getElementById("plusOrig");
     const proOrig = document.getElementById("proOrig");
 
-    function fmt(n) { return n.toLocaleString("en-IN"); }
+    function fmtLanding(n) { return n.toLocaleString("en-IN"); }
 
-    function setBilling(type) {
-        const p = plans[type];
-        billMonthly.classList.toggle("active", type === "monthly");
-        billYearly.classList.toggle("active", type === "yearly");
-
-        goPrice.textContent = fmt(p.free);
-        plusPrice.textContent = fmt(p.plus);
-        proPrice.textContent = fmt(p.pro);
-
-        goOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.free) + "/month" : "";
-        plusOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.plus) + "/month" : "";
-        proOrig.textContent = type === "yearly" ? "Was ₹" + fmt(originals.pro) + "/month" : "";
+    function setLandingBilling(type) {
+        const p = landingPlans[type];
+        if (billMonthly) billMonthly.classList.toggle("active", type === "monthly");
+        if (billYearly) billYearly.classList.toggle("active", type === "yearly");
+        if (goPrice) goPrice.textContent = fmtLanding(p.go);
+        if (plusPrice) plusPrice.textContent = fmtLanding(p.plus);
+        if (proPrice) proPrice.textContent = fmtLanding(p.pro);
+        if (goOrig) goOrig.textContent = type === "yearly" ? "Was ₹" + fmtLanding(landingOriginals.go) + "/month" : "";
+        if (plusOrig) plusOrig.textContent = type === "yearly" ? "Was ₹" + fmtLanding(landingOriginals.plus) + "/month" : "";
+        if (proOrig) proOrig.textContent = type === "yearly" ? "Was ₹" + fmtLanding(landingOriginals.pro) + "/month" : "";
     }
 
-    billMonthly.addEventListener("click", function () { setBilling("monthly"); });
-    billYearly.addEventListener("click", function () { setBilling("yearly"); });
+    if (billMonthly) billMonthly.addEventListener("click", function () { setLandingBilling("monthly"); });
+    if (billYearly) billYearly.addEventListener("click", function () { setLandingBilling("yearly"); });
 
-
-    /* ----------------------------------------------------------
-       6. SCROLL FADE-IN (IntersectionObserver)
-    ---------------------------------------------------------- */
     const observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("in-view");
-                observer.unobserve(entry.target);
-            }
+            if (entry.isIntersecting) { entry.target.classList.add("in-view"); observer.unobserve(entry.target); }
         });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll(".fade-up").forEach(function (el) {
-        observer.observe(el);
-    });
+    document.querySelectorAll(".fade-up").forEach(function (el) { observer.observe(el); });
 
+    const footerYear = document.getElementById("footerYear");
+    if (footerYear) footerYear.textContent = new Date().getFullYear();
 
-    /* ----------------------------------------------------------
-       7. FOOTER YEAR
-    ---------------------------------------------------------- */
-    const yearEl = document.getElementById("footerYear");
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-
-    /* ----------------------------------------------------------
-       8. NEWSLETTER BUTTON (basic feedback)
-    ---------------------------------------------------------- */
     const newsletterForm = document.querySelector(".newsletter-form");
     if (newsletterForm) {
-        const btn = newsletterForm.querySelector("button");
-        const input = newsletterForm.querySelector("input");
-
-        btn.addEventListener("click", function () {
-            const email = input.value.trim();
+        const newsletterBtn = newsletterForm.querySelector("button");
+        const newsletterInput = newsletterForm.querySelector("input");
+        newsletterBtn.addEventListener("click", function () {
+            const email = newsletterInput.value.trim();
             if (!email || !email.includes("@")) {
-                input.style.borderColor = "#ef4444";
-                input.focus();
-                setTimeout(function () {
-                    input.style.borderColor = "";
-                }, 2000);
+                newsletterInput.style.borderColor = "#ef4444";
+                newsletterInput.focus();
+                setTimeout(function () { newsletterInput.style.borderColor = ""; }, 2000);
                 return;
             }
-            btn.textContent = "✓ Subscribed!";
-            btn.style.background = "#10b981";
-            input.value = "";
-            setTimeout(function () {
-                btn.innerHTML = "Subscribe <i class='ri-arrow-right-line'></i>";
-                btn.style.background = "";
-            }, 3000);
+            newsletterBtn.textContent = "✓ Subscribed!";
+            newsletterBtn.style.background = "#10b981";
+            newsletterInput.value = "";
+            setTimeout(function () { newsletterBtn.innerHTML = "Subscribe <i class='ri-arrow-right-line'></i>"; newsletterBtn.style.background = ""; }, 3000);
         });
+    }
+
+    const micBtn = document.getElementById("searchMicBtn");
+    const mainSearchInput = document.getElementById("mainInput");
+    const sendBtn = document.getElementById("startChatBtn");
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition && micBtn) {
+        const recognition = new SpeechRecognition();
+        let isRecording = false;
+        recognition.lang = "en-IN";
+        recognition.continuous = false;
+
+        micBtn.addEventListener("click", async () => {
+            if (isRecording) { recognition.stop(); micBtn.classList.remove("recording"); isRecording = false; return; }
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                micBtn.classList.add("recording"); isRecording = true; recognition.start();
+            } catch (err) { alert("Mic permission denied ❌"); }
+        });
+
+        recognition.onresult = (event) => {
+            const text = event.results[0][0].transcript;
+            micBtn.classList.remove("recording"); micBtn.classList.add("processing"); isRecording = false;
+            if (mainSearchInput) mainSearchInput.value = text;
+            setTimeout(() => { micBtn.classList.remove("processing"); sendBtn?.click(); }, 800);
+        };
+
+        recognition.onerror = () => {
+            micBtn.classList.remove("recording"); micBtn.classList.remove("processing"); isRecording = false;
+            alert("Voice error ❌");
+        };
     }
 
 })();
