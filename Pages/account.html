@@ -1,261 +1,245 @@
 <!doctype html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — BrainWave AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../css/account.css" />
+</head>
 
-        <title>Login - BrainWave AI</title>
+<body>
 
-        <link
-            href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
-            rel="stylesheet" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap"
-            rel="stylesheet" />
-        <link rel="stylesheet" href="../css/account.css" />
-    </head>
+    <div class="page-wrapper">
+        <div class="card">
 
-    <body class="body">
-        <div class="main-wrapper">
-            <div class="login-container">
-
-                <!-- LEFT -->
-                <div class="left-panel">
-                    <div class="profile-wrapper">
-                        <img src="../Assets/banner/login_banner.png"
-                            class="profile-img" />
-                    </div>
-                    <h2 class="brand-title">
-                        <span class="footerheading">BrainWave</span> AI
-                    </h2>
-                    <p class="brand-desc">
-                        Step into the future of curated digital experiences.
-                        Your AI assistant is ready to help you navigate
-                        the
-                        noise.
-                    </p>
-                </div>
-
-                <!-- RIGHT -->
-                <div class="right-panel">
-
-                    <!-- LOGIN -->
-                    <div id="login-form" class="auth-form active">
-                        <div class="form-header">
-                            <h2 class="form-title">Welcome back</h2>
-                            <p class="form-subtitle">Please enter your details
-                                to sign in.</p>
-                        </div>
-
-                        <!-- social -->
-                        <div class="social-login">
-
-                            <!-- GOOGLE -->
-                            <button type="button" class="social-btn google-btn">
-                                <svg width="18" height="18" viewBox="0 0 48 48">
-                                    <path fill="#EA4335"
-                                        d="M24 9.5c3.54 0 6.7 1.22 9.2 3.6l6.85-6.85C35.9 2.4 30.4 0 24 0 14.6 0 6.4 5.4 2.4 13.3l8 6.2C12.3 13.4 17.7 9.5 24 9.5z" />
-                                    <path fill="#4285F4"
-                                        d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.1 7.1-17.6z" />
-                                    <path fill="#FBBC05"
-                                        d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-8-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.4 10.9l8-6.2z" />
-                                    <path fill="#34A853"
-                                        d="M24 48c6.5 0 11.9-2.1 15.9-5.7l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.7-3.9-13.6-9.5l-8 6.2C6.4 42.6 14.6 48 24 48z" />
-                                </svg>
-                                Continue with Google
-                            </button>
-
-                            <!-- GITHUB -->
-                            <button type="button" class="social-btn github-btn">
-                                <svg width="18" height="18" viewBox="0 0 24 24"
-                                    fill="#000">
-                                    <path
-                                        d="M12 .5C5.65.5.75 5.4.75 11.75c0 5.1 3.3 9.4 7.9 10.95.6.1.8-.25.8-.55v-2.1c-3.2.7-3.9-1.35-3.9-1.35-.5-1.25-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.8 2.8 1.3.1-.7.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2.9-.3 1.9-.5 2.9-.5s2 .2 2.9.5c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.3.8 1 .8 2.1v3.1c0 .3.2.7.8.6 4.6-1.6 7.9-5.8 7.9-10.95C23.25 5.4 18.35.5 12 .5z" />
-                                </svg>
-                                Continue with GitHub
-                            </button>
-
-                        </div>
-
-                        <div class="divider">OR WITH EMAIL</div>
-
-                        <form id="loginForm">
-                            <div class="input-group">
-                                <label class="input-label">EMAIL ADDRESS</label>
-                                <input type="email" id="loginEmail"
-                                    class="input-field"
-                                    placeholder="name@company.com"
-                                    required />
-                            </div>
-
-                            <div class="input-group">
-                                <div class="password-row">
-                                    <label class="input-label">PASSWORD</label>
-                                    <a href="#" class="forgot-link"
-                                        id="show-forgot">Forgot password?</a>
-                                </div>
-
-                                <div class="password-wrapper">
-                                    <input type="password" id="loginPassword"
-                                        class="input-field password-input"
-                                        placeholder="••••••••" required />
-                                    <i
-                                        class="ri-eye-off-line toggle-password"></i>
-                                </div>
-                            </div>
-
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="remember" />
-                                <label for="remember">Keep me signed in for 30
-                                    days</label>
-                            </div>
-
-                            <button type="submit" class="login-btn">Sign
-                                In</button>
-                        </form>
-
-                        <p class="switch-text">
-                            Don't have an account?
-                            <a href="#" id="show-signup">Create an account</a>
-                        </p>
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
+                <div class="left-inner">
+                    <div class="brand">
+                        <div class="brand-dot"></div>
+                        <span class="brand-name">BrainWave <span>AI</span></span>
                     </div>
 
-                    <!-- SIGNUP -->
-                    <div id="signup-form" class="auth-form">
-                        <div class="form-header">
-                            <h2 class="form-title">Create your account</h2>
-                            <p class="form-subtitle">Join BrainWave AI today</p>
-                        </div>
-
-                        <!-- social -->
-                        <div class="social-login">
-                            <!-- GOOGLE -->
-                            <button type="button" class="social-btn google-btn">
-                                <svg width="18" height="18" viewBox="0 0 48 48">
-                                    <path fill="#EA4335"
-                                        d="M24 9.5c3.54 0 6.7 1.22 9.2 3.6l6.85-6.85C35.9 2.4 30.4 0 24 0 14.6 0 6.4 5.4 2.4 13.3l8 6.2C12.3 13.4 17.7 9.5 24 9.5z" />
-                                    <path fill="#4285F4"
-                                        d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.1 7.1-17.6z" />
-                                    <path fill="#FBBC05"
-                                        d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-8-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.4 10.9l8-6.2z" />
-                                    <path fill="#34A853"
-                                        d="M24 48c6.5 0 11.9-2.1 15.9-5.7l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.7-3.9-13.6-9.5l-8 6.2C6.4 42.6 14.6 48 24 48z" />
-                                </svg>
-                                Continue with Google
-                            </button>
-
-                            <!-- GITHUB -->
-                            <button type="button" class="social-btn github-btn">
-                                <svg width="18" height="18" viewBox="0 0 24 24"
-                                    fill="#000">
-                                    <path
-                                        d="M12 .5C5.65.5.75 5.4.75 11.75c0 5.1 3.3 9.4 7.9 10.95.6.1.8-.25.8-.55v-2.1c-3.2.7-3.9-1.35-3.9-1.35-.5-1.25-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.8 2.8 1.3.1-.7.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2.9-.3 1.9-.5 2.9-.5s2 .2 2.9.5c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.3.8 1 .8 2.1v3.1c0 .3.2.7.8.6 4.6-1.6 7.9-5.8 7.9-10.95C23.25 5.4 18.35.5 12 .5z" />
-                                </svg>
-                                Continue with GitHub
-                            </button>
-
-                        </div>
-
-                        <div class="divider">OR WITH EMAIL</div>
-
-                        <form id="signupForm">
-                            <div class="input-group">
-                                <label class="input-label">FULL NAME</label>
-                                <input type="text" id="signupName"
-                                    class="input-field" placeholder="John Doe"
-                                    required />
-                            </div>
-
-                            <div class="input-group">
-                                <label class="input-label">EMAIL ADDRESS</label>
-                                <input type="email" id="signupEmail"
-                                    class="input-field"
-                                    placeholder="name@company.com"
-                                    required />
-                            </div>
-
-                            <div class="input-group">
-                                <label class="input-label">PASSWORD</label>
-                                <div class="password-wrapper">
-                                    <input type="password" id="signupPassword"
-                                        class="input-field password-input"
-                                        placeholder="Create a strong password"
-                                        required />
-                                    <i
-                                        class="ri-eye-off-line toggle-password"></i>
-                                </div>
-                            </div>
-
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="terms" required />
-                                <label for="terms">
-                                    I agree to the
-                                    <a href="#"
-                                        style="color: var(--primary)">Terms &
-                                        Privacy</a>
-                                </label>
-                            </div>
-
-                            <button type="submit" class="login-btn">Create
-                                Account</button>
-                        </form>
-
-                        <p class="switch-text">
-                            Already have an account?
-                            <a href="#" id="show-login">Sign in</a>
-                        </p>
+                    <div class="left-content">
+                        <img src="../Assets/banner/login_banner.png" alt="BrainWave AI" class="banner-img" />
+                        <h2 class="left-heading">Think better,<br />work smarter.</h2>
+                        <p class="left-sub">Your intelligent assistant, ready to help you cut through complexity and
+                            focus on what matters.</p>
                     </div>
 
-                    <!-- FORGOT PASSWORD -->
-                    <div id="forgot-form" class="auth-form">
-                        <div class="form-header">
-                            <h2 class="form-title">Reset Password</h2>
-                            <p class="form-subtitle"
-                                style="margin-bottom: 10px;">Enter your email to
-                                receive
-                                reset link</p>
-                        </div>
-
-                        <form id="forgotForm">
-                            <div class="input-group">
-                                <label class="input-label">EMAIL ADDRESS</label>
-                                <input type="email" id="forgotEmail"
-                                    class="input-field"
-                                    placeholder="name@company.com" required />
+                    <div class="left-footer">
+                        <div class="stat-row">
+                            <div class="stat">
+                                <span class="stat-num">50K+</span>
+                                <span class="stat-label">Active users</span>
                             </div>
-
-                            <button type="submit" class="login-btn">Send Reset
-                                Link</button>
-                        </form>
-
-                        <p class="switch-text">
-                            Remember your password?
-                            <a href="#" id="back-login">Back to login</a>
-                        </p>
+                            <div class="stat-divider"></div>
+                            <div class="stat">
+                                <span class="stat-num">4.9★</span>
+                                <span class="stat-label">User rating</span>
+                            </div>
+                            <div class="stat-divider"></div>
+                            <div class="stat">
+                                <span class="stat-num">99.9%</span>
+                                <span class="stat-label">Uptime</span>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </div>
 
-            <p class="footer-text">
-                © <span id="year"></span>
-                <span class="footerheading"> BrainWave</span> AI. All rights
-                reserved.
-            </p>
+            <!-- RIGHT PANEL -->
+            <div class="right-panel">
+                <div class="right-inner">
+
+                    <!-- LOGIN FORM -->
+                    <div id="login-form" class="auth-form active">
+                        <div class="form-header">
+                            <h2 class="form-title">Welcome back</h2>
+                            <p class="form-subtitle">Sign in to your account to continue.</p>
+                        </div>
+
+                        <div class="social-row">
+                            <button type="button" class="social-btn google-btn">
+                                <svg width="17" height="17" viewBox="0 0 48 48">
+                                    <path fill="#EA4335"
+                                        d="M24 9.5c3.54 0 6.7 1.22 9.2 3.6l6.85-6.85C35.9 2.4 30.4 0 24 0 14.6 0 6.4 5.4 2.4 13.3l8 6.2C12.3 13.4 17.7 9.5 24 9.5z" />
+                                    <path fill="#4285F4"
+                                        d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.1 7.1-17.6z" />
+                                    <path fill="#FBBC05"
+                                        d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-8-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.4 10.9l8-6.2z" />
+                                    <path fill="#34A853"
+                                        d="M24 48c6.5 0 11.9-2.1 15.9-5.7l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.7-3.9-13.6-9.5l-8 6.2C6.4 42.6 14.6 48 24 48z" />
+                                </svg>
+                                Google
+                            </button>
+                            <button type="button" class="social-btn github-btn">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 .5C5.65.5.75 5.4.75 11.75c0 5.1 3.3 9.4 7.9 10.95.6.1.8-.25.8-.55v-2.1c-3.2.7-3.9-1.35-3.9-1.35-.5-1.25-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.8 2.8 1.3.1-.7.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2.9-.3 1.9-.5 2.9-.5s2 .2 2.9.5c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.3.8 1 .8 2.1v3.1c0 .3.2.7.8.6 4.6-1.6 7.9-5.8 7.9-10.95C23.25 5.4 18.35.5 12 .5z" />
+                                </svg>
+                                GitHub
+                            </button>
+                        </div>
+
+                        <div class="divider">
+                            <span>or continue with email</span>
+                        </div>
+
+                        <form id="loginForm" novalidate>
+                            <div class="field">
+                                <label class="field-label">Email address</label>
+                                <input type="email" id="loginEmail" class="field-input" placeholder="name@company.com"
+                                    required />
+                            </div>
+
+                            <div class="field">
+                                <div class="field-top">
+                                    <label class="field-label">Password</label>
+                                    <a href="#" class="link-small" id="show-forgot">Forgot password?</a>
+                                </div>
+                                <div class="input-wrap">
+                                    <input type="password" id="loginPassword" class="field-input" placeholder="••••••••"
+                                        required />
+                                    <button type="button" class="eye-btn toggle-password" tabindex="-1">
+                                        <i class="ri-eye-off-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="check-row">
+                                <label class="check-label">
+                                    <input type="checkbox" id="remember" />
+                                    <span class="check-box"></span>
+                                    Keep me signed in for 30 days
+                                </label>
+                            </div>
+
+                            <button type="submit" class="submit-btn">Sign In</button>
+                        </form>
+
+                        <p class="switch-line">
+                            Don't have an account? <a href="#" id="show-signup">Create one</a>
+                        </p>
+                    </div>
+
+                    <!-- SIGNUP FORM -->
+                    <div id="signup-form" class="auth-form">
+                        <div class="form-header">
+                            <h2 class="form-title">Create account</h2>
+                            <p class="form-subtitle">Join BrainWave AI today — it's free.</p>
+                        </div>
+
+                        <div class="social-row">
+                            <button type="button" class="social-btn google-btn">
+                                <svg width="17" height="17" viewBox="0 0 48 48">
+                                    <path fill="#EA4335"
+                                        d="M24 9.5c3.54 0 6.7 1.22 9.2 3.6l6.85-6.85C35.9 2.4 30.4 0 24 0 14.6 0 6.4 5.4 2.4 13.3l8 6.2C12.3 13.4 17.7 9.5 24 9.5z" />
+                                    <path fill="#4285F4"
+                                        d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.1 7.1-17.6z" />
+                                    <path fill="#FBBC05"
+                                        d="M10.4 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-8-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.4 10.9l8-6.2z" />
+                                    <path fill="#34A853"
+                                        d="M24 48c6.5 0 11.9-2.1 15.9-5.7l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.7-3.9-13.6-9.5l-8 6.2C6.4 42.6 14.6 48 24 48z" />
+                                </svg>
+                                Google
+                            </button>
+                            <button type="button" class="social-btn github-btn">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 .5C5.65.5.75 5.4.75 11.75c0 5.1 3.3 9.4 7.9 10.95.6.1.8-.25.8-.55v-2.1c-3.2.7-3.9-1.35-3.9-1.35-.5-1.25-1.2-1.6-1.2-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.8 2.8 1.3.1-.7.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2.9-.3 1.9-.5 2.9-.5s2 .2 2.9.5c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.3.8 1 .8 2.1v3.1c0 .3.2.7.8.6 4.6-1.6 7.9-5.8 7.9-10.95C23.25 5.4 18.35.5 12 .5z" />
+                                </svg>
+                                GitHub
+                            </button>
+                        </div>
+
+                        <div class="divider">
+                            <span>or continue with email</span>
+                        </div>
+
+                        <form id="signupForm" novalidate>
+                            <div class="field">
+                                <label class="field-label">Full name</label>
+                                <input type="text" id="signupName" class="field-input" placeholder="John Doe"
+                                    required />
+                            </div>
+
+                            <div class="field">
+                                <label class="field-label">Email address</label>
+                                <input type="email" id="signupEmail" class="field-input" placeholder="name@company.com"
+                                    required />
+                            </div>
+
+                            <div class="field">
+                                <label class="field-label">Password</label>
+                                <div class="input-wrap">
+                                    <input type="password" id="signupPassword" class="field-input"
+                                        placeholder="Create a strong password" required />
+                                    <button type="button" class="eye-btn toggle-password" tabindex="-1">
+                                        <i class="ri-eye-off-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="check-row">
+                                <label class="check-label">
+                                    <input type="checkbox" id="terms" required />
+                                    <span class="check-box"></span>
+                                    I agree to the <a href="#" class="link-inline">Terms &amp; Privacy</a>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="submit-btn">Create Account</button>
+                        </form>
+
+                        <p class="switch-line">
+                            Already have an account? <a href="#" id="show-login">Sign in</a>
+                        </p>
+                    </div>
+
+                    <!-- FORGOT PASSWORD FORM -->
+                    <div id="forgot-form" class="auth-form">
+                        <div class="form-header">
+                            <h2 class="form-title">Reset password</h2>
+                            <p class="form-subtitle">Enter your email and we'll send you a reset link.</p>
+                        </div>
+
+                        <form id="forgotForm" novalidate>
+                            <div class="field">
+                                <label class="field-label">Email address</label>
+                                <input type="email" id="forgotEmail" class="field-input" placeholder="name@company.com"
+                                    required />
+                            </div>
+
+                            <button type="submit" class="submit-btn">Send Reset Link</button>
+                        </form>
+
+                        <p class="switch-line">
+                            Remember your password? <a href="#" id="back-login">Back to sign in</a>
+                        </p>
+                    </div>
+
+                </div>
+
+                <p class="footer-copy">
+                    © <span id="year"></span> <strong>BrainWave AI</strong>. All rights reserved.
+                </p>
+            </div>
+
         </div>
+    </div>
 
-        <!-- Firebase -->
-        <script
-            src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-        <script
-            src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <div id="toast" class="toast"></div>
 
-        <!-- script file -->
-        <script src="../javascript/script.js"></script>
-        <script type="module" src="../javascript/auth.js"></script>
-        <script src="../javascript/theme.js" defer></script>
-
-    </body>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="../javascript/auth.js"></script>
+    <script src="../javascript/theme.js"></script>
+</body>
 
 </html>
