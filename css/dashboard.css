@@ -19,9 +19,9 @@
     --border: #e8eaf0;
     --border-hover: #d0d3e0;
 
-    --radius: 12px;
-    --shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.08);
 
     --nav-active-bg: linear-gradient(135deg, #6c5ce7, #a29bfe);
     --nav-active-text: #ffffff;
@@ -82,6 +82,12 @@
     --cancel-btn-hover: #e8eaf0;
     --cancel-btn-text: #5a6071;
     --cancel-btn-hover-text: #1e1e2e;
+
+    /* FIX #7: Explicit heading/label colors for light theme */
+    --heading-color: #1e1e2e;
+    --label-color: #1e1e2e;
+    --subtext-color: #5a6071;
+    --placeholder-color: #9ca3af;
 }
 
 [data-theme="dark"] {
@@ -156,6 +162,12 @@
     --cancel-btn-hover: #25253f;
     --cancel-btn-text: #8f95a8;
     --cancel-btn-hover-text: #e8eaf0;
+
+    /* FIX #7: Dark theme explicit colors */
+    --heading-color: #e8eaf0;
+    --label-color: #e8eaf0;
+    --subtext-color: #8f95a8;
+    --placeholder-color: #5a6071;
 }
 
 /* =====================================================================
@@ -232,7 +244,7 @@ body {
 .sidebar {
     width: 260px;
     background: var(--sidebar-bg);
-    border-right: 1px solid var(--sidebar-border);
+    border-right: 1px solid var(--border);
     padding: 26px 18px;
     position: fixed;
     top: 0;
@@ -244,7 +256,7 @@ body {
     flex-direction: column;
     transition: width 0.3s ease;
     z-index: 100;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.04);
+    box-shadow: none;
 }
 
 .sidebar-header {
@@ -273,6 +285,7 @@ body {
     color: var(--primary);
 }
 
+/* FIX #7: Logo colors explicit */
 .logo-title {
     font-size: 18px;
     font-weight: 800;
@@ -344,6 +357,8 @@ body {
     margin-bottom: 14px;
     min-width: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .recent-title {
@@ -354,14 +369,52 @@ body {
     margin-bottom: 10px;
     color: var(--text-tertiary);
     padding-left: 4px;
+    flex-shrink: 0;
 }
 
+/* FIX #2: scrollbar inside sidebar recent list — keep it inside, no right overflow */
 .recent-list {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    max-height: 280px;
+    flex: 1;
+    max-height: 260px;
     overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 2px;
+    /* Scrollbar styles — inline with container */
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.recent-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.recent-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.recent-list::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+}
+
+/* ---- Recent date group labels ---- */
+/* FIX #4: Date group labels above recent items */
+.recent-date-group {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    padding: 8px 4px 4px;
+    margin-top: 4px;
+}
+
+.recent-date-group:first-child {
+    margin-top: 0;
+    padding-top: 2px;
 }
 
 .recent-item {
@@ -490,6 +543,7 @@ body {
     transform: translateY(-1px);
 }
 
+/* FIX #7: Upgrade text explicit colors */
 .upgrade-text {
     font-size: 13.5px;
     font-weight: 700;
@@ -558,6 +612,7 @@ body {
     color: #fff;
 }
 
+/* FIX #7: User name and role explicit */
 .user-name {
     font-size: 13px;
     font-weight: 700;
@@ -696,6 +751,7 @@ body {
     color: #fff;
 }
 
+/* FIX #7: Dropdown profile name/plan */
 .profile-name {
     font-size: 13.5px;
     font-weight: 700;
@@ -720,13 +776,14 @@ body {
     margin: 6px 0;
 }
 
+/* FIX #7: Dropdown items color */
 .dropdown-item {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 11px 18px;
     font-size: 13.5px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text);
     cursor: pointer;
     transition: background 0.18s ease, transform 0.18s ease;
@@ -792,7 +849,7 @@ body {
     align-items: center;
 }
 
-/* ✅ FIXED: dark me white, light me dark */
+/* FIX #7: Header title explicit color */
 .header-title {
     font-size: 13px;
     font-weight: 600;
@@ -833,12 +890,13 @@ body {
     color: var(--primary);
 }
 
+/* FIX #5: Remove gradient from new-chat button — solid primary color */
 .new-chat-header-btn {
     display: flex;
     align-items: center;
     gap: 7px;
     padding: 9px 18px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
     border: none;
     border-radius: 50px;
@@ -846,8 +904,8 @@ body {
     font-weight: 700;
     font-family: "Montserrat", sans-serif;
     cursor: pointer;
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
-    box-shadow: 0 4px 16px rgba(108, 92, 231, 0.32);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+    box-shadow: 0 2px 10px rgba(108, 92, 231, 0.22);
 }
 
 .new-chat-header-btn i {
@@ -856,7 +914,8 @@ body {
 
 .new-chat-header-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 22px rgba(108, 92, 231, 0.42);
+    box-shadow: 0 4px 16px rgba(108, 92, 231, 0.32);
+    background: #5a4bd1;
 }
 
 .new-chat-header-btn:active {
@@ -889,6 +948,7 @@ body {
     margin: auto;
 }
 
+/* FIX #7: Main heading explicit color */
 .main-heading {
     font-size: 42px;
     font-weight: 800;
@@ -910,12 +970,13 @@ body {
     width: 100%;
 }
 
+/* FIX #1: Border radius 10px (not circular) */
 .search-box {
     position: relative;
     display: flex;
     align-items: center;
     background: var(--card);
-    border-radius: 60px;
+    border-radius: 10px;
     padding: 6px;
     max-width: 640px;
     margin: auto;
@@ -929,14 +990,15 @@ body {
     box-shadow: 0 0 0 4px var(--input-focus-shadow), var(--shadow);
 }
 
+/* FIX #3: Adjust padding to make room for file upload icon */
 .search-input {
     flex: 1;
     border: none;
     outline: none;
     padding: 15px 20px;
-    padding-right: 110px;
+    padding-right: 150px;
     font-size: 14.5px;
-    border-radius: 60px;
+    border-radius: 10px;
     background: transparent;
     color: var(--text);
     font-family: "Montserrat", sans-serif;
@@ -947,6 +1009,7 @@ body {
     color: var(--text-tertiary);
 }
 
+/* FIX #5: search/send button no gradient, solid color */
 .search-btn {
     position: absolute;
     right: 6px;
@@ -954,30 +1017,32 @@ body {
     transform: translateY(-50%);
     width: 46px;
     height: 46px;
-    border-radius: 50%;
+    border-radius: 8px;
     border: none;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.38);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .search-btn:hover {
     transform: translateY(-50%) scale(1.06);
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.50);
+    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.40);
+    background: #5a4bd1;
 }
 
 .search-btn i {
     font-size: 18px;
 }
 
-#searchMicBtn {
+/* FIX #3: File upload button in search box */
+.search-upload-btn {
     position: absolute;
-    right: 65px;
+    right: 100px;
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
@@ -985,12 +1050,44 @@ body {
     font-size: 18px;
     cursor: pointer;
     color: var(--text-tertiary);
-    transition: color 0.2s ease, transform 0.2s ease;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.search-upload-btn:hover {
+    color: var(--primary);
+    background: var(--nav-hover-bg);
+}
+
+/* Mic button adjusted position */
+#searchMicBtn {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    transition: color 0.2s ease, background 0.2s ease;
 }
 
 #searchMicBtn:hover {
     color: var(--primary);
-    transform: translateY(-50%) scale(1.1);
+    background: var(--nav-hover-bg);
+    transform: translateY(-50%);
 }
 
 #searchMicBtn.recording {
@@ -1042,6 +1139,57 @@ body {
     }
 }
 
+/* Hidden file input for search upload */
+#searchFileInput {
+    display: none;
+}
+
+/* File attachment preview pill */
+.search-attachment-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 8px;
+    background: var(--nav-hover-bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 6px 8px 0;
+    max-width: 220px;
+}
+
+.search-attachment-pill i {
+    font-size: 14px;
+}
+
+.search-attachment-pill span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-attachment-pill .remove-attach {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 14px;
+    transition: opacity 0.15s;
+}
+
+.search-attachment-pill .remove-attach:hover {
+    opacity: 1;
+}
+
+.search-attachment-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 6px;
+}
+
 .enter-text {
     font-size: 11.5px;
     color: var(--text-tertiary);
@@ -1091,6 +1239,7 @@ body {
     border-color: var(--primary);
 }
 
+/* FIX #7: Suggestion card text colors */
 .suggestion-card h4 {
     color: var(--text);
     font-size: 13.5px;
@@ -1180,13 +1329,14 @@ body {
 }
 
 .message.user .message-bubble {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #ffffff;
     font-weight: 500;
     border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 16px rgba(108, 92, 231, 0.28);
+    box-shadow: 0 4px 16px rgba(108, 92, 231, 0.22);
 }
 
+/* FIX #7: AI message bubble text explicit color */
 .message.ai .message-bubble {
     background: var(--msg-ai-bg);
     color: var(--msg-ai-text);
@@ -1232,11 +1382,12 @@ body {
     width: 100%;
 }
 
+/* FIX #1: Chat input box also radius 10px */
 .input-box {
     width: 100%;
     background: var(--card);
     border: 1.5px solid var(--border);
-    border-radius: 60px;
+    border-radius: 10px;
     padding: 8px 10px;
     display: flex;
     align-items: center;
@@ -1249,6 +1400,7 @@ body {
     box-shadow: 0 0 0 4px var(--input-focus-shadow), var(--shadow-lg);
 }
 
+/* FIX #7: Chat input text color */
 .chat-input {
     flex: 1;
     border: none;
@@ -1266,25 +1418,26 @@ body {
     color: var(--text-tertiary);
 }
 
+/* FIX #5: Send button solid, no gradient */
 .send-btn {
     width: 44px;
     height: 44px;
-    border-radius: 50%;
+    border-radius: 8px;
     border: none;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
-    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.36);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
 
 .send-btn:hover {
     transform: scale(1.08);
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.48);
+    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.38);
+    background: #5a4bd1;
 }
 
 .send-btn:active {
@@ -1353,15 +1506,15 @@ body {
 }
 
 /* =====================================================================
-   MOBILE TOGGLE
+   MOBILE TOGGLE — FIX #6: Only ONE toggle, hide the duplicate
    ===================================================================== */
 .mobile-toggle {
     display: none;
     position: fixed;
     top: 14px;
     left: 14px;
-    background: var(--primary);
-    color: #fff;
+    background: var(--card);
+    color: var(--text);
     width: 40px;
     height: 40px;
     border-radius: 11px;
@@ -1370,7 +1523,21 @@ body {
     font-size: 20px;
     cursor: pointer;
     z-index: 3000;
-    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.36);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    transition: background 0.2s, color 0.2s;
+}
+
+.mobile-toggle:hover {
+    background: var(--nav-hover-bg);
+    color: var(--primary);
+}
+
+/* Hide the hamburger inside sidebar on mobile — only use the top-level toggle */
+@media (max-width: 768px) {
+    .sidebar .hamburger {
+        display: none;
+    }
 }
 
 /* =====================================================================
@@ -1473,6 +1640,7 @@ body {
     border-bottom: 1px solid var(--border);
 }
 
+/* FIX #7: Modal header text */
 .modal-header h3 {
     font-size: 15.5px;
     font-weight: 800;
@@ -1518,6 +1686,7 @@ body {
     flex: 1;
 }
 
+/* FIX #7: Modal option title/desc */
 .option-title {
     font-size: 13.5px;
     font-weight: 700;
@@ -1608,14 +1777,15 @@ body {
 }
 
 .rename-btn.save {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.30);
+    box-shadow: 0 3px 10px rgba(108, 92, 231, 0.26);
 }
 
 .rename-btn.save:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(108, 92, 231, 0.40);
+    box-shadow: 0 5px 16px rgba(108, 92, 231, 0.36);
+    background: #5a4bd1;
 }
 
 .rename-btn.cancel {
@@ -1657,6 +1827,7 @@ body {
     padding: 32px;
 }
 
+/* FIX #7: Subscription modal text */
 .sub-modal-header {
     text-align: center;
     margin-bottom: 26px;
@@ -1697,9 +1868,9 @@ body {
 }
 
 .billing-btn.active {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.30);
+    box-shadow: 0 3px 10px rgba(108, 92, 231, 0.26);
 }
 
 .currency-note {
@@ -1742,7 +1913,7 @@ body {
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
     font-size: 11px;
     font-weight: 700;
@@ -1752,6 +1923,7 @@ body {
     box-shadow: 0 3px 12px rgba(108, 92, 231, 0.36);
 }
 
+/* FIX #7: Plan card text */
 .plan-name {
     font-size: 19px;
     font-weight: 800;
@@ -1816,10 +1988,10 @@ body {
 }
 
 .plan-btn.filled {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
     border: none;
-    box-shadow: 0 5px 18px rgba(108, 92, 231, 0.34);
+    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.28);
 }
 
 .plan-btn:hover {
@@ -2113,6 +2285,7 @@ body {
     margin-bottom: 22px;
 }
 
+/* FIX #7: Profile section title and labels */
 .profile-page-title {
     font-size: 20px;
     font-weight: 800;
@@ -2158,7 +2331,7 @@ body {
 
 .profile-save-btn {
     padding: 13px 28px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
     border: none;
     border-radius: 50px;
@@ -2167,13 +2340,14 @@ body {
     font-family: "Montserrat", sans-serif;
     cursor: pointer;
     margin-top: 6px;
-    box-shadow: 0 4px 16px rgba(108, 92, 231, 0.32);
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    box-shadow: 0 3px 12px rgba(108, 92, 231, 0.26);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
 
 .profile-save-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 22px rgba(108, 92, 231, 0.42);
+    box-shadow: 0 5px 18px rgba(108, 92, 231, 0.36);
+    background: #5a4bd1;
 }
 
 .profile-save-btn:active {
@@ -2289,7 +2463,7 @@ body {
 }
 
 /* =====================================================================
-   THEME MODAL
+   THEME MODAL (dashboard)
    ===================================================================== */
 .theme-wrapper {
     cursor: pointer;
@@ -2444,7 +2618,7 @@ body {
 }
 
 .theme-option.active i:first-child {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
     color: #fff;
 }
 
@@ -2512,6 +2686,8 @@ body {
    RESPONSIVE — MOBILE
    ===================================================================== */
 @media (max-width: 768px) {
+
+    /* FIX #6: Only mobile-toggle shown, sidebar hamburger hidden */
     .mobile-toggle {
         display: flex;
     }
@@ -2522,8 +2698,9 @@ body {
         top: 0;
         width: 240px;
         z-index: 2000;
-        padding-top: 70px;
+        padding-top: 24px;
         transition: left 0.3s ease;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
     }
 
     .sidebar.active {
@@ -2532,6 +2709,19 @@ body {
 
     .sidebar.collapsed {
         width: 240px;
+    }
+
+    /* Overlay behind sidebar on mobile */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.40);
+        z-index: 1999;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
     }
 
     .main-content {
