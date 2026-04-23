@@ -11,7 +11,8 @@
 </head>
 
 <body>
-  <div class="mobile-toggle" id="mobileMenu">☰</div>
+  <div class="mobile-toggle" id="mobileMenu"><i class="ri-menu-line"></i></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <div class="dashboard">
 
@@ -93,8 +94,6 @@
             <div class="theme-btn">
               <i id="themeIcon" class="ri-computer-line"></i>
               <span id="themeLabel">Auto</span>
-
-              <!-- Arrow -->
               <i class="ri-arrow-right-s-line theme-arrow" id="themeArrow"></i>
             </div>
           </div>
@@ -102,32 +101,27 @@
           <!-- THEME MODAL -->
           <div class="theme-modal-overlay" id="themeModal">
             <div class="theme-modal">
-
               <div class="theme-modal-header">
                 <h3>Choose Theme</h3>
                 <i class="ri-close-line" id="closeThemeModal"></i>
               </div>
-
               <div class="theme-options">
                 <div class="theme-option" data-t="light">
                   <i class="ri-sun-line"></i>
                   <span>Light</span>
                   <i class="ri-check-line check"></i>
                 </div>
-
                 <div class="theme-option" data-t="dark">
                   <i class="ri-moon-line"></i>
                   <span>Dark</span>
                   <i class="ri-check-line check"></i>
                 </div>
-
                 <div class="theme-option" data-t="auto">
                   <i class="ri-computer-line"></i>
                   <span>Auto</span>
                   <i class="ri-check-line check"></i>
                 </div>
               </div>
-
             </div>
           </div>
           <hr />
@@ -155,8 +149,14 @@
           <h1 class="main-heading">What's on the agenda today?</h1>
           <p class="sub-heading">Plan, create, or solve anything — just start typing.</p>
           <div class="search-container">
+            <div class="search-attachment-wrap" id="searchAttachWrap"></div>
             <div class="search-box">
               <input type="text" class="search-input" id="mainInput" placeholder="Search or ask anything..." />
+              <input type="file" id="searchFileInput" accept="image/*,application/pdf,.doc,.docx,.txt" multiple
+                style="display:none;" />
+              <button class="search-upload-btn" id="searchUploadBtn" type="button" title="Attach file or image">
+                <i class="ri-attachment-2"></i>
+              </button>
               <button class="mic-btn" id="searchMicBtn" type="button">
                 <span class="mic-wave"></span>
                 <i class="ri-mic-line" id="searchMicIcon"></i>
@@ -283,7 +283,8 @@
     </main>
   </div>
 
-  <!-- Scripts  -->
+
+  <!-- script js file -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="../javascript/theme.js"></script>
