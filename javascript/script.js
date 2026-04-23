@@ -355,7 +355,7 @@ function showRenameInput(sessionId) {
         <div class="rename-input-container">
             <input type="text" class="rename-input" id="renameInput" value="${session.title.replace('...', '')}" maxlength="50" placeholder="Chat name">
             <div class="rename-actions">
-                <button class="rename-btn save" onclick="handleRenameSave('${sessionId}')">Save</button>
+                <button class="rename-btn save"   onclick="handleRenameSave('${sessionId}')">Save</button>
                 <button class="rename-btn cancel" onclick="showChatOptionsModal('${sessionId}', event)">Cancel</button>
             </div>
         </div>`;
@@ -399,7 +399,21 @@ window.handleDeleteClick = function (sessionId) {
 window.closeModal = closeModal;
 window.showChatOptionsModal = showChatOptionsModal;
 
-// ================= RECENT CHATS RENDERER =================
+// ================= RECENT CHATS RENDERER (FIX #4: date group labels) =================
+function getDateGroupLabel(timestamp) {
+    const now = new Date();
+    const date = new Date(timestamp);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const itemDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diff = Math.floor((today - itemDay) / 86400000);
+
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return 'This Week';
+    if (diff < 30) return 'This Month';
+    return date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+}
+
 function renderRecentChats() {
     const list = document.querySelector(".recent-list");
     if (!list) return;
@@ -413,13 +427,23 @@ function renderRecentChats() {
         if (!a.pinned && b.pinned) return 1;
         return b.time - a.time;
     });
-    list.innerHTML = sorted.map(session => `
+
+    let html = '';
+    let lastGroup = null;
+    sorted.forEach(session => {
+        const group = getDateGroupLabel(session.time);
+        if (group !== lastGroup) {
+            html += `<div class="recent-date-group">${group}</div>`;
+            lastGroup = group;
+        }
+        html += `
         <div class="recent-item ${session.pinned ? "pinned" : ""} ${window.__activeSessionId === session.id ? "active-session" : ""}" onclick="loadSession('${session.id}')">
             <span class="recent-text">${session.title}</span>
             ${session.pinned ? '<i class="ri-pushpin-fill pin-icon active"></i>' : ''}
             <span class="recent-options-btn" onclick="showChatOptionsModal('${session.id}', event)"><i class="ri-more-2-fill"></i></span>
-        </div>`
-    ).join("");
+        </div>`;
+    });
+    list.innerHTML = html;
 }
 
 window.togglePin = togglePin;
@@ -693,30 +717,56 @@ window.closeProfileSection = closeProfileSection;
 document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.getElementById("sidebar");
     const toggleBtn = document.getElementById("toggleSidebar");
-    const mobileBtn = document.getElementById("mobileMenu");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const mobileToggle = document.getElementById("mobileMenu");
     const profileToggle = document.querySelector(".profile-toggle");
     const dropdown = document.querySelector(".sidebar-dropdown");
 
+    // ---- Desktop sidebar collapse ----
     if (toggleBtn && sidebar) {
         toggleBtn.addEventListener("click", () => {
-            if (window.innerWidth <= 768) sidebar.classList.toggle("active");
-            else sidebar.classList.toggle("collapsed");
+            sidebar.classList.toggle("collapsed");
         });
     }
 
-    if (mobileBtn && sidebar) {
-        mobileBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle("active");
-        });
-    }
-
-    document.addEventListener("click", (e) => {
-        if (window.innerWidth <= 768 && sidebar?.classList.contains("active") && !sidebar.contains(e.target) && !mobileBtn?.contains(e.target)) {
-            sidebar.classList.remove("active");
+    // ---- FIX #6: Mobile — single toggle open/close with overlay ----
+    function openMobileSidebar() {
+        sidebar && sidebar.classList.add("active");
+        sidebarOverlay && sidebarOverlay.classList.add("show");
+        if (mobileToggle) {
+            const icon = mobileToggle.querySelector('i');
+            if (icon) icon.className = 'ri-close-line';
         }
+    }
+
+    function closeMobileSidebar() {
+        sidebar && sidebar.classList.remove("active");
+        sidebarOverlay && sidebarOverlay.classList.remove("show");
+        if (mobileToggle) {
+            const icon = mobileToggle.querySelector('i');
+            if (icon) icon.className = 'ri-menu-line';
+        }
+    }
+
+    if (mobileToggle) {
+        mobileToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar && sidebar.classList.contains("active") ? closeMobileSidebar() : openMobileSidebar();
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener("click", closeMobileSidebar);
+    }
+
+    // Close sidebar on nav item click in mobile
+    document.querySelectorAll(".nav-item").forEach(item => {
+        item.addEventListener("click", () => {
+            if (window.innerWidth <= 768) closeMobileSidebar();
+        });
     });
 
+    // ---- Profile dropdown ----
     if (profileToggle && dropdown) {
         profileToggle.addEventListener("click", (e) => { e.stopPropagation(); dropdown.classList.toggle("show"); });
         document.addEventListener("click", (e) => {
@@ -757,7 +807,56 @@ document.addEventListener("DOMContentLoaded", function () {
     renderRecentChats();
     loadUserInfo();
     initProfileSection();
+
+    // ---- FIX #3: Search box file upload ----
+    initSearchFileUpload();
 });
+
+// ================= FIX #3: SEARCH FILE UPLOAD =================
+function initSearchFileUpload() {
+    const uploadBtn = document.getElementById('searchUploadBtn');
+    const fileInput = document.getElementById('searchFileInput');
+    const attachWrap = document.getElementById('searchAttachWrap');
+    let attachedFiles = [];
+
+    if (!uploadBtn || !fileInput) return;
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            if (attachedFiles.length >= 5) return;
+            attachedFiles.push(file);
+            renderAttachPill(file);
+        });
+        fileInput.value = '';
+    });
+
+    function renderAttachPill(file) {
+        if (!attachWrap) return;
+        const pill = document.createElement('div');
+        pill.className = 'search-attachment-pill';
+        const ext = file.name.split('.').pop().toUpperCase();
+        const iconMap = {
+            PNG: 'ri-image-line', JPG: 'ri-image-line', JPEG: 'ri-image-line', WEBP: 'ri-image-line',
+            PDF: 'ri-file-pdf-line', DOC: 'ri-file-word-line', DOCX: 'ri-file-word-line', TXT: 'ri-file-text-line'
+        };
+        const icon = iconMap[ext] || 'ri-file-line';
+        pill.innerHTML = `<i class="${icon}"></i><span title="${file.name}">${file.name}</span><i class="ri-close-line remove-attach"></i>`;
+        pill.querySelector('.remove-attach').addEventListener('click', () => {
+            attachedFiles = attachedFiles.filter(f => f !== file);
+            pill.remove();
+        });
+        attachWrap.appendChild(pill);
+    }
+
+    window.getSearchAttachedFiles = () => attachedFiles;
+    window.clearSearchAttachments = () => {
+        attachedFiles = [];
+        if (attachWrap) attachWrap.innerHTML = '';
+    };
+}
 
 // ================= CHAT ENGINE =================
 document.addEventListener("DOMContentLoaded", () => {
@@ -842,7 +941,10 @@ document.addEventListener("DOMContentLoaded", () => {
             saveCurrentChatState();
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { "Authorization": "Bearer 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", "Content-Type": "application/json" },
+                headers: {
+                    "Authorization": "Bearer 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",
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory, temperature: 0.7, max_tokens: 1024 })
             });
             const data = await response.json();
@@ -873,6 +975,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function startChat(message) {
         if (!message?.trim()) return;
+        if (typeof clearSearchAttachments === 'function') clearSearchAttachments();
         clearChatState();
         currentSessionId = createSession(message);
         window.__activeSessionId = currentSessionId;
@@ -1048,14 +1151,14 @@ function showAccountSelectionModal() {
             <div class="sub-modal-header"><h2 class="sub-modal-title">Switch Account</h2><p class="sub-modal-subtitle">Choose an account to continue</p></div>
             <div style="max-height:400px;overflow-y:auto;margin:20px 0;">
                 ${accounts.map(a => `
-                <div onclick="switchToAccount('${a.uid}')" style="display:flex;align-items:center;gap:15px;padding:15px;margin:8px 0;border-radius:12px;cursor:pointer;background:#f8f9fa;border:1px solid #e5e7eb;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#f8f9fa'">
-                    <div style="width:48px;height:48px;border-radius:50%;background:#4f46e5;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:18px;">${getInitials(a.displayName || a.email)}</div>
-                    <div style="flex:1;"><div style="font-weight:600;color:#1f2937;">${a.displayName || 'User'}</div><div style="font-size:13px;color:#6b7280;">${a.email}</div></div>
-                    <i class="ri-arrow-right-s-line" style="color:#9ca3af;font-size:20px;"></i>
+                <div onclick="switchToAccount('${a.uid}')" style="display:flex;align-items:center;gap:15px;padding:15px;margin:8px 0;border-radius:12px;cursor:pointer;background:var(--card-hover);border:1px solid var(--border);">
+                    <div style="width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:18px;">${getInitials(a.displayName || a.email)}</div>
+                    <div style="flex:1;"><div style="font-weight:600;color:var(--text);">${a.displayName || 'User'}</div><div style="font-size:13px;color:var(--text-secondary);">${a.email}</div></div>
+                    <i class="ri-arrow-right-s-line" style="color:var(--text-tertiary);font-size:20px;"></i>
                 </div>`).join('')}
             </div>
-            <div style="border-top:1px solid #e5e7eb;padding-top:15px;">
-                <button onclick="showLoginOptions()" style="width:100%;padding:12px;background:#4f46e5;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="ri-add-line"></i> Add new account</button>
+            <div style="border-top:1px solid var(--border);padding-top:15px;">
+                <button onclick="showLoginOptions()" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;font-family:Montserrat,sans-serif;"><i class="ri-add-line"></i> Add new account</button>
             </div>
             <div class="modal-footer" style="margin-top:15px;"><button class="cancel-btn" onclick="closeAccountSelectionModal()">Cancel</button></div>
         </div>`;
@@ -1084,9 +1187,9 @@ function showLoginOptions() {
             <button class="sub-modal-close" onclick="closeLoginOptionsModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Add Account</h2><p class="sub-modal-subtitle">Sign in with your preferred method</p></div>
             <div style="padding:20px 0;">
-                <button onclick="signInWithGoogle()" style="width:100%;padding:12px;margin:8px 0;background:white;color:#1f2937;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-google-line" style="font-size:20px;"></i> Continue with Google</button>
-                <button onclick="signInWithGithub()" style="width:100%;padding:12px;margin:8px 0;background:#24292e;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-github-line" style="font-size:20px;"></i> Continue with GitHub</button>
-                <button onclick="signInWithEmail()" style="width:100%;padding:12px;margin:8px 0;background:#4f46e5;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-mail-line"></i> Continue with Email</button>
+                <button onclick="signInWithGoogle()" style="width:100%;padding:12px;margin:8px 0;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-weight:600;font-family:Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-google-line" style="font-size:20px;"></i> Continue with Google</button>
+                <button onclick="signInWithGithub()" style="width:100%;padding:12px;margin:8px 0;background:#24292e;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-family:Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-github-line" style="font-size:20px;"></i> Continue with GitHub</button>
+                <button onclick="signInWithEmail()" style="width:100%;padding:12px;margin:8px 0;background:var(--primary);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-family:Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;"><i class="ri-mail-line"></i> Continue with Email</button>
             </div>
             <div class="modal-footer"><button class="cancel-btn" onclick="closeLoginOptionsModal()">Cancel</button></div>
         </div>`;
@@ -1120,10 +1223,10 @@ function signInWithEmail() {
             <button class="sub-modal-close" onclick="closeEmailLoginModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Email Sign In</h2><p class="sub-modal-subtitle">Enter your credentials</p></div>
             <div style="padding:20px 0;">
-                <input type="email"    id="emailInput"    placeholder="Email"    style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
-                <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
-                <button onclick="handleEmailSignIn()" style="width:100%;padding:12px;margin-top:15px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Sign In</button>
-                <button onclick="showSignUp()" style="width:100%;padding:10px;margin-top:10px;background:transparent;color:#4f46e5;border:none;cursor:pointer;font-size:14px;">Create new account</button>
+                <input type="email" id="emailInput" placeholder="Email" style="width:100%;padding:12px;margin:8px 0;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text);font-family:Montserrat,sans-serif;">
+                <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:12px;margin:8px 0;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text);font-family:Montserrat,sans-serif;">
+                <button onclick="handleEmailSignIn()" style="width:100%;padding:12px;margin-top:15px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Montserrat,sans-serif;">Sign In</button>
+                <button onclick="showSignUp()" style="width:100%;padding:10px;margin-top:10px;background:transparent;color:var(--primary);border:none;cursor:pointer;font-size:14px;font-family:Montserrat,sans-serif;">Create new account</button>
             </div>
             <div class="modal-footer"><button class="cancel-btn" onclick="closeEmailLoginModal()">Cancel</button></div>
         </div>`;
@@ -1152,10 +1255,10 @@ function showSignUp() {
             <button class="sub-modal-close" onclick="closeSignupModal()">✕</button>
             <div class="sub-modal-header"><h2 class="sub-modal-title">Create Account</h2><p class="sub-modal-subtitle">Sign up to get started</p></div>
             <div style="padding:20px 0;">
-                <input type="text"     id="signupName"     placeholder="Full Name"               style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
-                <input type="email"    id="signupEmail"    placeholder="Email"                   style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
-                <input type="password" id="signupPassword" placeholder="Password (min 6 chars)"  style="width:100%;padding:12px;margin:8px 0;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;">
-                <button onclick="handleSignUp()" style="width:100%;padding:12px;margin-top:15px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Create Account</button>
+                <input type="text" id="signupName" placeholder="Full Name" style="width:100%;padding:12px;margin:8px 0;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text);font-family:Montserrat,sans-serif;">
+                <input type="email" id="signupEmail" placeholder="Email" style="width:100%;padding:12px;margin:8px 0;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text);font-family:Montserrat,sans-serif;">
+                <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" style="width:100%;padding:12px;margin:8px 0;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text);font-family:Montserrat,sans-serif;">
+                <button onclick="handleSignUp()" style="width:100%;padding:12px;margin-top:15px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Montserrat,sans-serif;">Create Account</button>
             </div>
             <div class="modal-footer"><button class="cancel-btn" onclick="closeSignupModal()">Cancel</button></div>
         </div>`;
@@ -1309,7 +1412,6 @@ finishBtn?.addEventListener("click", () => {
     window.location.href = "dashboard.html";
 });
 
-
 // ================= FOOTER YEAR =================
 const yearEl = safeQuery("#year");
 if (yearEl) yearEl.innerText = new Date().getFullYear();
@@ -1324,16 +1426,16 @@ if (yearEl) yearEl.innerText = new Date().getFullYear();
     }, { passive: true });
 
     const hamburger = document.getElementById("hamburger");
-    const mobileMenu = document.getElementById("mobileMenu");
+    const mobileMenuLanding = document.getElementById("mobileMenuLanding");
 
-    if (hamburger && mobileMenu) {
+    if (hamburger && mobileMenuLanding) {
         hamburger.addEventListener("click", function () {
-            mobileMenu.classList.toggle("open");
-            hamburger.querySelector("i").className = mobileMenu.classList.contains("open") ? "ri-close-line" : "ri-menu-line";
+            mobileMenuLanding.classList.toggle("open");
+            hamburger.querySelector("i").className = mobileMenuLanding.classList.contains("open") ? "ri-close-line" : "ri-menu-line";
         });
-        mobileMenu.querySelectorAll("a").forEach(function (a) {
+        mobileMenuLanding.querySelectorAll("a").forEach(function (a) {
             a.addEventListener("click", function () {
-                mobileMenu.classList.remove("open");
+                mobileMenuLanding.classList.remove("open");
                 hamburger.querySelector("i").className = "ri-menu-line";
             });
         });
